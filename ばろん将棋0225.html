@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="baron.css">
+<title>ばろん将棋</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<script src="js/0225.js"></script>
+</head>
+<body onload="start()">
+<div id="wrap">
+<h1></h1>
+<p>OS:<span id="useros"></span></p>
+<p>横幅:<span id="userw"></span>,高さ:<span id="userh"></span></p>
+<p>タッチy:<span id="ky"></span>,x:<span id="kx"></span>,整数y：<span id="kys"></span>,x：<span id="kxs"></span></p>
+<div id="gdisp"></div>
+<div id="maindisp"></div>
+<div id="sdisp"></div>
+手番：<span id="teban">　</span>
+<br>選択した駒のid：<span id="idtest">　</span>
+<br>選択した駒のclass：<span id="classtest">　</span>
+<br>選択したマスのid：<span id="yxtest">　</span>棋譜：<span id="kihu">　</span>
+<br>後手駒台：<span id="gstest">　</span>先手駒台：<span id="sstest">　</span>
+<br>GameRecord：<span id="gamerecord">　</span><input type="button" value="棋譜記録"onClick="GameRecord();"size="50">
+<br>盤内？外？：<span id="inout">　</span>
+</div>
+</body>
+</html>
