@@ -1,0 +1,41 @@
+﻿2020/03/04
+・思考：条件
+１)強制的に成る：成り駒でない桂馬が、盤内から１,２段目に移動したら強制的に成る。
+２)強制的に成る：成り駒でない香,歩が、盤内から１段目に移動したら強制的に成る。
+３)成り返り選択：成り駒でない飛車,角,銀が、相手陣から移動したら、成るか成らないかを選択する。
+４)成り選択：成り駒でない飛車,角,銀,桂,香,歩が、盤内から相手陣に移動したら、成るか成らないかを選択する。
+・コード
+//成り駒でない＆先手＆盤内＆成れる駒
+if((promotionFlg==false)&&(teban=="先手")&&(firstTouchMasuInOut)&&
+   ((sPossiblePromotion.indexOf(firstTouchPiece)!=-1)||(gPossiblePromotion.indexOf(firstTouchPiece)!=-1))){
+   //桂馬が１,２段目に移動したら強制的に成る
+   if((firstTouchPiece.substr(0,2)=="KE")&&(gotejinKeima(masuCurrent))){
+   	promotionMove();//駒の昇格
+	PlaySound();//音を出す
+	reset();
+	return;
+   }
+   //香,歩が１段目に移動したら強制的に成る
+if((gotejinKyouFu(masuCurrent))&&
+   ((firstTouchPiece.substr(0,2)=="KY")||(firstTouchPiece.substr(0,2)=="FU"))){
+   	promotionMove();//駒の昇格
+	PlaySound();//音を出す
+	reset();
+	return;
+   }
+   //後手陣である。又は、飛車,角,銀の成り返りである。
+if((gotejin(masuCurrent))||
+   ((gotejin(firstTouchMasu))&&
+   ((firstTouchPiece.substr(0,2)=="HI")||
+   (firstTouchPiece.substr(0,2)=="KA")||
+   (firstTouchPiece.substr(0,2)=="GI")))){
+   	res=confirm("成りますか？");
+   	if(res==true){
+	promotionMove();//駒の昇格
+	PlaySound();//音を出す
+	reset();
+	return;
+   }else{
+	;
+   }	
+}	
