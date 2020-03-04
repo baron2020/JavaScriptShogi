@@ -1,0 +1,20 @@
+2020/03/04
+・駒の移動可能なマスのcssを変更する。移動後に元に戻す。
+移動可能なマスの色をライトピンクにする。
+枠内の周りに1pxの赤線を引く。
+移動後は、全てのマス(banクラス)のcssをデフォルトに戻す。
+・移動可能なマスの色を変更する
+function cssRule(rulePiece){
+	document.getElementById(rulePiece).style.backgroundColor="lightpink";
+	document.getElementById(rulePiece).style.border="1px solid red";
+	document.getElementById(rulePiece).style.boxSizing="border-box";
+}
+・全ての盤クラスの変更を元に戻す
+function AllReverseCssRule(){
+	var banElements=document.getElementsByClassName("ban");
+	for(let i=0;i<banElements.length;i++){
+		banElements[i].style.backgroundColor="khaki";
+		banElements[i].style.border="0.5px solid black";
+		banElements[i].style.boxSizing="border-box";
+	}
+}
