@@ -1,0 +1,94 @@
+2020/03/04
+・変更前：コメント付き34行
+function pieseInsert(firstTouchPiece,masuCurrent,teban){
+	let whatNumber;
+	//先手の駒
+	if(sPieceId.indexOf(firstTouchPiece)!=-1){
+		whatNumber=sPieceId.indexOf(firstTouchPiece);
+		document.getElementById(masuCurrent).insertAdjacentHTML('afterbegin',sPiece[whatNumber]);	
+		GameRecord[masuCurrent]=firstTouchPiece;//現在のマスに駒を追加する
+		pieceIdRecord[firstTouchPiece]="skoma";
+		//駒をとった場合の最初は記録しない
+		if(getFlg==false){
+			gameRecodedisp+=kihu+pieceConvert+"　"//棋譜を記録として残す。
+		}
+		//後手番で先手の駒を使った時はここを通過する。クラスをgkomaクラスに変更する。
+		if(teban=="後手"){
+			document.getElementById(firstTouchPiece).className="gkoma";
+			pieceIdRecord[firstTouchPiece]="gkoma";
+		}
+	}
+	//後手の駒
+	if(gPieceId.indexOf(firstTouchPiece)!=-1){
+		whatNumber=gPieceId.indexOf(firstTouchPiece);
+		document.getElementById(masuCurrent).insertAdjacentHTML('afterbegin',gPiece[whatNumber]);
+		GameRecord[masuCurrent]=firstTouchPiece;//現在のマスに駒を追加する
+		pieceIdRecord[firstTouchPiece]="gkoma";
+		//駒をとった場合の最初は記録しない
+		if(getFlg==false){
+			gameRecodedisp+=kihu+pieceConvert+"　"//棋譜を記録として残す。
+		}
+		//先手番で後手の駒を使った時はここを通過する。
+		if(teban=="先手"){
+			document.getElementById(firstTouchPiece).className="skoma";
+			pieceIdRecord[firstTouchPiece]="skoma";
+		}
+	}
+}
+
+・変更後１：コメント付き28行
+function pieseInsert(firstTouchPiece,masuCurrent,teban){
+	let whatNumber,switchPieceId,switchPiece,switchClass,ClassOppositeSide,check;
+	//タッチした駒が先手のId配列の中に存在する
+	if(sPieceId.indexOf(firstTouchPiece)!=-1){
+		whatNumber=sPieceId.indexOf(firstTouchPiece);
+		switchPiece=sPiece;
+		switchClass="skoma";
+		ClassOppositeSide="gkoma";
+		check="後手";
+	}else{
+		whatNumber=gPieceId.indexOf(firstTouchPiece);
+		switchPiece=gPiece;
+		switchClass="gkoma";
+		ClassOppositeSide="skoma";
+		check="先手";
+	}
+		document.getElementById(masuCurrent).insertAdjacentHTML('afterbegin',switchPiece[whatNumber]);	
+		GameRecord[masuCurrent]=firstTouchPiece;//現在のマスに駒を追加する	
+		pieceIdRecord[firstTouchPiece]=switchClass;
+		//駒をとった場合の最初は棋譜に記録しない
+		if(getFlg==false){
+			gameRecodedisp+=kihu+pieceConvert+"　"//棋譜を記録として残す。
+		}
+		//駒Idが格納されている配列と手番が一致していないなら逆のクラスにする
+		if(teban==check){
+			document.getElementById(firstTouchPiece).className=ClassOppositeSide;
+			pieceIdRecord[firstTouchPiece]=ClassOppositeSide;
+		}
+}
+
+・変更後２：コメント付き23行
+function pieseInsert(firstTouchPiece,masuCurrent,teban){
+	let switchArray;
+	//先後どちらの配列か？,配列の何番目にあるか？,クラス,反対のクラス,反対の手番
+	let sArray=[sPiece,sPieceId.indexOf(firstTouchPiece),"skoma","gkoma","後手"];
+	let gArray=[gPiece,gPieceId.indexOf(firstTouchPiece),"gkoma","skoma","先手"];
+	//タッチした駒が先手のId配列の中に存在する
+	if(sPieceId.indexOf(firstTouchPiece)!=-1){
+		switchArray=sArray;
+	}else{
+		switchArray=gArray;
+	}
+	document.getElementById(masuCurrent).insertAdjacentHTML('afterbegin',switchArray[0][switchArray[1]]);	
+	GameRecord[masuCurrent]=firstTouchPiece;//現在のマスに駒を追加する	
+	pieceIdRecord[firstTouchPiece]=switchArray[2];
+	//駒をとった場合の最初は棋譜に記録しない
+	if(getFlg==false){
+		gameRecodedisp+=kihu+pieceConvert+"　"//棋譜を記録として残す。
+	}
+	//駒Idが格納されている配列と手番が一致していないなら逆のクラスにする
+	if(teban==switchArray[4]){
+		document.getElementById(firstTouchPiece).className=switchArray[3];
+		pieceIdRecord[firstTouchPiece]=switchArray[3];
+	}
+}
