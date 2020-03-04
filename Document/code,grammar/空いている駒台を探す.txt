@@ -1,0 +1,34 @@
+2020/03/04
+・文法
+getchild=document.getElementById(a).children;
+if(getchild.length==0){
+	処理;
+}
+・思考
+0:aの中に要素がない
+1:aの中に要素が１つある
+要素が0の駒台のIdは、空いている駒台である。
+要素が1の駒台のIdは、すでに駒が置かれている場所である。
+要素が0の駒台のIdを探し、その駒台のIdを返す。
+駒を取った時は、返したIdに追加(置く)する。
+・コード
+//空いている駒台のidを返す
+function VacantStandId(headId){
+	let getchild;
+	if(headId=="s"){
+		headId="s";//先手ならs
+	}else{
+		headId="g";//後手ならg
+	}
+	for(let i=0;i<plen;i++){
+		if((i==0)||(i==10)||(i==11)){
+		continue;//判定しない
+		}
+		standId=headId+i;
+		getchild=document.getElementById(standId).children;
+		if(getchild.length==0){
+			break;
+		}
+	}
+	return standId;
+}
