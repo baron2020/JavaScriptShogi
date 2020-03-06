@@ -1,0 +1,11 @@
+2020/03/06
+・直前の指し手のマスの色を変更する。
+今まで採用していなかったですが、追加しました。
+色は、イエロー,オレンジ辺りを検討し、イエロー系を採用しました。
+・コード
+//直前の指し手のマスの色を変更する。
+function cssRuleJustBefore(rulePiece){
+	document.getElementById(rulePiece).style.backgroundColor="#FFFF66";//yellow系
+	document.getElementById(rulePiece).style.border="1px solid orange";
+	document.getElementById(rulePiece).style.boxSizing="border-box";
+}
