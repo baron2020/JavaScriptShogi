@@ -434,6 +434,9 @@ function getCoordinate(tx,ty){
 	if(typeof pieceConvert==="undefined"){
 		pieceConvert="";
 	}
+	//if(kifu=="盤外です"){
+	//	pieceConvert="";
+	//}
 	document.getElementById("kihu").innerHTML=kihu+pieceConvert;//棋譜の表示
 }
 
@@ -588,11 +591,13 @@ function promotionMove(){
 
 //駒の動きのルール---------------------------------------------------------------------
 function pieceMotionRule(){
+	let typeMotion,addY,addX;
 	let twoLettersPiece=firstTouchPiece.substr(0,2);//最初に選択した駒のId二文字
 	let indexNumber=CheckPieceId.indexOf(twoLettersPiece);//配列の何番目にあるか？
 	let tempTargetClass=pieceIdRecord[firstTouchPiece];//対象の駒のクラス
+	let motionY;
+	let motionX;
 	console.log(tempTargetClass);
-	let typeMotion,addY,addX;
 	//成銀,成桂,成香,とはindexNumberを3にし、金と同じ動きを参照する
 	if(((twoLettersPiece=="GI")||(twoLettersPiece=="KE")||(twoLettersPiece=="KY")||(twoLettersPiece=="FU"))&&
 	   ((tempTargetClass=="skoma promotion")||(tempTargetClass=="gkoma promotion"))){
@@ -647,6 +652,7 @@ outeCheckArray.push(pieceMotion);//王手確認用配列に格納
 		}
 	}
 }
+
 
 //王手判定
 function checkOute(){
