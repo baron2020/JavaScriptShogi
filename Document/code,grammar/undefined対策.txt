@@ -1,0 +1,11 @@
+2020/03/10
+・undefined,null判定
+　undefinedに対して操作を行っていることによるエラーが発生していたので、
+　undefined対策と、あわせてnull対策も行いました。
+・サンプルコード
+　var temp;
+　if(typeof temp==="undefind"){
+　	undefindである
+　}else{
+　	undefindでない
+　}
