@@ -625,6 +625,8 @@ function pieceMotionRule(){
 	}
 	for(let i=0;i<sPieceMotionYX.length;i++){
 		typeMotion=pieceMotionTable[indexNumber][i];
+		motionY=kys;
+		motionX=kxs;
 		if(typeMotion==0){
 			continue;
 		}
@@ -636,31 +638,21 @@ function pieceMotionRule(){
 				addY=gPieceMotionYX[i][0];
 				addX=gPieceMotionYX[i][1];
 			}
-			motionY=kys+addY;
-			motionX=kxs+addX;
-			pieceMotion="d"+motionY+"s"+motionX;
-			if((InOut(motionY,motionX)==false)||
-			   (moveIsMyPiece(pieceIdRecord[GameRecord[pieceMotion]]))){
-				//移動先が盤外または、移動先に自分の駒があればスルーする
-				continue;
-			}
-			movePossibleArray.push(pieceMotion);//配列にルールを格納
-outeCheckArray.push(pieceMotion);//王手確認用配列に格納
-			if((typeMotion==2)&&(GameRecord[pieceMotion]=="EMP")){
-				do{
-					motionY+=addY;
-					motionX+=addX;
-					pieceMotion="d"+motionY+"s"+motionX;
-					if((InOut(motionY,motionX)==false)||
-					   (moveIsMyPiece(pieceIdRecord[GameRecord[pieceMotion]]))){
-						//盤外または自分の駒があればスルーする
-						continue;
-					}
-					movePossibleArray.push(pieceMotion);//配列にルールを格納
-outeCheckArray.push(pieceMotion);//王手確認用配列に格納
-				}while(GameRecord[pieceMotion]=="EMP");
-					//移動先に駒がない間は繰り返す。
-			}
+			do{
+				motionY+=addY;
+				motionX+=addX;
+				pieceMotion="d"+motionY+"s"+motionX;
+				if((InOut(motionY,motionX)==false)||
+			   	   (moveIsMyPiece(pieceIdRecord[GameRecord[pieceMotion]]))){
+					//移動先が盤外または、移動先に自分の駒があればスルーする
+					continue;
+				}
+				movePossibleArray.push(pieceMotion);//配列にルールを格納
+				outeCheckArray.push(pieceMotion);//王手確認用配列に格納
+				if(typeMotion==1){
+					break;
+				}
+			}while(GameRecord[pieceMotion]=="EMP");//移動先に駒がない＆飛車,角,香,竜,馬の２の動きの間は繰り返す。
 		}
 	}
 }
