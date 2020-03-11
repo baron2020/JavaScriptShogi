@@ -604,11 +604,9 @@ function promotionMove(){
 
 //駒の動きのルール---------------------------------------------------------------------
 function pieceMotionRule(){
-	let typeMotion,addY,addX;
+	let typeMotion,motionY,motionX,addY,addX;
 	let indexNumber=CheckPieceId.indexOf(twoFirstTouchPiece);//配列の何番目にあるか？
 	let tempTargetClass=pieceIdRecord[firstTouchPiece];//対象の駒のクラス
-	let motionY;
-	let motionX;
 	console.log(tempTargetClass);
 	//成銀,成桂,成香,とはindexNumberを3にし、金と同じ動きを参照する
 	if(((twoFirstTouchPiece=="GI")||(twoFirstTouchPiece=="KE")||(twoFirstTouchPiece=="KY")||(twoFirstTouchPiece=="FU"))&&
@@ -645,12 +643,12 @@ function pieceMotionRule(){
 				if((InOut(motionY,motionX)==false)||
 			   	   (moveIsMyPiece(pieceIdRecord[GameRecord[pieceMotion]]))){
 					//移動先が盤外または、移動先に自分の駒があればスルーする
-					continue;
+					break;
 				}
 				movePossibleArray.push(pieceMotion);//配列にルールを格納
 				outeCheckArray.push(pieceMotion);//王手確認用配列に格納
 				if(typeMotion==1){
-					break;
+					break;//１の時は繰り返さずにdo～whileを抜ける
 				}
 			}while(GameRecord[pieceMotion]=="EMP");//移動先に駒がない＆飛車,角,香,竜,馬の２の動きの間は繰り返す。
 		}
