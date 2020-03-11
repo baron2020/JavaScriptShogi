@@ -1,0 +1,181 @@
+/*
+	Yahoo UI Library Reset CSS
+	http://developer.yahoo.com/yui/reset/
+*/
+table {
+	border-collapse:collapse;
+	border-spacing:0;
+}
+table{
+  border-collapse: collapse;
+  }
+
+
+caption,th {
+	text-align:left;
+}
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote,th,td { 
+	margin:0;
+	padding:0;
+}
+
+fieldset,img { 
+	border:0;
+}
+address,caption,cite,code,dfn,em,strong,th,var {
+	font-style:normal;
+	font-weight:normal;
+}
+ol,ul {
+	list-style:none;
+}
+
+h1,h2,h3,h4,h5,h6 {
+	font-size:100%;
+	font-weight:normal;
+}
+q:before,q:after {
+	content:'';
+}
+abbr,acronym { border:0;
+}
+
+/*
+リセットcss終了
+*/
+
+body{
+	max-width:100%;
+	min-width:100%;
+	/* overflow:hidden;上下左右スライド無効*/
+/*text-align:center;ページ全体を中央揃えにする*/
+
+	}
+
+#wrap{ 
+margin:4px;
+
+/*選択コピー無効*/	
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+
+}
+
+
+#teban{
+	font-weight:bolder;/* 太字にする */
+}
+
+table{
+border-collapse:collapse;/*セルの線を重ねる*/
+
+padding:0px;/*線と文字の間の余白指定*/
+
+border-spacing:0px;
+}
+
+
+/* 全てのパネル */
+.sStand,.gStand,.ban,.topAndCornerEdge,.bottomAndCornerEdge,.topEdge,.leftEdge,.rightEdge,.bottomEdge{
+	display:inline-block;/*要素を横並びにする*/
+	vertical-align:bottom;/*インラインブロックの下の隙間を無くす*/
+	width:32px;
+ 	height:32px;
+}
+
+/* 将棋盤 */
+.ban{
+	position:relative;/* 位置指定の基準点にする*/	
+	background-color:khaki;
+	border:0.5px solid black;
+	box-sizing:border-box;
+}
+
+/* 将棋盤周り */
+.topAndCornerEdge,.bottomAndCornerEdge,.topEdge,.leftEdge,.rightEdge,.bottomEdge{
+	background-color:khaki;
+}
+
+/* 将棋盤周り 
+.topAndCornerEdge,.bottomAndCornerEdge,.topEdge,.bottomEdge{
+	width:32px;
+ 	height:10px;
+}*/
+
+/* 先手,後手の駒台 */
+.sStand,.gStand{
+	position:relative;/* 位置指定の基準点にする*/	
+	background-color:skyblue;
+	/* saddlebrown skyblue*/
+	width:32px;
+ 	height:32px;	
+}
+
+/* 駒 */
+.skoma,.gkoma{
+	position:absolute;/* 位置指定 */
+	/*background-color:khaki;*/	
+	font-family:Meiryo;
+	line-height:31px;/* 余白を含めた文字の高さ*/
+	text-align:center;/* 文字を中央にする */
+	font-weight:bolder;/* 太字にする */
+	width:31px;
+	height:31px;
+}
+/* 成り駒 */
+.promotion{
+	color:red;
+/* 候補①red */
+/* 候補②maroon */
+	
+}
+/* 先手の駒 */
+.skoma{
+	top:50%;/* 親要素の半分下にずらす */	
+	left:50%;/* 親要素の半分右にずらす */
+	transform:translateY(-50%) translateX(-50%);//Y軸,X軸を移動する。		
+}
+
+/* 後手の駒 */
+.gkoma{
+	transform: scale(-1,-1);//上下左右を反転する。	
+}
+
+/* 中央の盤 パネル 上側 id指定 */
+.topEdge{
+	border-bottom:0.5px solid black;
+	box-sizing:border-box;
+}
+
+/* 中央の盤 パネル 左側 class指定 */
+.leftEdge{
+	border-right:0.5px solid black;
+	box-sizing:border-box;
+}
+
+/* 中央の盤 パネル 右側 class指定 */
+.rightEdge{	
+	border-left:0.5px solid black;
+	box-sizing:border-box;
+}
+
+/* 中央の盤 パネル 下側 class指定 */
+.bottomEdge{	
+	border-top:0.5px solid black;
+	box-sizing:border-box;	
+}
+
+/* コメント */
+
+/*
+
+
+*/
+
+
+
