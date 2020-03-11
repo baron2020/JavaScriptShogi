@@ -108,8 +108,8 @@ var checkPromotionPieceConvertKanji=["None","竜","馬","None","成銀","成桂"
 var kihuFirstTouchFlg=true;//棋譜用に使うフラグ、最初にタッチできる時:true
 var getFlg=false;//駒をとっていない
 
-var sClassArray=["skoma","skoma promotion","OU2","先手"];
-var gClassArray=["gkoma","gkoma promotion","OU1","後手"];
+var sClassArray=["skoma","skoma promotion","OU2"];
+var gClassArray=["gkoma","gkoma promotion","OU1"];
 var justBefore=[];//直前の指し手のマスを格納する配列
 var nihudesuFlg=false;//二歩チェック用
 var outeCheckArray=[];//王手チェック用の配列
@@ -271,7 +271,7 @@ function mousedown(e){
 		}
 	}
 	catch(e){
-		document.getElementById("winorlose").innerHTML="お疲れ様でした(*_ _)";//勝敗
+			document.getElementById("winorlose").innerHTML="お疲れ様でした(*_ _)";//勝敗
 	}
 }
 //スマホ用タッチスタート
@@ -359,10 +359,6 @@ console.log("現在のマスにある駒のクラス2:"+pieceIdRecord[firstTouch
 		GameRecord[currentMasu]='EMP';//現在のマスにある駒（相手の駒）を無しにする
 		vacantStandId();//standId(空いている駒台のid)を返す		
 		pieceMove(motigoma,standId);//駒の追加
-		//勝敗がついたら
-		if(endFlg==true){
-			return;
-		}
 		getFlg=false;
 	}
 	//最初に選択した駒が成り駒であるなら
@@ -377,6 +373,14 @@ console.log("現在のマスにある駒のクラス2:"+pieceIdRecord[firstTouch
 	}else{
 		MoveCommit();
 	}
+	changeCssJustBefore(justBefore[justBefore.length-1]);//直前のマスのcssを変更する
+//王様を取っていたら勝敗判定
+	if(endFlg==true){
+		alert("王様をとりました。"+teban+"の勝ちです。");
+		document.getElementById("teban").innerHTML=teban+"の勝ちです。";//勝敗結果
+		document.getElementById("winorlose").innerHTML="お疲れ様でした(*_ _)";//お疲れ様でした
+		return;
+	}
 	if(teban=="先手"){
 		teban="後手";
 	}else{
@@ -384,7 +388,6 @@ console.log("現在のマスにある駒のクラス2:"+pieceIdRecord[firstTouch
 	}
 	document.getElementById("teban").innerHTML=teban;//手番
 	movePossibleArray.length=0;//駒の移動可能マスを格納した配列を0にする
-	changeCssJustBefore(justBefore[justBefore.length-1]);//直前のマスのcssを変更する
 	firstChoiceFlg=true;
 	kihuFirstTouchFlg=true;
 	promotionFlg=false;
@@ -560,12 +563,9 @@ function pieceMove(addPiece,addMasu){
 	document.getElementById(pieceId[whatNumber]).setAttribute('class',switchClassArray[0]);//駒にクラスの設定
 	GameRecord[addMasu]=addPiece;//現在のマスに駒を追加する	
 	pieceIdRecord[addPiece]=switchClassArray[0];
-//王様を取ったら勝敗判定
+//王様を取ったらフラグを立てる
 	if(addPiece==switchClassArray[2]){
-		alert("王様をとりました。"+switchClassArray[3]+"の勝ちです。");
-		document.getElementById("winorlose").innerHTML=switchClassArray[3]+"の勝ちです。";//勝敗結果
 		endFlg=true;
-		return;
 	}
 	//駒をとった場合の最初は棋譜に記録しない
 	if(getFlg==false){
