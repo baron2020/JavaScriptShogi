@@ -85,9 +85,8 @@ var kys=0;//整数y
 var kxs=0;//整数x
 var startKys=0;//スタートの整数y
 var startKxs=0;//スタートの整数x
-
 var plen=22;//駒置き場の長さ
-
+var gameCount=0;
 //フラグ関連
 var teban="先手";
 var firstChoiceFlg=true;//最初に駒を選択できる状態:true
@@ -117,6 +116,10 @@ var convertPiece="";//漢字に変換
 var kihuFirstTouchFlg=true;//棋譜用に使うフラグ、最初にタッチできる時:true
 var getFlg=false;//駒をとっていない
 
+var gameRecodeDisplayArray=[];//全てのゲーム記録
+//var mainDisplayRecode=[];
+//var sDisplayRecode=[];
+//var gDisplayRecode=[];
 var gameRecodeEndMasuArray=[];//最終のマスを格納する棋譜記録用の配列
 var gameRecodeStartMasuArray=[];//移動前のマスを格納する棋譜記録用の配列
 var gameRecodePieceArray=[];//駒を格納する棋譜記録用の配列
@@ -124,13 +127,17 @@ var gameRecodePieceArray=[];//駒を格納する棋譜記録用の配列
 function start(){
 	let supportTouch='ontouchend'in document;//タッチイベントがサポートされているか
 	let EVENTNAME=supportTouch ? 'touchstart':'mousedown';//タッチイベントかマウスダウンか
+	let startGameRecodeDisplay;
 	gAria();
 	mainAria();
 	sAria();
 	userCheck();
-	document.getElementById("teban").innerHTML=teban;//手番
 	//駒の配置とイベントリスナの登録
 	setUp();
+	document.getElementById("teban").innerHTML=teban;//手番
+	document.getElementById("gamecount").innerHTML=gameCount;//何手目か？
+	startGameRecodeDisplay=document.getElementById("gamedisp").innerHTML;//ゲーム記録
+	gameRecodeDisplayArray.push(startGameRecodeDisplay);//ゲーム記録を配列に格納
 	//イベント分岐
 	if(EVENTNAME=='touchstart'){
 		document.addEventListener("touchstart",touchstart);
@@ -302,6 +309,7 @@ function touchstart(e){
 //touchPiece()系開始----------------------------------------------------------------------------------
 //タッチされた時のイベントの処理
 function touchPiece(tx,ty){
+	let tempgameRecodeDisplay;//ゲーム記録
 	let motigoma;//取得した駒
 	document.getElementById("winorlose").innerHTML="対局中";//勝敗
 	getCoordinate(tx,ty);//座標、盤内外の取得
@@ -388,6 +396,10 @@ function touchPiece(tx,ty){
 		teban="先手";
 	}
 	document.getElementById("teban").innerHTML=teban;//手番
+	gameCount++;
+	document.getElementById("gamecount").innerHTML=gameCount;//何手目か？
+	tempgameRecodeDisplay=document.getElementById("gamedisp").innerHTML;//ゲーム記録
+	gameRecodeDisplayArray.push(tempgameRecodeDisplay);//ゲーム記録を配列に格納
 	movePossibleArray.length=0;//駒の移動可能マスを格納した配列を0にする
 	firstChoiceFlg=true;
 	kihuFirstTouchFlg=true;
@@ -414,8 +426,8 @@ function getCoordinate(tx,ty){
 	currentMasu="d"+kys+"s"+kxs;//カレントのタッチマス
 	currentMasuInout=InOut(kys,kxs);//カレントのマスは盤内？盤外？
 	//y,x座標の表示
-	//document.getElementById("ky").innerHTML=ky;//y座標
-	//document.getElementById("kx").innerHTML=kx;//x座標
+	document.getElementById("ky").innerHTML=ky;//y座標
+	document.getElementById("kx").innerHTML=kx;//x座標
 	if(gys==1){
 		currentMasu="g"+gxs;
 	}else if(gys==2){
@@ -568,8 +580,6 @@ function pieceMove(addPiece,addMasu){
 kihuConvertMasu(kys,kxs,startKys,startKxs,1);//棋譜を記録として残す。
 kihuConvertPiece(firstTouchPieceName,promotionFlg,1);//棋譜を記録として残す。
 
-
-
 //王手判定-----------------------------------------------------------------------------------------------------
 		document.getElementById("outedisp").innerHTML="";
 		pieceMotionRule();//王手確認に使用
@@ -594,8 +604,6 @@ function promotionMove(){
 //駒の移動が完了したら
 kihuConvertMasu(kys,kxs,startKys,startKxs,1);//棋譜を記録として残す。
 kihuConvertPiece(firstTouchPieceName,promotionFlg,1);//棋譜を記録として残す。
-
-//gameRecodeDisplay+=kihuDisplay+convertPiece+"　"//棋譜を記録として残す。
 
 //王手判定-----------------------------------------------------------------------------------------------------
 	document.getElementById("outedisp").innerHTML="";
@@ -901,19 +909,12 @@ function kihuConvertPiece(tempPieceName,promotionFlg,commit){
 	convertPiece=convertPieceKanjiArray[whatNumber];
 	//commitが1:完全に指し終えている時
 	if(commit==1){
-	
-	
 		gameRecodePieceArray.push(convertPiece);//棋譜漢字配列に格納
 	}
 	return;
 }
 
-//ボタンで棋譜の表示
-function GameRecode(){
-	document.getElementById("gameRecorddisp").innerHTML=kihuAllConvert();//棋譜変換
-}
-
-//棋譜記録を取得する
+//全ての棋譜記録を取得する
 function kihuAllConvert(){
 	let game="";
 	for(let i=0;i<gameRecodeEndMasuArray.length;i++){
@@ -922,6 +923,49 @@ function kihuAllConvert(){
 	console.log(game);
 	return game;
 }
+
+//ボタンで棋譜の表示
+function GameRecode(){
+	document.getElementById("gameRecorddisp").innerHTML=kihuAllConvert();//棋譜変換
+}
+
+function jumpStart(){
+	teban="先手";
+	gameCount=0;
+	GameRecord={'g1':'EMP','g2':'EMP','g3':'EMP','g4':'EMP','g5':'EMP','g6':'EMP','g7':'EMP','g8':'EMP','g9':'EMP',
+				'g12':'EMP','g13':'EMP','g14':'EMP','g15':'EMP','g16':'EMP','g17':'EMP','g18':'EMP','g19':'EMP','g20':'EMP',
+				'd1s1':'KY4','d1s2':'KE4','d1s3':'GI4','d1s4':'KI4','d1s5':'OU2','d1s6':'KI3','d1s7':'GI3','d1s8':'KE3','d1s9':'KY3',
+				'd2s1':'EMP','d2s2':'HI2','d2s3':'EMP','d2s4':'EMP','d2s5':'EMP','d2s6':'EMP','d2s7':'EMP','d2s8':'KA2','d2s9':'EMP',
+				'd3s1':'FU18','d3s2':'FU17','d3s3':'FU16','d3s4':'FU15','d3s5':'FU14','d3s6':'FU13','d3s7':'FU12','d3s8':'FU11','d3s9':'FU10',
+				'd4s1':'EMP','d4s2':'EMP','d4s3':'EMP','d4s4':'EMP','d4s5':'EMP','d4s6':'EMP','d4s7':'EMP','d4s8':'EMP','d4s9':'EMP',
+				'd5s1':'EMP','d5s2':'EMP','d5s3':'EMP','d5s4':'EMP','d5s5':'EMP','d5s6':'EMP','d5s7':'EMP','d5s8':'EMP','d5s9':'EMP',
+				'd6s1':'EMP','d6s2':'EMP','d6s3':'EMP','d6s4':'EMP','d6s5':'EMP','d6s6':'EMP','d6s7':'EMP','d6s8':'EMP','d6s9':'EMP',
+				'd7s1':'FU1','d7s2':'FU2','d7s3':'FU3','d7s4':'FU4','d7s5':'FU5','d7s6':'FU6','d7s7':'FU7','d7s8':'FU8','d7s9':'FU9',
+				'd8s1':'EMP','d8s2':'KA1','d8s3':'EMP','d8s4':'EMP','d8s5':'EMP','d8s6':'EMP','d8s7':'EMP','d8s8':'HI1','d8s9':'EMP',
+				'd9s1':'KY1','d9s2':'KE1','d9s3':'GI1','d9s4':'KI1','d9s5':'OU1','d9s6':'KI2','d9s7':'GI2','d9s8':'KE2','d9s9':'KY2',
+				's1':'EMP','s2':'EMP','s3':'EMP','s4':'EMP','s5':'EMP','s6':'EMP','s7':'EMP','s8':'EMP','s9':'EMP',
+				's12':'EMP','s13':'EMP','s14':'EMP','s15':'EMP','s16':'EMP','s17':'EMP','s18':'EMP','s19':'EMP','s20':'EMP'
+				};
+	pieceIdRecord={'OU1':'skoma','HI1':'skoma','KA1':'skoma','KI1':'skoma','KI2':'skoma','GI1':'skoma','GI2':'skoma',
+			 'KE1':'skoma','KE2':'skoma','KY1':'skoma','KY2':'skoma',
+			 'FU1':'skoma','FU2':'skoma','FU3':'skoma','FU4':'skoma','FU5':'skoma','FU6':'skoma','FU7':'skoma','FU8':'skoma','FU9':'skoma',
+			 'OU2':'gkoma','HI2':'gkoma','KA2':'gkoma','KI3':'gkoma','KI4':'gkoma','GI3':'gkoma','GI4':'gkoma',
+			 'KE3':'gkoma','KE4':'gkoma','KY3':'gkoma','KY4':'gkoma',
+			 'FU10':'gkoma','FU11':'gkoma','FU12':'gkoma','FU13':'gkoma','FU14':'gkoma','FU15':'gkoma','FU16':'gkoma','FU17':'gkoma','FU18':'gkoma'
+		    };
+	justBefore.length=0;
+	document.getElementById("teban").innerHTML=teban;//手番
+	document.getElementById("gamecount").innerHTML=gameCount;//何手目か？
+	document.getElementById("gamedisp").innerHTML=gameRecodeDisplayArray[0];//スタートに戻る
+}
+
+function jumpEnd(){
+	document.getElementById("gamedisp").innerHTML=gameRecodeDisplayArray[gameRecodeDisplayArray.length-1];//終了に戻る
+}
+
+//go()
+//back()
+//jumpEnd()
 
 //continue:リロード
 function inputContinue(){
