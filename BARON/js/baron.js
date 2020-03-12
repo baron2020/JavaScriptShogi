@@ -52,7 +52,6 @@ var pieceMotionTable=[[1,1,1,1,1,1,1,1,0,0],//王
 					 ];
 var sPieceMotionYX=[[-1,0],[-1,1],[0,1],[1,1],[1,0],[1,-1],[0,-1],[-1,-1],[-2,-1],[-2,+1]];
 var gPieceMotionYX=[[1,0],[1,-1],[0,-1],[-1,-1],[-1,0],[-1,1],[0,1],[1,1],[2,1],[2,-1]];
-var movePossibleArray=[];//タッチした駒の移動可能マスを保持する配列
 var GameRecord={'g1':'EMP','g2':'EMP','g3':'EMP','g4':'EMP','g5':'EMP','g6':'EMP','g7':'EMP','g8':'EMP','g9':'EMP',
 				'g12':'EMP','g13':'EMP','g14':'EMP','g15':'EMP','g16':'EMP','g17':'EMP','g18':'EMP','g19':'EMP','g20':'EMP',
 				'd1s1':'KY4','d1s2':'KE4','d1s3':'GI4','d1s4':'KI4','d1s5':'OU2','d1s6':'KI3','d1s7':'GI3','d1s8':'KE3','d1s9':'KY3',
@@ -76,12 +75,17 @@ var pieceIdRecord={'OU1':'skoma','HI1':'skoma','KA1':'skoma','KI1':'skoma','KI2'
 			 'KE3':'gkoma','KE4':'gkoma','KY3':'gkoma','KY4':'gkoma',
 			 'FU10':'gkoma','FU11':'gkoma','FU12':'gkoma','FU13':'gkoma','FU14':'gkoma','FU15':'gkoma','FU16':'gkoma','FU17':'gkoma','FU18':'gkoma'
 		    };
-		
+var movePossibleArray=[];//タッチした駒の移動可能マスを保持する配列
+var endFlg=false;//勝敗がついたか？
+
 //座標関連
 var ky=0;
 var kx=0;
 var kys=0;//整数y
 var kxs=0;//整数x
+var startKys=0;//スタートの整数y
+var startKxs=0;//スタートの整数x
+
 var plen=22;//駒置き場の長さ
 
 //フラグ関連
@@ -90,30 +94,32 @@ var firstChoiceFlg=true;//最初に駒を選択できる状態:true
 var promotionFlg=false;//成駒か？
 
 var currentKomaClass="";//現在の駒クラス
-var currentKomaId="";//現在の駒Id
+var currentKomaId="";//現在の駒のId
+var currentKomaIdName="";//現在の駒のid二文字
 var currentMasu="";//カレントのマスのid
 var firstTouchMasu="";//一度目にタッチしたマスのid
-var firstTouchPiece="";//一度目にタッチした駒のid
-var twoFirstTouchPiece="";//一度目にタッチした駒のid二文字
-var firstTouchMasuInOut;//最初にタッチしたマスが盤内か？
+var firstTouchPieceId="";//一度目にタッチした駒のid
+var firstTouchPieceName="";//一度目にタッチした駒のid二文字
+var firstTouchMasuInOut;//最初にタッチしたマスは盤内か？
+var currentMasuInout;//現在のマスは盤内か？
 
 var standId;//空いている駒台のid
 
-var gameRecodeDisplay="";//棋譜記録の表示用
-var kihu;//棋譜
-var pieceConvert="";//漢字に変換
-var checkPieceConvertId=["OU","HI","KA","KI","GI","KE","KY","FU"];//棋譜変換用駒Id配列(8種類)
-var checkPieceConvertKanji=["王","飛","角","金","銀","桂","香","歩"];
-var checkPromotionPieceConvertKanji=["None","竜","馬","None","成銀","成桂","成香","と"];
-var kihuFirstTouchFlg=true;//棋譜用に使うフラグ、最初にタッチできる時:true
-var getFlg=false;//駒をとっていない
-
-var sClassArray=["skoma","skoma promotion","OU2"];
-var gClassArray=["gkoma","gkoma promotion","OU1"];
+var sClassArray=["skoma","skoma promotion","OU2","▲"];
+var gClassArray=["gkoma","gkoma promotion","OU1","△"];
 var justBefore=[];//直前の指し手のマスを格納する配列
 var nihudesuFlg=false;//二歩チェック用
 var outeCheckArray=[];//王手チェック用の配列
-var endFlg=false;//勝敗がついたか？
+
+var gameRecodeDisplay="";//棋譜記録の表示用
+var kihuDisplay;//棋譜
+var convertPiece="";//漢字に変換
+var kihuFirstTouchFlg=true;//棋譜用に使うフラグ、最初にタッチできる時:true
+var getFlg=false;//駒をとっていない
+
+var gameRecodeEndMasuArray=[];//最終のマスを格納する棋譜記録用の配列
+var gameRecodeStartMasuArray=[];//移動前のマスを格納する棋譜記録用の配列
+var gameRecodePieceArray=[];//駒を格納する棋譜記録用の配列
 
 function start(){
 	let supportTouch='ontouchend'in document;//タッチイベントがサポートされているか
@@ -304,8 +310,6 @@ function touchPiece(tx,ty){
 		//自分の駒を選択している。
 		if(isMyPiece()==true){
 			choice();
-//console.log("駒Id："+GameRecord[firstTouchMasu]);//マスIdから駒Idを返す
-//console.log("駒クラス："+pieceIdRecord[firstTouchPiece]);//駒Idから駒クラスを返す
 			firstChoiceFlg=false;
 			return;
 		}else{
@@ -319,14 +323,12 @@ function touchPiece(tx,ty){
 	//最初にタッチしたマスが盤外かつ相手の駒がある
 	if((isMyPiece())||(!InOut(kys,kxs))||
 	   ((firstTouchMasuInOut)&&(movePossibleArray.indexOf(currentMasu)==-1))||
-	   ((firstTouchMasuInOut==false)&&(opponentPiece()==true))){
-console.log("現在のマスにある駒のクラス1:"+currentKomaClass);
-console.log("現在のマスにある駒のクラス2:"+pieceIdRecord[firstTouchPiece]);
+	   ((firstTouchMasuInOut==false)&&(isOpponentPiece()==true))){
 		reset();
 		return;
 	}
 	//もし盤外から歩を使うなら、二歩チェックをする。
-	if((firstTouchMasuInOut==false)&&(twoFirstTouchPiece=="FU")){
+	if((firstTouchMasuInOut==false)&&(firstTouchPieceName=="FU")){
 		nihuCheck(kxs);//二歩チェック
 		if(nihudesuFlg){
 			alert("二歩です。");
@@ -337,20 +339,19 @@ console.log("現在のマスにある駒のクラス2:"+pieceIdRecord[firstTouch
 	}
 	//もし盤外から歩を使うなら、１段目(９段目)をチェックする。
 	if((firstTouchMasuInOut==false)&&
-	   (twoFirstTouchPiece=="FU")&&
-	   (checkKyouFu(currentMasu,teban))){
+	   (firstTouchPieceName=="FU")&&
+	   (checkOpponentAriaKyouFu(currentMasu))){
 		reset();
 		return;
 	}
 	//もし盤外から桂,香を使うなら、桂,香チェックをする。
 	if((firstTouchMasuInOut==false)&&
-	   (checkKeima(currentMasu,teban))&&
-	   ((twoFirstTouchPiece=="KE")||(twoFirstTouchPiece=="KY"))){
+	   (checkOpponentAriaKeima(currentMasu))&&
+	   ((firstTouchPieceName=="KE")||(firstTouchPieceName=="KY"))){
 		reset();
 		return;
 	}
-	//移動先に相手の駒が存在する。
-	//駒を取った場合の処理
+	//移動先に相手の駒が存在する。＝相手の駒を取った場合の処理
 	if(isExistPiece()){
 		getFlg=true;//駒をとった
 		motigoma=currentKomaId;//取った駒のid
@@ -363,7 +364,7 @@ console.log("現在のマスにある駒のクラス2:"+pieceIdRecord[firstTouch
 	}
 	//最初に選択した駒が成り駒であるなら
 	if(promotionFlg==true){
-		document.getElementById(firstTouchPiece).remove();//最初に選択した駒の削除
+		document.getElementById(firstTouchPieceId).remove();//最初に選択した駒の削除
 		GameRecord[firstTouchMasu]='EMP';//最初に選択した駒が置かれていたマスを無しにする
 		//駒を削除した後に、マスの色を元に戻す
 		AllReverseCssRule();
@@ -402,7 +403,6 @@ function getCoordinate(tx,ty){
 	let gH1=76;//g1までの縦の距離
 	let sW1=36;//s1までの横の距離
 	let sH1=493;//s1までの縦の距離
-	let whatNumber;//配列の何番目にあるか？
 	kx=Math.floor(tx);
 	ky=Math.floor(ty);
 	kxs=Math.floor(((tx-banX)/32)+1);
@@ -412,7 +412,7 @@ function getCoordinate(tx,ty){
 	sxs=Math.floor(((tx-sW1)/32)+1);
 	sys=Math.floor(((ty-sH1)/32)+1);
 	currentMasu="d"+kys+"s"+kxs;//カレントのタッチマス
-	currentInout=InOut(kys,kxs);//カレントのマスは盤内？盤外？
+	currentMasuInout=InOut(kys,kxs);//カレントのマスは盤内？盤外？
 	//y,x座標の表示
 	//document.getElementById("ky").innerHTML=ky;//y座標
 	//document.getElementById("kx").innerHTML=kx;//x座標
@@ -427,48 +427,43 @@ function getCoordinate(tx,ty){
 	}else{
 	;
 	}
-	currentKomaId=GameRecord[currentMasu];//カレントのマスにある駒のId
-	currentKomaClass=pieceIdRecord[currentKomaId];//カレントのマスにある駒のクラス
+	currentKomaId=GameRecord[currentMasu];//現在のマスにある駒のId
+	currentKomaClass=pieceIdRecord[currentKomaId];//現在のマスにある駒のクラス
 	if(typeof currentKomaId==="undefined"){
 		currentKomaId="";
 		currentKomaClass="";
 	}
+	currentKomaIdName=currentKomaId.substr(0,2);//現在のマスにある駒のId二文字
 //console.log("現在の駒Id："+currentKomaId);//マスIdから駒Idを返す
 //console.log("現在の駒クラス："+currentKomaClass);//駒Idから駒クラスを返す
-	kihuConvert(teban,kys,kxs);//棋譜形式に変換
+	kihuConvertMasu(kys,kxs,startKys,startKxs,0);//棋譜形式に変換
 	if(kihuFirstTouchFlg==true){
-		whatNumber=checkPieceConvertId.indexOf(currentKomaId.substr(0,2));
-		pieceConvert=checkPieceConvertKanji[whatNumber];
+		kihuConvertPiece(currentKomaIdName,promotionFlg,0);
 		//自分の駒を選択している。
 		if(isMyPiece()==true){
 			kihuFirstTouchFlg=false;
-		}else{
-			;
 		}
 	}else{
-		whatNumber=checkPieceConvertId.indexOf(twoFirstTouchPiece);
-		pieceConvert=checkPieceConvertKanji[whatNumber];
+		kihuConvertPiece(firstTouchPieceName,promotionFlg,0);
 		kihuFirstTouchFlg=true;
 	}
-	if(typeof pieceConvert==="undefined"){
-		pieceConvert="";
+	if((typeof convertPiece==="undefined")||(kihuDisplay=="盤外です")){
+		convertPiece="";
 	}
-	if(kihu=="盤外です"){
-		pieceConvert="";
-	}
-	document.getElementById("kihu").innerHTML=kihu+pieceConvert;//棋譜の表示
+	document.getElementById("kihudisplay").innerHTML=kihuDisplay+convertPiece;//棋譜の表示
 }
 
 //駒の選択
 function choice(){
 	touka(currentKomaId,0.3);//タッチした駒の透過率を変える
 	firstTouchMasu="d"+kys+"s"+kxs;//一度目にタッチしたマスのid
-	firstTouchPiece=currentKomaId;//一度目にタッチした駒のid
-	twoFirstTouchPiece=firstTouchPiece.substr(0,2);//一度目にタッチした駒のid二文字
-console.log("choice現在の駒："+twoFirstTouchPiece);
+	firstTouchPieceId=currentKomaId;//一度目にタッチした駒のid
+	firstTouchPieceName=firstTouchPieceId.substr(0,2);//一度目にタッチした駒のid二文字
 	firstTouchMasuInOut=InOut(kys,kxs);//一度目にタッチした場所は盤内か？
 	promotionFlg=firstPromotion();//一度目にタッチした駒は成り駒か？
-//console.log(promotionFlg);//成り駒かどうか？
+	startKys=kys;
+	startKxs=kxs;
+console.log(promotionFlg);//成り駒かどうか？
 	//最初にタッチしたマスが盤内なら駒の動きを表示する
 	if(firstTouchMasuInOut){
 		pieceMotionRule();
@@ -480,16 +475,17 @@ console.log("choice現在の駒："+twoFirstTouchPiece);
 }
 //リセット用
 function reset(){
-	if((pieceId.indexOf(firstTouchPiece)!=-1)){
-		touka(firstTouchPiece,1);//一度目にタッチした駒の透過率を戻す
+	if((pieceId.indexOf(firstTouchPieceId)!=-1)){
+		touka(firstTouchPieceId,1);//一度目にタッチした駒の透過率を戻す
 	}
 	firstChoiceFlg=true;
 	kihuFirstTouchFlg=true;
 	promotionFlg=false;
 	currentKomaClass="リセット";
 	currentKomaId="リセット";
-	firstTouchPiece="リセット";
-	twoFirstTouchPiece="リセット";
+	currentKomaIdName="リセット";
+	firstTouchPieceId="リセット";
+	firstTouchPieceName="リセット";
 	firstTouchMasu="リセット";
 	getFlg=false;//駒をとっていない
 	movePossibleArray.length=0;//移動可能マスの配列を0にする。
@@ -498,54 +494,54 @@ function reset(){
 	if(justBefore.length>0){
 		changeCssJustBefore(justBefore[justBefore.length-1]);//直前のマスのcssを変更する
 	}
+	//if((currentMasuInout)&&(isMyPiece())){
+	//;
+	//}
+	//document.getElementById("kihu").innerHTML=kihuDisplay+convertPiece;//棋譜の表示
 }
 
 //選択した駒の移動完了まで
 function MoveCommit(){
 	let promotionMoveFlg=false;
 	let res;
-	document.getElementById(firstTouchPiece).remove();//最初に選択した駒の削除
+	document.getElementById(firstTouchPieceId).remove();//最初に選択した駒の削除
 	GameRecord[firstTouchMasu]='EMP';//最初に選択した駒が置かれていたマスを無しにする
 	AllReverseCssRule();//駒を削除した後に、マスの色を元に戻す
 //ここで成るか成らないかの判定-----------------------------------------------------------------
 	while(promotionMoveFlg==false){
 		//成り駒でない＆最初は盤内＆成れる駒
-		if((promotionFlg==false)&&(firstTouchMasuInOut)&&(possiblePromotion.indexOf(firstTouchPiece)!=-1)){
-			//桂馬が１,２段目に移動したら強制的に成る//桂馬が８,９段目に移動したら強制的に成る
-			if((checkKeima(currentMasu,teban))&&(twoFirstTouchPiece=="KE")){
+		if((promotionFlg==false)&&(firstTouchMasuInOut)&&(possiblePromotion.indexOf(firstTouchPieceId)!=-1)){
+			//桂馬が１,２段目(８,９段目)に移動したら強制的に成る
+			if((checkOpponentAriaKeima(currentMasu))&&(firstTouchPieceName=="KE")){
 				promotionMoveFlg=true;
 				break;
 			}
-			//香,歩が１段目に移動したら強制的に成る//香,歩が９段目に移動したら強制的に成る
-			if((checkKyouFu(currentMasu,teban))&&((twoFirstTouchPiece=="KY")||(twoFirstTouchPiece=="FU"))){
+			//香,歩が１段目(９段目)に移動したら強制的に成る
+			if((checkOpponentAriaKyouFu(currentMasu))&&((firstTouchPieceName=="KY")||(firstTouchPieceName=="FU"))){
 				promotionMoveFlg=true;
 				break;
 			}
-			//後手陣である。又は、飛車,角,銀の成り返りである。//先手陣である。又は、飛車,角,銀の成り返りである。
-			if((checkAria(currentMasu,teban))||
-			   ((checkAria(firstTouchMasu,teban))&&
-			   ((twoFirstTouchPiece=="HI")||(twoFirstTouchPiece=="KA")||(twoFirstTouchPiece=="GI")))){
+			//移動後のマスが敵陣である。又は、移動前のマスが敵陣＆飛車,角,銀の成り返りである。
+			if((checkOpponentAria(currentMasu))||
+			   ((checkOpponentAria(firstTouchMasu))&&
+			   ((firstTouchPieceName=="HI")||(firstTouchPieceName=="KA")||(firstTouchPieceName=="GI")))){
 				res=confirm("成りますか？");
    				if(res==true){
 					promotionMoveFlg=true;
 					break;
-				}else{
-					;
-				}		
+				}	
 			}
 		}
-		break;
+		break;//ループせずに必ず抜ける
 	}
 	if(promotionMoveFlg==true){
 		promotionMove();//駒の昇格
-		PlaySound();//音を出す
-		reset();
-		return;
-	}
-	pieceMove(firstTouchPiece,currentMasu);//駒の追加
-	//移動完了の前のバグ確認(マスの中に２枚存在するバグ対策)
-	if(document.getElementById(currentMasu).children.length>1){
-		alert("バグです。盤の中に２枚以上入りまみた。");
+	}else{
+		pieceMove(firstTouchPieceId,currentMasu);//駒の追加
+		//移動完了の前のバグ確認(マスの中に２枚存在するバグ対策)
+		if(document.getElementById(currentMasu).children.length>1){
+			alert("バグです。盤の中に２枚以上入りまみた。");
+		}
 	}
 	PlaySound();//音を出す
 	reset();
@@ -563,14 +559,17 @@ function pieceMove(addPiece,addMasu){
 	document.getElementById(pieceId[whatNumber]).setAttribute('class',switchClassArray[0]);//駒にクラスの設定
 	GameRecord[addMasu]=addPiece;//現在のマスに駒を追加する	
 	pieceIdRecord[addPiece]=switchClassArray[0];
-//王様を取ったらフラグを立てる
 	if(addPiece==switchClassArray[2]){
-		endFlg=true;
+		endFlg=true;//王様を取ったらフラグをtrueにする
 	}
-	//駒をとった場合の最初は棋譜に記録しない
+	//駒をとり駒台に追加する時は棋譜に記録しない
 	if(getFlg==false){
 	//駒の移動が完了したら
-		gameRecodeDisplay+=kihu+pieceConvert+"　"//棋譜を記録として残す。
+kihuConvertMasu(kys,kxs,startKys,startKxs,1);//棋譜を記録として残す。
+kihuConvertPiece(firstTouchPieceName,promotionFlg,1);//棋譜を記録として残す。
+
+
+
 //王手判定-----------------------------------------------------------------------------------------------------
 		document.getElementById("outedisp").innerHTML="";
 		pieceMotionRule();//王手確認に使用
@@ -581,7 +580,7 @@ function pieceMove(addPiece,addMasu){
 }
 //駒の昇格,成り駒の移動
 function promotionMove(){
-	let whatNumber=pieceId.indexOf(firstTouchPiece);//最初にタッチした駒が、駒配列の何番目にあるか？
+	let whatNumber=pieceId.indexOf(firstTouchPieceId);//最初にタッチした駒が、駒配列の何番目にあるか？
 	let switchClassArray;
 	if(teban=="先手"){
 		switchClassArray=sClassArray;
@@ -590,10 +589,14 @@ function promotionMove(){
 	}
 	document.getElementById(currentMasu).insertAdjacentHTML('afterbegin',promotionPiece[whatNumber]);
 	document.getElementById(pieceId[whatNumber]).setAttribute('class',switchClassArray[1]);//駒にクラスの設定
-	GameRecord[currentMasu]=firstTouchPiece;//現在のマスに駒を追加する
-	pieceIdRecord[firstTouchPiece]=switchClassArray[1];//昇格クラスにする
+	GameRecord[currentMasu]=firstTouchPieceId;//現在のマスに駒を追加する
+	pieceIdRecord[firstTouchPieceId]=switchClassArray[1];//昇格クラスにする
 //駒の移動が完了したら
-	gameRecodeDisplay+=kihu+pieceConvert+"　"//棋譜を記録として残す。
+kihuConvertMasu(kys,kxs,startKys,startKxs,1);//棋譜を記録として残す。
+kihuConvertPiece(firstTouchPieceName,promotionFlg,1);//棋譜を記録として残す。
+
+//gameRecodeDisplay+=kihuDisplay+convertPiece+"　"//棋譜を記録として残す。
+
 //王手判定-----------------------------------------------------------------------------------------------------
 	document.getElementById("outedisp").innerHTML="";
 	pieceMotionRule();//王手確認に使用
@@ -605,19 +608,18 @@ function promotionMove(){
 //駒の動きのルール---------------------------------------------------------------------
 function pieceMotionRule(){
 	let typeMotion,motionY,motionX,addY,addX;
-	let indexNumber=CheckPieceId.indexOf(twoFirstTouchPiece);//配列の何番目にあるか？
-	let tempTargetClass=pieceIdRecord[firstTouchPiece];//対象の駒のクラス
-	console.log(tempTargetClass);
+	let indexNumber=CheckPieceId.indexOf(firstTouchPieceName);//配列の何番目にあるか？
+	let tempTargetClass=pieceIdRecord[firstTouchPieceId];//対象の駒のクラス
 	//成銀,成桂,成香,とはindexNumberを3にし、金と同じ動きを参照する
-	if(((twoFirstTouchPiece=="GI")||(twoFirstTouchPiece=="KE")||(twoFirstTouchPiece=="KY")||(twoFirstTouchPiece=="FU"))&&
+	if(((firstTouchPieceName=="GI")||(firstTouchPieceName=="KE")||(firstTouchPieceName=="KY")||(firstTouchPieceName=="FU"))&&
 	   ((tempTargetClass=="skoma promotion")||(tempTargetClass=="gkoma promotion"))){
 		indexNumber=3;
 	}
-	if((twoFirstTouchPiece=="HI")&&
+	if((firstTouchPieceName=="HI")&&
 	   ((tempTargetClass=="skoma promotion")||(tempTargetClass=="gkoma promotion"))){
 		indexNumber=8;
 	}
-	if((twoFirstTouchPiece=="KA")&&
+	if((firstTouchPieceName=="KA")&&
 	   ((tempTargetClass=="skoma promotion")||(tempTargetClass=="gkoma promotion"))){
 		indexNumber=9;
 	}
@@ -711,7 +713,7 @@ function InOut(targetY,targetX){
 	return false;
 }
 
-//自分の駒を選択しているか？、先手はskomaクラス,後手はgkomaクラス
+//自分の駒を選択しているか？
 function isMyPiece(){
 	if(((teban=="先手")&&(currentKomaClass=="skoma"))||((teban=="先手")&&(currentKomaClass=="skoma promotion"))||
 	   ((teban=="後手")&&(currentKomaClass=="gkoma"))||((teban=="後手")&&(currentKomaClass=="gkoma promotion"))){
@@ -719,8 +721,8 @@ function isMyPiece(){
 	}
 	return false;
 }
-//相手の駒を選択しているか？
-function opponentPiece(){
+//相手の駒を選択しているか？対局相手の駒ですか？
+function isOpponentPiece(){
 	if(((teban=="先手")&&(currentKomaClass=="gkoma"))||((teban=="先手")&&(currentKomaClass=="gkoma promotion"))||
 	   ((teban=="後手")&&(currentKomaClass=="skoma"))||((teban=="後手")&&(currentKomaClass=="skoma promotion"))){
 		return true;
@@ -736,9 +738,9 @@ function isExistPiece(){
 	return false;
 }
 //駒の制約に使用。駒の移動先できる先に自分の駒があるか？
-function moveIsMyPiece(a){
-	if(((teban=="先手")&&(a=="skoma"))||((teban=="先手")&&(a=="skoma promotion"))||
-	   ((teban=="後手")&&(a=="gkoma"))||((teban=="後手")&&(a=="gkoma promotion"))){
+function moveIsMyPiece(tempClass){
+	if(((teban=="先手")&&(tempClass=="skoma"))||((teban=="先手")&&(tempClass=="skoma promotion"))||
+	   ((teban=="後手")&&(tempClass=="gkoma"))||((teban=="後手")&&(tempClass=="gkoma promotion"))){
 		return true;
 	}
 	return false;
@@ -765,8 +767,8 @@ function nihuCheck(kxs){
 	}
 	return;
 }
-//先手陣か？後手陣か？
-function checkAria(tempMasu,teban){
+//対局相手の陣地ですか？
+function checkOpponentAria(tempMasu){
 	//正規表現
 	let regex1,regex2,regex3;
 	let promotion1,promotion2,promotion3;
@@ -777,7 +779,8 @@ function checkAria(tempMasu,teban){
 	}else{
 		regex1=new RegExp(/d7s[1-9]/);
 		regex2=new RegExp(/d8s[1-9]/);
-		regex3=new RegExp(/d9s[1-9]/);	}
+		regex3=new RegExp(/d9s[1-9]/);
+	}
 	promotion1=regex1.test(tempMasu);
 	promotion2=regex2.test(tempMasu);
 	promotion3=regex3.test(tempMasu);
@@ -787,8 +790,8 @@ function checkAria(tempMasu,teban){
 	return false;
 }
 
-//桂馬が必ず成る後手陣の１段目,２段目か？先手陣の８段目,９段目か？
-function checkKeima(currentMasu,teban){
+//(桂馬が強制的に成るマス||駒台から置けないマス)ですか？(１,２段目(８,９段目))
+function checkOpponentAriaKeima(currentMasu){
 	//正規表現
 	let regex1,regex2;
 	let promotion1,promotion2;
@@ -806,9 +809,8 @@ function checkKeima(currentMasu,teban){
 	}
 	return false;
 }
-
-//香,歩が必ず成る後手陣の１段目か？先手陣の９段目か？
-function checkKyouFu(currentMasu,teban){
+//(香,歩が強制的に成るマス||駒台から置けないマス)ですか？(１段目(９段目))
+function checkOpponentAriaKyouFu(currentMasu){
 	//正規表現
 	let regex1;
 	let promotion1;
@@ -851,44 +853,78 @@ function touka(currentKomaId,toukaritu){
 }
 
 //読みやすい棋譜に変換
-function kihuConvert(teban,kys,kxs){
+function kihuConvertMasu(endY,endX,startY,startX,commit){
 	let kihuHeadArray=[1,2,3,4,5,6,7,8,9];
 	let kihuTailArray=[1,2,3,4,5,6,7,8,9];
 	let kihuHeadDispArray=["１","２","３","４","５","６","７","８","９"];
 	let kihuTailDispArray=["一","二","三","四","五","六","七","八","九"];
-	let tebanDisp,kihuHead,kihuTail;
-	let whatNumberHead;
-	let whatNumberTail;
+	let kihuHead,kihuTail;
+	let whatNumberHead,whatNumberTail;
+	let kihuEndMasu,kihuFirstTouchMasu;//棋譜用のマス
+	let kihuTeban;
+	if(teban=="先手"){
+		kihuTeban="▲";
+	}else{
+		kihuTeban="△";
+	}
 	if(InOut(kys,kxs)){
-		if(teban=="先手"){
-		tebanDisp="▲";
-		}else{
-		tebanDisp="△";
-		}
-		kihuHead=(10-kxs);
-		kihuTail=kys;
-		//全角に変換
+		kihuHead=(10-endX);
+		kihuTail=endY;
 		whatNumberHead=kihuHeadArray.indexOf(kihuHead);
 		kihuHeadDisp=kihuHeadDispArray[whatNumberHead];
-		//全角漢数字に変換
-		whatNumberTail=kihuHeadArray.indexOf(kihuTail);
+		whatNumberTail=kihuTailArray.indexOf(kihuTail);
 		kihuTailDisp=kihuTailDispArray[whatNumberTail];
-		kihu=tebanDisp+kihuHeadDisp+kihuTailDisp;//表示用
+		kihuFirstTouchMasu=kihuHead+''+kihuTail;//半角数字に変換
+		kihuEndMasu=kihuHeadDisp+kihuTailDisp;//全角に変換
+		//commitが1:完全に指し終えている時
+		if(commit==1){
+			gameRecodeEndMasuArray.push(kihuTeban+kihuEndMasu);//最終のマスを棋譜配列に格納
+			kihuHead=(10-startX);
+			kihuTail=startY;
+			kihuFirstTouchMasu=kihuHead+''+kihuTail;//移動前のマスを半角数字に変換
+			gameRecodeStartMasuArray.push(kihuFirstTouchMasu);//移動前のマスを棋譜配列に格納
+		}
+		kihuDisplay=kihuTeban+kihuEndMasu;
 	}else{
-		kihu="盤外です";
+		kihuDisplay="盤外です";
+	}
+	return;
+}
+
+//駒を漢字に変換する。
+function kihuConvertPiece(tempPieceName,promotionFlg,commit){
+	let convertPieceIdArray=["OU","HI","KA","KI","GI","KE","KY","FU"];//棋譜変換用駒Id配列(8種類)
+	let convertPieceKanjiArray=["王","飛","角","金","銀","桂","香","歩"];
+	let convertPiecePromotionKanjiArray=["None","竜","馬","None","成銀","成桂","成香","と"];
+	let whatNumber;//配列の何番目にあるか？
+	whatNumber=convertPieceIdArray.indexOf(tempPieceName);
+	convertPiece=convertPieceKanjiArray[whatNumber];
+	//commitが1:完全に指し終えている時
+	if(commit==1){
+	
+	
+		gameRecodePieceArray.push(convertPiece);//棋譜漢字配列に格納
 	}
 	return;
 }
 
 //ボタンで棋譜の表示
 function GameRecode(){
-		document.getElementById("gameRecorddisp").innerHTML=gameRecodeDisplay;//棋譜変換
+	document.getElementById("gameRecorddisp").innerHTML=kihuAllConvert();//棋譜変換
+}
+
+//棋譜記録を取得する
+function kihuAllConvert(){
+	let game="";
+	for(let i=0;i<gameRecodeEndMasuArray.length;i++){
+		game+=gameRecodeEndMasuArray[i]+gameRecodePieceArray[i]+"("+gameRecodeStartMasuArray[i]+")"+"　";
+	}
+	console.log(game);
+	return game;
 }
 
 //continue:リロード
 function inputContinue(){
-	//var inputContinue="<input type='button' value='もう一回遊ぶ'onClick='inputContinue();'size='50'>";
-	//document.getElementById("inputContinue").innerHTML=inputContinue;
 	window.location.reload();
 }
 
