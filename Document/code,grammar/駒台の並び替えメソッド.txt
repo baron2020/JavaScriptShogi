@@ -1,0 +1,44 @@
+2020/03/13
+・駒台の並び替え
+//テストメソッド
+//駒台の並び替えメソッド
+function sortPiece(){
+	let rankPiece={
+					'FU1':1,'FU2':2,'FU3':3,'FU4':4,'FU5':5,'FU6':6,'FU7':7,'FU8':8,'FU9':9,
+					'FU10':10,'FU11':11,'FU12':12,'FU13':13,'FU14':14,'FU15':15,'FU16':16,'FU17':17,'FU18':18,
+					'KY1':19,'KY2':20,'KY3':21,'KY4':22,'KE1':23,'KE2':24,'KE3':25,'KE4':26,
+					'GI1':27,'GI2':28,'GI3':29,'GI4':30,'KI1':31,'KI2':32,'KI3':33,'KI4':34,
+					'KA1':35,'KA2':36,'HI1':37,'HI2':38
+					};
+	let sortRankArray=['100'];//バブルソートに使用
+	let sortPieceArray=['banpei'];
+	let sortMasuArray=['banpei'];
+	let sKomadaiIdArray=["s1","s2","s3","s4","s5","s6","s7","s8"];
+	let gKomadaiIdArray=["g1","g2","g3","g4","g5","g6","g7","g8"];
+	let switchArray;
+	let getPieceId;//駒Id
+	let rank;//低い順に左に並び替える
+	if(teban=="先手"){
+		switchArray=sKomadaiIdArray;
+	}else{
+		switchArray=gKomadaiIdArray;
+	}
+//駒を取った場合は、Id名を1から8まで回す
+	for(let i=0;i<sKomadaiIdArray.length;i++){
+//駒台に駒があれば、駒のid,並び替えランク,駒台のマスを求める。
+		if(GameRecord[switchArray[i]]!="EMP"){
+			getPieceId=GameRecord[switchArray[i]]//駒台にある駒Id名
+			rank=rankPiece[getPieceId];//ランクを取得する。
+			sortRankArray.push(rank);//ランクを入配列に格納
+			sortPieceArray.push(getPieceId);//駒idを配列に格納
+			sortMasuArray.push(switchArray[i]);//駒の置かれているマスを格納
+		}
+	}
+	
+	
+	console.log(sortPieceArray);//駒台にある駒Id
+	console.log(sortRankArray);//並び替え順位
+	console.log(sortMasuArray);//駒の置かれているマス
+//sortPieceArray.length=0;//配列のリセット
+//sortRankArray.length=0;//配列のリセット
+}

@@ -1,0 +1,15 @@
+2020/03/13
+・バブルソート
+//小さい順に並び替える
+function sortPiece(){
+　let testArray=[20,34,3,11,28,17];	
+	for(let i=0;testArray.length;i++){
+		for(let j=testArray.length-1;j>i;j--){
+			if(testArray[j]<test[j-1]){
+			var temp=testArray[j];
+			testArray[j]=testArray[j-1];
+			testArray[j-1]=temp;
+			}
+		}
+	}
+}
