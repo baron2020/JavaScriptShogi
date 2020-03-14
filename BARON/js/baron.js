@@ -8,7 +8,7 @@ var possiblePromotion=["HI1","KA1","GI1","GI2","KE1","KE2","KY1","KY2","FU1","FU
 var piece=["<p id='OU1'>王</p>","<p id='HI1'>飛</p>","<p id='KA1'>角</p>",
 			"<p id='KI1'>金</p>","<p id='KI2'>金</p>","<p id='GI1'>銀</p>","<p id='GI2'>銀</p>",
 			"<p id='KE1'>桂</p>","<p id='KE2'>桂</p>","<p id='KY1'>香</p>","<p id='KY2'>香</p>",
-			"<p id='FU1'>歩</p>","<p id='FU2'>歩</p>","<p id='FU3'>歩</p>",
+			"<p id='FU1'>歩<sup>18</sup></p>","<p id='FU2'>歩</p>","<p id='FU3'>歩</p>",
 			"<p id='FU4'>歩</p>","<p id='FU5'>歩</p>","<p id='FU6'>歩</p>",
 			"<p id='FU7'>歩</p>","<p id='FU8'>歩</p>","<p id='FU9'>歩</p>",
 			"<p id='OU2'>玉</p>","<p id='HI2'>飛</p>","<p id='KA2'>角</p>",
@@ -569,7 +569,7 @@ function pieceMove(addPiece,addMasu){
 	if(addPiece==switchClassArray[2]){
 		endFlg=true;//王様を取ったらフラグをtrueにする
 	}
-	//駒をとり駒台に追加する時は通過しない(棋譜に記録しない)
+	//駒を駒台に追加する時は通過しない(棋譜に記録しない)
 	if(getFlg==false){
 	//駒の移動が完了したら
 	kihuConvertMasu(kys,kxs,startKys,startKxs,1);//棋譜を記録として残す。
@@ -854,44 +854,55 @@ function touka(currentKomaId,toukaritu){
 }
 //駒台の並び替えメソッド
 function sortPiece(){
-	let rankPiece={
-					'FU1':1,'FU2':2,'FU3':3,'FU4':4,'FU5':5,'FU6':6,'FU7':7,'FU8':8,'FU9':9,
-					'FU10':10,'FU11':11,'FU12':12,'FU13':13,'FU14':14,'FU15':15,'FU16':16,'FU17':17,'FU18':18,
-					'KY1':19,'KY2':20,'KY3':21,'KY4':22,'KE1':23,'KE2':24,'KE3':25,'KE4':26,
-					'GI1':27,'GI2':28,'GI3':29,'GI4':30,'KI1':31,'KI2':32,'KI3':33,'KI4':34,
-					'KA1':35,'KA2':36,'HI1':37,'HI2':38
-					};
-	let sortRankArray=['100'];//バブルソートに使用
-	let sortPieceArray=['banpei'];
-	let sortMasuArray=['banpei'];
+	let motigomaPieceArray=[];//持ち駒を全て格納した配列
+	let sortPieceArray=[];//持ち駒を全て並び替えた配列
+	let sortRankId=["FU","KY","KE","GI","KI","KA","HI"];//並び替え順番
 	let sKomadaiIdArray=["s1","s2","s3","s4","s5","s6","s7","s8"];
 	let gKomadaiIdArray=["g1","g2","g3","g4","g5","g6","g7","g8"];
-	let switchArray;
-	let getPieceId;//駒Id
-	let rank;//低い順に左に並び替える
+	let switchKomadaiIdArray;
+	let switchClassArray;
+	let tempPieceId;//駒Id
+	let whatNumber;//駒配列の何番目にあるか？
 	if(teban=="先手"){
-		switchArray=sKomadaiIdArray;
+		switchKomadaiIdArray=sKomadaiIdArray;
+		switchClassArray=sClassArray;
 	}else{
-		switchArray=gKomadaiIdArray;
+		switchKomadaiIdArray=gKomadaiIdArray;
+		switchClassArray=gClassArray;
 	}
 //駒を取った場合は、Id名を1から8まで回す
-	for(let i=0;i<sKomadaiIdArray.length;i++){
-//駒台に駒があれば、駒のid,並び替えランク,駒台のマスを求める。
-		if(GameRecord[switchArray[i]]!="EMP"){
-			getPieceId=GameRecord[switchArray[i]]//駒台にある駒Id名
-			rank=rankPiece[getPieceId];//ランクを取得する。
-			sortRankArray.push(rank);//ランクを入配列に格納
-			sortPieceArray.push(getPieceId);//駒idを配列に格納
-			sortMasuArray.push(switchArray[i]);//駒の置かれているマスを格納
+	for(let i=0;i<switchKomadaiIdArray.length;i++){
+		//駒台に駒があれば、駒のidを全てsortPieceArrayに格納する。
+		if(GameRecord[switchKomadaiIdArray[i]]!="EMP"){
+			tempPieceId=GameRecord[switchKomadaiIdArray[i]]//駒台にある駒Id名
+			motigomaPieceArray.push(tempPieceId);//駒idを配列の先頭に格納
 		}
 	}
-	
-	
-	console.log(sortPieceArray);//駒台にある駒Id
-	console.log(sortRankArray);//並び替え順位
-	console.log(sortMasuArray);//駒の置かれているマス
-//sortPieceArray.length=0;//配列のリセット
-//sortRankArray.length=0;//配列のリセット
+	//sortPieceArray:持ち駒を全て並び替えた配列
+	//"FU","KY","KE","GI","KI","KA","HI"の順盤に先頭に格納
+	for(let i=0;i<sortRankId.length;i++){
+		for(let j=0;j<motigomaPieceArray.length;j++){
+			if(motigomaPieceArray[j].substr(0,2)==sortRankId[i]){
+				sortPieceArray.push(motigomaPieceArray[j]);
+			}
+		}
+	}
+console.log(sortPieceArray);//駒台にある駒Id
+console.log("持ち駒の数:"+sortPieceArray.length);//駒台にある駒Id
+	//持ち駒を全て削除
+	for(let i=0;i<sortPieceArray.length;i++){
+		document.getElementById(sortPieceArray[i]).remove();//持ち駒の削除
+		GameRecord[switchKomadaiIdArray[i]]='EMP';//js内の盤情報も無しにする
+	}
+	//持ち駒を追加
+	for(let i=0;i<sortPieceArray.length;i++){
+		whatNumber=pieceId.indexOf(sortPieceArray[i]);//駒配列の何番目にあるか？
+		document.getElementById(switchKomadaiIdArray[i]).insertAdjacentHTML('afterbegin',piece[whatNumber]);//駒台に並び替えた駒を順番に追加する
+		document.getElementById(pieceId[whatNumber]).setAttribute('class',switchClassArray[0]);//駒にクラスの設定
+		GameRecord[switchKomadaiIdArray[i]]=sortPieceArray[i];//jsの駒台情報も整合性を合わせる
+	}
+//js内のクラス情報設定:pieceIdRecord[addPiece]=switchClassArray[0];
+	sortPieceArray.length=0;//配列のリセット
 }
 //読みやすい棋譜に変換
 function kihuConvertMasu(endY,endX,startY,startX,commit){

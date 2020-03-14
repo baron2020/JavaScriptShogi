@@ -72,12 +72,9 @@ margin:4px;
 
 table{
 border-collapse:collapse;/*セルの線を重ねる*/
-
 padding:0px;/*線と文字の間の余白指定*/
-
 border-spacing:0px;
 }
-
 
 /* 全てのパネル */
 .sStand,.gStand,.ban,.topAndCornerEdge,.bottomAndCornerEdge,.topEdge,.leftEdge,.rightEdge,.bottomEdge{
