@@ -859,6 +859,7 @@ function sortPiece(){
 	let sortRankId=["FU","KY","KE","GI","KI","KA","HI"];//並び替え順番
 	let sKomadaiIdArray=["s1","s2","s3","s4","s5","s6","s7","s8"];
 	let gKomadaiIdArray=["g1","g2","g3","g4","g5","g6","g7","g8"];
+	let numberOfSheetsArray=[];//駒の枚数を格納する配列
 	let switchKomadaiIdArray;
 	let switchClassArray;
 	let tempPieceId;//駒Id
@@ -881,12 +882,18 @@ function sortPiece(){
 	//sortPieceArray:持ち駒を全て並び替えた配列
 	//"FU","KY","KE","GI","KI","KA","HI"の順盤に先頭に格納
 	for(let i=0;i<sortRankId.length;i++){
+		let count=0;//駒の枚数
 		for(let j=0;j<motigomaPieceArray.length;j++){
 			if(motigomaPieceArray[j].substr(0,2)==sortRankId[i]){
 				sortPieceArray.push(motigomaPieceArray[j]);
+				count++;//駒の枚数
 			}
 		}
+		if(count!=0){
+			numberOfSheetsArray.push(count);
+		}
 	}
+console.log(numberOfSheetsArray);//駒の枚数
 console.log(sortPieceArray);//駒台にある駒Id
 console.log("持ち駒の数:"+sortPieceArray.length);//駒台にある駒Id
 	//持ち駒を全て削除
@@ -894,6 +901,35 @@ console.log("持ち駒の数:"+sortPieceArray.length);//駒台にある駒Id
 		document.getElementById(sortPieceArray[i]).remove();//持ち駒の削除
 		GameRecord[switchKomadaiIdArray[i]]='EMP';//js内の盤情報も無しにする
 	}
+	
+	
+let supPiece=['None','None','<sup>2</sup>','<sup>3</sup>','<sup>4</sup>','<sup>5</sup>','<sup>6</sup>','<sup>7</sup>','<sup>8</sup>','<sup>9</sup>',
+			  '<sup>10</sup>','<sup>11</sup>','<sup>12</sup>','<sup>13</sup>','<sup>14</sup>','<sup>15</sup>','<sup>16</sup>','<sup>17</sup>','<sup>18</sup>'];
+
+//let xx=0;
+//持ち駒を追加
+//i:駒の種類分ループする(3種類なら3回ループ)
+//for(let i=0;i<numberOfSheetsArray.length;i++){
+//同じ駒が複数枚あるなら
+//	if(numberOfSheetsArray[i]!=1){
+//j:枚数分ループする
+//		for(let j=0;j<numberOfSheetsArray[j];j++){
+//			whatNumber=pieceId.indexOf(sortPieceArray[xx]);//駒配列の何番目にあるか？
+//			document.getElementById(switchKomadaiIdArray[i]).insertAdjacentHTML('afterbegin',piece[whatNumber]);//駒台の１マスに全て追加する
+//			document.getElementById(pieceId[whatNumber]).setAttribute('class',switchClassArray[0]);//駒にクラスの設定
+		//GameRecord[switchKomadaiIdArray[i]]=sortPieceArray[j];//jsの駒台情報も整合性を合わせる
+//			xx++;
+//		}
+//	document.getElementById(sortPieceArray[xx-1]).insertAdjacentHTML('beforeend',supPiece[numberOfSheetsArray[i]]);//駒の枚数を追加する。
+//	}else{
+//		whatNumber=pieceId.indexOf(sortPieceArray[xx]);//駒配列の何番目にあるか？
+//		document.getElementById(switchKomadaiIdArray[i]).insertAdjacentHTML('afterbegin',piece[whatNumber]);//駒台に並び替えた駒を順番に追加する
+//		document.getElementById(pieceId[whatNumber]).setAttribute('class',switchClassArray[0]);//駒にクラスの設定
+	//GameRecord[switchKomadaiIdArray[i]]=sortPieceArray[i];//jsの駒台情報も整合性を合わせる
+//		xx++;
+//	}
+//}
+	
 	//持ち駒を追加
 	for(let i=0;i<sortPieceArray.length;i++){
 		whatNumber=pieceId.indexOf(sortPieceArray[i]);//駒配列の何番目にあるか？
