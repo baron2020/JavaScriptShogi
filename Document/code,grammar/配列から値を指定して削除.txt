@@ -1,0 +1,10 @@
+2020/03/18
+・配列から値を指定して削除
+//配列から3のみを見つけて削除する。
+let test=[0,1,2,3,4,5];
+let a=3;
+for(let i=0;test.length;i++){
+	if(test[i]==a){
+		test.splice(i,1);
+	}
+}
