@@ -8,7 +8,7 @@ var possiblePromotion=["HI1","KA1","GI1","GI2","KE1","KE2","KY1","KY2","FU1","FU
 var piece=["<p id='OU1'>王</p>","<p id='HI1'>飛</p>","<p id='KA1'>角</p>",
 			"<p id='KI1'>金</p>","<p id='KI2'>金</p>","<p id='GI1'>銀</p>","<p id='GI2'>銀</p>",
 			"<p id='KE1'>桂</p>","<p id='KE2'>桂</p>","<p id='KY1'>香</p>","<p id='KY2'>香</p>",
-			"<p id='FU1'>歩<sup>18</sup></p>","<p id='FU2'>歩</p>","<p id='FU3'>歩</p>",
+			"<p id='FU1'>歩</p>","<p id='FU2'>歩</p>","<p id='FU3'>歩</p>",
 			"<p id='FU4'>歩</p>","<p id='FU5'>歩</p>","<p id='FU6'>歩</p>",
 			"<p id='FU7'>歩</p>","<p id='FU8'>歩</p>","<p id='FU9'>歩</p>",
 			"<p id='OU2'>玉</p>","<p id='HI2'>飛</p>","<p id='KA2'>角</p>",
@@ -121,61 +121,56 @@ var gameRecodeEndMasuArray=[];//最終のマスを格納する棋譜記録用の
 var gameRecodeStartMasuArray=[];//移動前のマスを格納する棋譜記録用の配列
 var gameRecodePieceArray=[];//駒を格納する棋譜記録用の配列
 
-var sStandArray=[];//先手の駒台の全駒
-var gStandArray=[];//後手の駒台の全駒
+var sGetPieceArray=[];//先手の全持ち駒
+var gGetPieceArray=[];//後手の全持ち駒
 
 function sortPiece(){
-	let supPiece=['None','None','<sup>2</sup>','<sup>3</sup>','<sup>4</sup>','<sup>5</sup>','<sup>6</sup>','<sup>7</sup>','<sup>8</sup>','<sup>9</sup>',
-				  '<sup>10</sup>','<sup>11</sup>','<sup>12</sup>','<sup>13</sup>','<sup>14</sup>','<sup>15</sup>','<sup>16</sup>','<sup>17</sup>','<sup>18</sup>'];
-	let sInOrderArray=["s1","s2","s3","s4","s5","s6","s7","s8"];//駒置き場の順番
-	let gInOrderArray=["g1","g2","g3","g4","g5","g6","g7","g8"];//駒置き場の順番
+	let sStorageArea=["s1","s2","s3","s4","s5","s6","s7","s8"];//駒置き場の順番
+	let gStorageArea=["g1","g2","g3","g4","g5","g6","g7","g8"];//駒置き場の順番
 	let sortRankId=["FU","KY","KE","GI","KI","KA","HI","OU"];//並び替え順番
 	//持ち駒を全て並び替えた配列。"FU","KY","KE","GI","KI","KA","KA","OU"の順盤に先頭に格納
 	let sortPieceArray=[['EMP'],['EMP'],['EMP'],['EMP'],['EMP'],['EMP'],['EMP'],['EMP']];
 	let tempSortPieceArray=[];//隙間のない並び替え
-	let numberOfPieceArray=[];//駒の種類別の枚数を格納する配列
-	let switchClassArray,switchStandArray,switchStand;
+	let numPieceArray=[];//駒の種類別の枚数を格納する配列
+	let switchClassArray,getPieceArray,storageArea;
 	let tempPieceId;//駒Id
 	let whatNumber;//駒配列の何番目にあるか？
 	if(teban=="先手"){
-		switchClassArray=sClassArray;
-		switchStandArray=sStandArray;
-		switchStand=sInOrderArray;
+		switchClassArray=sClassArray;//クラス
+		getPieceArray=sGetPieceArray;//持ち駒
+		storageArea=sStorageArea;//駒の置き場所
 	}else{
 		switchClassArray=gClassArray;
-		switchStandArray=gStandArray;
-		switchStand=gInOrderArray;
+		getPieceArray=gGetPieceArray;
+		storageArea=gStorageArea;
 	}
-console.log("配列の全ての駒"+switchStandArray);
-
+//console.log("配列の全ての駒"+getPieceArray);
 //tempSortPieceArray:持ち駒を全て並び替えた配列、"FU","KY","KE","GI","KI","KA","HI"の順盤に格納
 	for(let i=0;i<sortRankId.length;i++){
-		let mCount=0;//駒の枚数
-		for(let j=0;j<switchStandArray.length;j++){
-			if(switchStandArray[j].substr(0,2)==sortRankId[i]){
-				sortPieceArray[i].push(switchStandArray[j]);
-				tempSortPieceArray.push(switchStandArray[j]);//隙間のない並び替え配列
-				mCount++;//駒の枚数
+		let numPiece=0;//駒の枚数
+		for(let j=0;j<getPieceArray.length;j++){
+			if(getPieceArray[j].substr(0,2)==sortRankId[i]){
+				sortPieceArray[i].push(getPieceArray[j]);
+				tempSortPieceArray.push(getPieceArray[j]);//隙間のない並び替え配列
+				numPiece++;//駒の枚数
 			}
 		}
-		if(mCount!=0){
-			numberOfPieceArray.push(mCount);//種類ごとの枚数を格納
+		if(numPiece!=0){
+			numPieceArray.push(numPiece);//種類ごとの枚数を格納
 		}
 	}
-	
-//初期化処理
-for(let i=0;i<sortPieceArray.length;i++){
-		if(sortPieceArray[i][sortPieceArray[i].length-1]!="EMP"){
-			console.log("EMPでない要素"+sortPieceArray[i][sortPieceArray[i].length-1]);//EMPでない要素を出力
-			document.getElementById(sortPieceArray[i][sortPieceArray[i].length-1]).remove();//駒台のリセット
+//	console.log(getPieceArray);//並び替えた駒台の駒Id
+//html盤面から持ち駒を削除
+	for(let i=0;i<getPieceArray.length;i++){
+		let tempElement=document.getElementById(getPieceArray[i]);
+		if(!(tempElement===null)){
+			tempElement.remove();//駒台のリセット
 		}
-}
-//js内の初期化処理
-for(let i=0;i<switchStand.length;i++){
-	GameRecord[switchStand]='EMP';//js内の駒台のリセット
-}
-
-console.log(sortPieceArray);//並び替えた駒台の駒Id
+	}
+//js内の盤面情報を'EMP'にする
+	for(let i=0;i<storageArea.length;i++){
+		GameRecord[storageArea]='EMP';//js内の駒台のリセット
+	}
 
 	let xx=0;//配置場所
 	for(let i=0;i<sortPieceArray.length;i++){
@@ -184,32 +179,42 @@ console.log(sortPieceArray);//並び替えた駒台の駒Id
 		}else{
 			whatNumber=pieceId.indexOf(sortPieceArray[i][sortPieceArray[i].length-1]);//駒配列の何番目にあるか？
 			tempPieceId=sortPieceArray[i][sortPieceArray[i].length-1];
-			document.getElementById(switchStand[xx]).insertAdjacentHTML('afterbegin',piece[whatNumber]);//駒台に並び替えた駒を順番に追加する
+			document.getElementById(storageArea[xx]).insertAdjacentHTML('afterbegin',piece[whatNumber]);//駒台に並び替えた駒を順番に追加する
 			document.getElementById(tempPieceId).setAttribute('class',switchClassArray[0]);//駒にクラスの設定
-			GameRecord[switchStand[xx]]=tempPieceId;//jsのゲーム記録を配列の最後尾のIdに設定し、整合性を合わせる
-			pieceIdRecord[GameRecord[switchStand[xx]]]=switchClassArray[0];//js内の駒クラスの整合性を合わせる
-console.log("js駒台Id:"+switchStand[xx]);
-console.log("js駒Id:"+GameRecord[switchStand[xx]]);
-console.log("js駒クラス:"+pieceIdRecord[GameRecord[switchStand[xx]]]);
+			GameRecord[storageArea[xx]]=tempPieceId;//jsのゲーム記録を配列の最後尾のIdに設定し、整合性を合わせる
+			pieceIdRecord[GameRecord[storageArea[xx]]]=switchClassArray[0];//js内の駒クラスの整合性を合わせる
+//console.log("js駒台Id:"+storageArea[xx]);
+//console.log("js駒Id:"+GameRecord[storageArea[xx]]);
+//console.log("js駒クラス:"+pieceIdRecord[GameRecord[storageArea[xx]]]);
+//console.log(sortPieceArray[i].length);
 			xx++;
 			continue;
 		}
-
 	}
-console.log("配列の全ての駒"+switchStandArray);
-console.log("komaId"+tempPieceId);
-console.log("種類ごとの枚数"+numberOfPieceArray);//駒の枚数
+	//駒の複数枚の表示
+	for(let i=0;i<sortPieceArray.length;i++){
+		//駒が2枚以上あるなら
+		if(sortPieceArray[i].length>=3){
+		let numTemp=sortPieceArray[i].length-1;//駒の枚数
+		let tempText="<sup class='numpiece'>"+numTemp+"</sup>";
+		document.getElementById(sortPieceArray[i][sortPieceArray[i].length-1]).insertAdjacentHTML('beforeend',tempText);//駒の複数枚の表示
+		}
+	}
+//console.log("種類数"+numPieceArray.length);//駒の類数
 
-console.log("配列の末尾"+sortPieceArray[0][sortPieceArray[0].length-1]);//駒の枚数
 console.log(sortPieceArray);//並び替えた駒台の駒Id
-console.log(tempSortPieceArray);
-console.log("種類数"+numberOfPieceArray.length);//駒の類数
+//console.log("種類ごとの枚数"+numPieceArray);//駒の枚数
+//console.log("配列の全ての駒"+getPieceArray);
+//console.log(piece[whatNumber]);
+//console.log("komaId"+tempPieceId);
+//console.log("配列の末尾"+sortPieceArray[0][sortPieceArray[0].length-1]);//駒の枚数
+//console.log(tempSortPieceArray);
+//console.log("種類数"+numPieceArray.length);//駒の類数
 //console.log("持ち駒の数:"+sortPieceArray.length);//駒台にある駒Id
 //console.log("並び替えた駒:"+sortPieceArray);
 // console.log("駒Id:"+GameRecord["s1"]);//s1にある駒
 // console.log("駒クラス:"+pieceIdRecord[GameRecord["s1"]]);//s1にある駒
 // console.log("s1にある駒Id:"+GameRecord["s1"]);//s1にある駒
-
 }
 
 function start(){
@@ -448,22 +453,23 @@ function touchPiece(tx,ty){
 	}
 	//移動先に相手の駒が存在する。＝相手の駒を取った場合の処理
 	if(isExistPiece()){
-		let motigoma;//取得した駒
+		let getPiece;//取得した駒
 		let standId;
 		getFlg=true;//駒をとった
-		motigoma=currentKomaId;//取った駒のid
-		document.getElementById(motigoma).remove();//駒の削除
+		getPiece=currentKomaId;//取った駒のid
+		document.getElementById(getPiece).remove();//駒の削除
 		GameRecord[currentMasu]='EMP';//現在のマスにある駒（相手の駒）を無しにする。削除と同時に連想配列をEMPにする
 	if(teban=="先手"){
 		standId="s9";
-		sStandArray.push(motigoma);//先手の駒台配列に格納
+		sGetPieceArray.push(getPiece);//先手の駒台配列に格納
 	}else{
 		standId="g9";
-		gStandArray.push(motigoma);//後手の駒台配列に格納
+		gGetPieceArray.push(getPiece);//後手の駒台配列に格納
 	}
-	pieceMove(motigoma,standId);//駒の追加
-//console.log(motigoma);
-sortPiece();//駒台の並び替え
+	pieceMove(getPiece,standId);//駒の追加
+//駒台の並び替え(駒が増えた時)
+	sortPiece();
+	
 	getFlg=false;
 	}
 	//最初に選択した駒が成り駒であるなら
@@ -534,12 +540,11 @@ function getCoordinate(tx,ty){
 	;
 	}
 	currentKomaId=GameRecord[currentMasu];//現在のマスにある駒のId
-
 //aaa=document.getElementById(GameRecord["d5s5"]);//null
 //console.log(aaa);
 //console.log(currentKomaId);
 //console.log(pieceIdRecord[GameRecord["d5s5"]]);//
-	if((typeof currentKomaId==="undefined")||(currentKomaId==null)||(currentKomaId=="EMP")){
+	if((typeof currentKomaId==="undefined")||(currentKomaId===null)||(currentKomaId=="EMP")){
 		currentKomaId="";
 		currentKomaClass="";
 	}else{
@@ -608,18 +613,36 @@ function reset(){
 
 //選択した駒の移動完了まで
 function MoveCommit(){
+	let getPieceArray;//持ち駒配列
 	let promotionMoveFlg=false;
 	let res;
+
 	document.getElementById(firstTouchPieceId).remove();//最初に選択した駒の削除
 	GameRecord[firstTouchMasu]='EMP';//最初に選択した駒が置かれていたマスを無しにする
-	AllReverseCssRule();//駒を削除した後に、マスの色を元に戻す
-	
-//firstTouchMasuInOut==false:持ち駒の使用？
+
+//持ち駒を使用した時(firstTouchMasuInOut==false:持ち駒を使用した時)
+	if(firstTouchMasuInOut==false){
+		console.log(firstTouchPieceId+"を持ち駒として使用しました。");
+		if(teban=="先手"){
+			getPieceArray=sGetPieceArray;//先手の駒台配列
+		}else{
+			getPieceArray=gGetPieceArray;//先手の駒台配列
+		}
+console.log(getPieceArray);//駒台の駒Id
+//console.log(firstTouchPieceId);//並び替えた駒台の駒Id
 //配列から使用した持ち駒(firstTouchPieceId)の削除
-if(firstTouchMasuInOut==false){
-	console.log("持ち駒を使用しました。");
-}
+	for(let i=0;i<getPieceArray.length;i++){
+		if(getPieceArray[i]==firstTouchPieceId){
+			console.log(i+"番目にあります");
+			getPieceArray.splice(i,1);
+		}
+	}
+	console.log(getPieceArray);//駒台の駒Id
+//駒台の並び替え(駒が増えた時)
+	sortPiece();
+	}
 	
+	AllReverseCssRule();//駒を削除した後に、マスの色を元に戻す
 //ここで成るか成らないかの判定-----------------------------------------------------------------
 	while(promotionMoveFlg==false){
 		//成り駒でない＆最初は盤内＆成れる駒
@@ -653,6 +676,7 @@ if(firstTouchMasuInOut==false){
 		document.getElementById("kihudisplay").innerHTML=kihuDisplay+convertPiece+"成";//棋譜の表示
 	}else{
 		pieceMove(firstTouchPieceId,currentMasu);//駒の追加
+		
 		//移動完了の前のバグ確認(マスの中に２枚存在するバグ対策)
 		if(document.getElementById(currentMasu).children.length>1){
 			alert("バグです。盤の中に２枚以上入りまみた。");
