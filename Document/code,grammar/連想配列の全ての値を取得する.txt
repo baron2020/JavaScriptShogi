@@ -1,0 +1,6 @@
+2020/03/19
+・連想配列の全ての値を取得する
+var test={'a':1,'b',2,'c',3};
+x=Object.values(test)
+console.log(x);
+console.log(x[1]);//2

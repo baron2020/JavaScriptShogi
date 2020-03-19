@@ -1,0 +1,18 @@
+2020/03/19
+・正規表現
+let regex1;
+
+regex1=new RegExp(/^d[1-9]/);
+aaa=regex1.test("d8s9");
+console.log(aaa);
+true
+
+regex1=new RegExp(/^d[1-9]s[1-9]/);
+aaa=regex1.test("d8s9");
+console.log(aaa);
+true
+
+regex1=new RegExp(/^d[1-9]/);
+aaa=regex1.test("s9s9");
+console.log(aaa);
+false
