@@ -106,11 +106,38 @@ border-spacing:0px;
 /* æè,Œãè‚Ì‹î‘ä */
 .sStand,.gStand{
 	position:relative;/* ˆÊ’uw’è‚ÌŠî€“_‚É‚·‚é*/	
-	background-color:saddlebrown;
+	background-color:lightgoldenrodyellow;
 	/* saddlebrown skyblue*/
+	/* tan*/
+	/* burlywood*/
+	/* wheat*/
+	/* lemonchiffon*/
+	/* lightgoldenrodyellow*/
 	width:32px;
  	height:32px;	
 }
+/*
+#g1,#s1{
+	border-top:0.5px solid black;
+	box-sizing:border-box;
+}
+
+#g9,#s9{
+	border-top:0.5px solid black;
+	box-sizing:border-box;
+}
+
+#g2,#g3,#g4,#g5,#g6,#g7,#g8{
+	border-top:0.5px solid black;
+	border-bottom:0.5px solid black;
+	box-sizing:border-box;
+}
+#s2,#s3,#s4,#s5,#s6,#s7,#s8{
+	border-top:0.5px solid black;
+	box-sizing:border-box;
+}
+*/
+
 
 /* ‹î */
 .skoma,.gkoma{
