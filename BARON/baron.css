@@ -106,7 +106,7 @@ border-spacing:0px;
 /* 先手,後手の駒台 */
 .sStand,.gStand{
 	position:relative;/* 位置指定の基準点にする*/	
-	background-color:skyblue;
+	background-color:saddlebrown;
 	/* saddlebrown skyblue*/
 	width:32px;
  	height:32px;	
@@ -123,6 +123,17 @@ border-spacing:0px;
 	width:31px;
 	height:31px;
 }
+
+/* 持ち駒 */
+.numGetPiece{
+
+}
+
+/* 持ち駒複数表記 */
+.numDisp{
+	color:yellow;
+}
+
 /* 成り駒 */
 .promotion{
 	color:red;
@@ -134,7 +145,7 @@ border-spacing:0px;
 .skoma{
 	top:50%;/* 親要素の半分下にずらす */	
 	left:50%;/* 親要素の半分右にずらす */
-	transform:translateY(-50%) translateX(-50%);//Y軸,X軸を移動する。		
+		transform:translateY(-50%) translateX(-50%);//Y軸,X軸を移動する。	
 }
 
 /* 後手の駒 */

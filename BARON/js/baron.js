@@ -53,7 +53,6 @@ var pieceMotionTable=[[1,1,1,1,1,1,1,1,0,0],//王
 var sPieceMotionYX=[[-1,0],[-1,1],[0,1],[1,1],[1,0],[1,-1],[0,-1],[-1,-1],[-2,-1],[-2,+1]];
 var gPieceMotionYX=[[1,0],[1,-1],[0,-1],[-1,-1],[-1,0],[-1,1],[0,1],[1,1],[2,1],[2,-1]];
 var GameRecord={'g1':'EMP','g2':'EMP','g3':'EMP','g4':'EMP','g5':'EMP','g6':'EMP','g7':'EMP','g8':'EMP','g9':'EMP',
-				'g12':'EMP','g13':'EMP','g14':'EMP','g15':'EMP','g16':'EMP','g17':'EMP','g18':'EMP','g19':'EMP','g20':'EMP',
 				'd1s1':'KY4','d1s2':'KE4','d1s3':'GI4','d1s4':'KI4','d1s5':'OU2','d1s6':'KI3','d1s7':'GI3','d1s8':'KE3','d1s9':'KY3',
 				'd2s1':'EMP','d2s2':'HI2','d2s3':'EMP','d2s4':'EMP','d2s5':'EMP','d2s6':'EMP','d2s7':'EMP','d2s8':'KA2','d2s9':'EMP',
 				'd3s1':'FU18','d3s2':'FU17','d3s3':'FU16','d3s4':'FU15','d3s5':'FU14','d3s6':'FU13','d3s7':'FU12','d3s8':'FU11','d3s9':'FU10',
@@ -64,7 +63,6 @@ var GameRecord={'g1':'EMP','g2':'EMP','g3':'EMP','g4':'EMP','g5':'EMP','g6':'EMP
 				'd8s1':'EMP','d8s2':'KA1','d8s3':'EMP','d8s4':'EMP','d8s5':'EMP','d8s6':'EMP','d8s7':'EMP','d8s8':'HI1','d8s9':'EMP',
 				'd9s1':'KY1','d9s2':'KE1','d9s3':'GI1','d9s4':'KI1','d9s5':'OU1','d9s6':'KI2','d9s7':'GI2','d9s8':'KE2','d9s9':'KY2',
 				's1':'EMP','s2':'EMP','s3':'EMP','s4':'EMP','s5':'EMP','s6':'EMP','s7':'EMP','s8':'EMP','s9':'EMP',
-				's12':'EMP','s13':'EMP','s14':'EMP','s15':'EMP','s16':'EMP','s17':'EMP','s18':'EMP','s19':'EMP','s20':'EMP'
 				};
 
 //１.skoma２.skoma promotion３.gkoma４.gkoma promotion
@@ -86,7 +84,7 @@ var kys=0;//整数y
 var kxs=0;//整数x
 var startKys=0;//スタートの整数y
 var startKxs=0;//スタートの整数x
-var plen=22;//駒置き場の長さ
+var pLen=11;//駒台の長さ
 var gameCount=1;
 //フラグ関連
 var teban="先手";
@@ -125,8 +123,8 @@ var sGetPieceArray=[];//先手の全持ち駒
 var gGetPieceArray=[];//後手の全持ち駒
 
 function sortPiece(){
-	let sStorageArea=["s1","s2","s3","s4","s5","s6","s7","s8"];//駒置き場の順番
-	let gStorageArea=["g1","g2","g3","g4","g5","g6","g7","g8"];//駒置き場の順番
+	let sStorageArea=["s1","s2","s3","s4","s5","s6","s7","s8","s9"];//駒置き場の順番
+	let gStorageArea=["g9","g8","g7","g6","g5","g4","g3","g2","g1"];//駒置き場の順番
 	let sortRankId=["FU","KY","KE","GI","KI","KA","HI","OU"];//並び替え順番
 	//持ち駒を全て並び替えた配列。"FU","KY","KE","GI","KI","KA","KA","OU"の順盤に先頭に格納
 	let sortPieceArray=[['EMP'],['EMP'],['EMP'],['EMP'],['EMP'],['EMP'],['EMP'],['EMP']];
@@ -145,7 +143,7 @@ function sortPiece(){
 		storageArea=gStorageArea;
 	}
 //console.log("配列の全ての駒"+getPieceArray);
-//tempSortPieceArray:持ち駒を全て並び替えた配列、"FU","KY","KE","GI","KI","KA","HI"の順盤に格納
+	//tempSortPieceArray:持ち駒を全て並び替えた配列、"FU","KY","KE","GI","KI","KA","HI"の順盤に格納
 	for(let i=0;i<sortRankId.length;i++){
 		let numPiece=0;//駒の枚数
 		for(let j=0;j<getPieceArray.length;j++){
@@ -159,17 +157,19 @@ function sortPiece(){
 			numPieceArray.push(numPiece);//種類ごとの枚数を格納
 		}
 	}
-//	console.log(getPieceArray);//並び替えた駒台の駒Id
-//html盤面から持ち駒を削除
+//console.log(getPieceArray);//並び替えた駒台の駒Id
+	//駒台の全削除
 	for(let i=0;i<getPieceArray.length;i++){
 		let tempElement=document.getElementById(getPieceArray[i]);
+		//nullチェック
 		if(!(tempElement===null)){
-			tempElement.remove();//駒台のリセット
+			tempElement.remove();//html盤面から持ち駒を削除
+
 		}
 	}
-//js内の盤面情報を'EMP'にする
+	//js内の盤面情報を'EMP'にする
 	for(let i=0;i<storageArea.length;i++){
-		GameRecord[storageArea]='EMP';//js内の駒台のリセット
+		GameRecord[storageArea[i]]='EMP';//js内の駒台のリセット
 	}
 
 	let xx=0;//配置場所
@@ -196,13 +196,21 @@ function sortPiece(){
 		//駒が2枚以上あるなら
 		if(sortPieceArray[i].length>=3){
 		let numTemp=sortPieceArray[i].length-1;//駒の枚数
-		let tempText="<sup class='numpiece'>"+numTemp+"</sup>";
-		document.getElementById(sortPieceArray[i][sortPieceArray[i].length-1]).insertAdjacentHTML('beforeend',tempText);//駒の複数枚の表示
+		let tempText="<sup class='numDisp'>"+numTemp+"</sup>";
+		let numGetPiece=document.getElementById(sortPieceArray[i][sortPieceArray[i].length-1]);
+		numGetPiece.insertAdjacentHTML('beforeend',tempText);//駒の複数枚の表示
+//numGetPiece.style.position="absolute";
+	if(teban=="先手"){
+		numGetPiece.style.top=11+"px";//cssの調整(topから11pxの位置に配置する)、フレキブルデザイン今後の課題
+	}else{
+		numGetPiece.style.top=5+"px";//cssの調整、フレキブルデザイン今後の課題
+	}
+//console.log(numGetPiece);
+//console.log(numGetPiece.style.top);
 		}
 	}
-//console.log("種類数"+numPieceArray.length);//駒の類数
-
 console.log(sortPieceArray);//並び替えた駒台の駒Id
+//console.log("種類数"+numPieceArray.length);//駒の類数
 //console.log("種類ごとの枚数"+numPieceArray);//駒の枚数
 //console.log("配列の全ての駒"+getPieceArray);
 //console.log(piece[whatNumber]);
@@ -245,19 +253,13 @@ function gAria(){
 	let gDisplay="";//後手駒台表示用
 	let gKomadai=[];//後手の駒台
 	let gPaneru;
-	gKomadai=new Array(plen);
-	for(let i=0;i<plen;i++){
+	gKomadai=new Array(pLen);
+	for(let i=0;i<pLen;i++){
 		gPaneru="<div class='gStand'id='g"+i+"'>　</div>";
 		gKomadai[i]=gPaneru;
 	}
-	for(let i=0;i<plen;i++){
+	for(let i=0;i<pLen;i++){
 		gDisplay+=gKomadai[i];
-		if(i==21){
-		break;
-		}
-		if(i==10){
-		gDisplay+="<br>";
-		}
 	}
 	document.getElementById("gdisp").innerHTML=gDisplay;
 }
@@ -266,19 +268,13 @@ function sAria(){
 	let sDisplay="";//先手駒台表示用
 	let sKomadai=[];//先手の駒台
 	let sPaneru;
-	sKomadai=new Array(plen);
-	for(let i=0;i<plen;i++){
+	sKomadai=new Array(pLen);
+	for(let i=0;i<pLen;i++){
 		sPaneru="<div class='sStand'id='s"+i+"'>　</div>";
 		sKomadai[i]=sPaneru;
 	}
-	for(let i=0;i<plen;i++){
+	for(let i=0;i<pLen;i++){
 		sDisplay+=sKomadai[i];
-		if(i==21){
-		break;
-		}
-		if(i==10){
-		sDisplay+="<br>";
-		}
 	}
 	document.getElementById("sdisp").innerHTML=sDisplay;
 }
@@ -370,17 +366,17 @@ function setUp(){
 }
 //パソコン用マウスダウン
 function mousedown(e){
-	//try{
-		//if((endFlg==false)&&(endModeFlg==false)){
+	try{
+		if((endFlg==false)&&(endModeFlg==false)){
 			touchPiece(e.pageX,e.pageY);
-		//}else{
-		//	throw new Error("お疲れ様でした(*_ _)");
-		//}
-	//}
-	//catch(e){
-	//		document.getElementById("windisp").innerHTML="";//勝敗結果
-		//	document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";//勝敗
-	//}
+		}else{
+			throw new Error("お疲れ様でした(*_ _)");
+		}
+	}
+	catch(e){
+		document.getElementById("windisp").innerHTML="";//勝敗結果
+		document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";//勝敗
+	}
 }
 //スマホ用タッチスタート
 function touchstart(e){
@@ -451,25 +447,24 @@ function touchPiece(tx,ty){
 		reset();
 		return;
 	}
-	//移動先に相手の駒が存在する。＝相手の駒を取った場合の処理
+//移動先に相手の駒が存在する。＝相手の駒を取った場合の処理
 	if(isExistPiece()){
 		let getPiece;//取得した駒
-		let standId;
+		let tempArea;//持ち駒を仮格納するマス
 		getFlg=true;//駒をとった
 		getPiece=currentKomaId;//取った駒のid
 		document.getElementById(getPiece).remove();//駒の削除
 		GameRecord[currentMasu]='EMP';//現在のマスにある駒（相手の駒）を無しにする。削除と同時に連想配列をEMPにする
 	if(teban=="先手"){
-		standId="s9";
+		tempArea="s9";
 		sGetPieceArray.push(getPiece);//先手の駒台配列に格納
 	}else{
-		standId="g9";
+		tempArea="g1";
 		gGetPieceArray.push(getPiece);//後手の駒台配列に格納
 	}
-	pieceMove(getPiece,standId);//駒の追加
+	pieceMove(getPiece,tempArea);//駒の追加
 //駒台の並び替え(駒が増えた時)
 	sortPiece();
-	
 	getFlg=false;
 	}
 	//最初に選択した駒が成り駒であるなら
@@ -509,12 +504,13 @@ function touchPiece(tx,ty){
 }
 //座標,
 function getCoordinate(tx,ty){
+//console.log(GameRecord);
 	let banX=36;//将棋盤までのpx横幅(距離)
-	let banY=172;//将棋盤までのpx高さ(距離)
+	let banY=140;//将棋盤までのpx高さ(距離)
 	let gW1=36;//g1までの横の距離
 	let gH1=76;//g1までの縦の距離
 	let sW1=36;//s1までの横の距離
-	let sH1=493;//s1までの縦の距離
+	let sH1=460;//s1までの縦の距離
 	kx=Math.floor(tx);
 	ky=Math.floor(ty);
 	kxs=Math.floor(((tx-banX)/32)+1);
@@ -539,10 +535,11 @@ function getCoordinate(tx,ty){
 	}else{
 	;
 	}
+//console.log(currentMasu);
 	currentKomaId=GameRecord[currentMasu];//現在のマスにある駒のId
+//console.log(currentKomaId);
 //aaa=document.getElementById(GameRecord["d5s5"]);//null
 //console.log(aaa);
-//console.log(currentKomaId);
 //console.log(pieceIdRecord[GameRecord["d5s5"]]);//
 	if((typeof currentKomaId==="undefined")||(currentKomaId===null)||(currentKomaId=="EMP")){
 		currentKomaId="";
@@ -578,6 +575,7 @@ function choice(){
 	promotionFlg=firstPromotion();//一度目にタッチした駒は成り駒か？
 	startKys=kys;
 	startKxs=kxs;
+console.log(firstTouchPieceId);
 	//最初にタッチしたマスが盤内なら駒の動きを表示する
 	if(firstTouchMasuInOut){
 		pieceMotionRule();
@@ -616,24 +614,21 @@ function MoveCommit(){
 	let getPieceArray;//持ち駒配列
 	let promotionMoveFlg=false;
 	let res;
-
 	document.getElementById(firstTouchPieceId).remove();//最初に選択した駒の削除
 	GameRecord[firstTouchMasu]='EMP';//最初に選択した駒が置かれていたマスを無しにする
-
 //持ち駒を使用した時(firstTouchMasuInOut==false:持ち駒を使用した時)
 	if(firstTouchMasuInOut==false){
-		console.log(firstTouchPieceId+"を持ち駒として使用しました。");
+console.log(firstTouchPieceId+"を持ち駒として使用しました。");
 		if(teban=="先手"){
 			getPieceArray=sGetPieceArray;//先手の駒台配列
 		}else{
 			getPieceArray=gGetPieceArray;//先手の駒台配列
 		}
 console.log(getPieceArray);//駒台の駒Id
-//console.log(firstTouchPieceId);//並び替えた駒台の駒Id
 //配列から使用した持ち駒(firstTouchPieceId)の削除
 	for(let i=0;i<getPieceArray.length;i++){
 		if(getPieceArray[i]==firstTouchPieceId){
-			console.log(i+"番目にあります");
+console.log(i+"番目にあります");
 			getPieceArray.splice(i,1);
 		}
 	}
