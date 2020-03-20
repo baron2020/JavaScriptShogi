@@ -1,0 +1,114 @@
+2020/03/20
+・王の動きの制約の思考
+１)盤内の相手の駒と相手の駒が存在するマスを全て求める。
+２)１の情報を元に、全ての相手の駒に対して利いているマス(動けるマス)を求める。
+３)２の情報を元に、手番の王に対して動きの制約をかける。
+　 動きの制約とは、相手の駒の効いているマスには移動できない。
+　 (移動可能マスに含めずcssの変更をしない)
+
+・王の動きの制約のコード
+function testGet(){
+	let regex1=new RegExp(/^d[1-9]/);//盤内のマスを抽出する正規表現に使用
+	let allBanMasuId=[];//盤内のマスを格納
+	let allBanPieceId=[];//盤内にある駒Idを格納
+	let rivalPieceIdArray=[];//盤内にある相手の駒Idを格納
+	let rivalPieceClassArray=[];//相手の駒のクラス
+	let rivalPieceMasu=[];//相手の駒の存在するマスId
+	let checkClassArray;
+	//相手の駒クラスを確認する
+	if(teban=="先手"){
+		checkClassArray=gClassArray;//["skoma","skoma promotion","OU2"];
+	}else{
+		checkClassArray=sClassArray;//["gkoma","gkoma promotion","OU1"];
+	}
+	for(masuId in GameRecord){
+		banInOut=regex1.test(masuId);
+		if(banInOut){
+			allBanMasuId.push(masuId);//盤内のマスのみを抽出
+		}
+	}
+	for(let i=0;i<allBanMasuId.length;i++){
+		if(!(GameRecord[allBanMasuId[i]]=="EMP")){
+			allBanPieceId.push(GameRecord[allBanMasuId[i]]);//盤内にある駒Idのみを格納
+		}
+	}
+	for(let i=0;i<allBanPieceId.length;i++){
+		//相手の駒クラスであれば
+		if((pieceIdRecord[allBanPieceId[i]]==checkClassArray[0])||(pieceIdRecord[allBanPieceId[i]]==checkClassArray[1])){
+			rivalPieceIdArray.push(allBanPieceId[i]);//盤内にある相手の駒Idのみを格納
+			rivalPieceClassArray.push(pieceIdRecord[allBanPieceId[i]]);//盤内にある相手の駒クラス
+	}
+	}
+	let keys=Object.keys(GameRecord);//全てのキー	
+	for(let i=0;i<rivalPieceIdArray.length;i++){
+		//その駒がどのマスかを探す
+		for(let j=0;j<keys.length;j++){
+			//駒=連想配列の値なら、キーを抽出する
+			if(rivalPieceIdArray[i]==GameRecord[keys[j]]){
+				rivalPieceMasu.push(keys[j]);//盤内にある相手の駒Idのみを格納
+			}
+		}
+	}
+	//相手の盤内の駒の分だけループする。
+	for(let i=0;i<rivalPieceIdArray.length;i++){
+		rivalPieceMotionRule(rivalPieceIdArray[i],rivalPieceClassArray[i],rivalPieceMasu[i]);
+		//相手の駒の効きを求める
+	}
+	//配列から重複した値を削除する
+	checkRivalArray=allRivalPieceMotionArray.filter((x,i,self)=>self.indexOf(x)===i);
+}
+
+//相手の駒の効きを求める---------------------------------------------------------------------
+function rivalPieceMotionRule(rivalPieceId,rivalPieceClass,rivalPieceMasu){
+	let typeMotion,motionY,motionX,addY,addX;
+	let rivalPieceName=rivalPieceId.substr(0,2);//Name:頭文字二文字、Id:フル
+	let indexNumber=checkPieceId.indexOf(rivalPieceName);//配列の何番目にあるか？
+	let tempTargetClass=rivalPieceClass;//相手の駒のクラス
+	let rivalPieceMotion;//仮の移動先のマス
+	let startY=rivalPieceMasu.substr(1,1);
+	let startX=rivalPieceMasu.substr(3,1);
+	//成銀,成桂,成香,とはindexNumberを3にし、金と同じ動きを参照する
+	if(((rivalPieceName=="GI")||(rivalPieceName=="KE")||(rivalPieceName=="KY")||(rivalPieceName=="FU"))&&
+	   ((tempTargetClass=="skoma promotion")||(tempTargetClass=="gkoma promotion"))){
+		indexNumber=3;
+	}
+	if((rivalPieceName=="HI")&&
+	   ((tempTargetClass=="skoma promotion")||(tempTargetClass=="gkoma promotion"))){
+		indexNumber=8;
+	}
+	if((rivalPieceName=="KA")&&
+	   ((tempTargetClass=="skoma promotion")||(tempTargetClass=="gkoma promotion"))){
+		indexNumber=9;
+	}
+	for(let i=0;i<sPieceMotionYX.length;i++){
+		typeMotion=pieceMotionTable[indexNumber][i];
+		motionY=Number(startY);
+		motionX=Number(startX);
+		if(typeMotion==0){
+			continue;
+		}
+		if(typeMotion>=1){
+			if(teban=="先手"){
+				addY=gPieceMotionYX[i][0];
+				addX=gPieceMotionYX[i][1];
+			}else{
+				addY=sPieceMotionYX[i][0];
+				addX=sPieceMotionYX[i][1];
+			}
+			do{
+				motionY+=addY;
+				motionX+=addX;
+				rivalPieceMotion="d"+motionY+"s"+motionX;
+				if((InOut(motionY,motionX)==false)||
+				   (moveIsRivalPiece(pieceIdRecord[GameRecord[rivalPieceMotion]]))){
+					//移動先が盤外または、移動先に相手の駒があればスルーする
+					break;
+				}
+				allRivalPieceMotionArray.push(rivalPieceMotion);//相手の駒の効いているマスを配列に格納する
+				if(typeMotion==1){
+					break;//１の時は繰り返さずにdo～whileを抜ける
+				}
+			}while(GameRecord[rivalPieceMotion]=="EMP");//移動先に駒がない＆飛車,角,香,竜,馬の２の動きの間は繰り返す。
+		}
+	}
+}
