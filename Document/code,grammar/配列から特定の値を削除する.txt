@@ -1,0 +1,8 @@
+2020/03/21
+・配列から特定の値を削除する
+var test=[0,1,2,3,4,5];
+for(let i=0;i<test.length;i++){
+	if(test[i]==3){
+		test..splice(i,1);//配列から削除する
+	}
+}
