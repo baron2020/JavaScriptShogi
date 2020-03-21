@@ -124,7 +124,8 @@ var gGetPieceArray=[];//後手の全持ち駒
 var allRivalPieceMotionArray=[];//相手の駒の効いているマスを全て格納する
 var checkRivalArray=[];//allRivalPieceMotionArrayの重複を削除した配列
 
-function allRivalPieceMotionRule(){
+//全ての相手の駒の利きを求め、checkRivalArray(重複なし配列)に格納する
+function allRivalPieceMotion(){
 	let regex1=new RegExp(/^d[1-9]/);//盤内のマスを抽出する正規表現に使用
 	let allBanMasuId=[];//盤内のマスを格納
 	let allBanPieceId=[];//盤内にある駒Idを格納
@@ -183,10 +184,10 @@ function allRivalPieceMotionRule(){
 		rivalPieceMotionRule(rivalPieceIdArray[i],rivalPieceClassArray[i],rivalPieceMasu[i]);
 		//相手の駒の効きを求める
 	}
-console.log(allRivalPieceMotionArray);
+//console.log(allRivalPieceMotionArray);
 	//配列から重複した値を削除する
 	checkRivalArray=allRivalPieceMotionArray.filter((x,i,self)=>self.indexOf(x)===i);
-console.log("重複なし配列"+checkRivalArray);
+//console.log("重複なし配列"+checkRivalArray);
 //王の動きの制約と駒の動きの制約配列を比較する
 }
 
@@ -429,7 +430,7 @@ function touchPiece(tx,ty){
 	if(firstChoiceFlg==true){
 		//自分の駒を選択している。
 		if(isMyPiece()==true){
-allRivalPieceMotionRule();//盤内の相手の駒の利きを全て求める。
+allRivalPieceMotion();//盤内の相手の駒の利きを全て求める。
 			choice();
 			firstChoiceFlg=false;
 			return;
@@ -816,11 +817,25 @@ function pieceMotionRule(){
 			}while(GameRecord[pieceMotion]=="EMP");//移動先に駒がない＆飛車,角,香,竜,馬の２の動きの間は繰り返す。
 		}
 	}
-if(firstTouchPieceName=="OU"){
-	console.log("王を選択しています");
-	console.log("王の動けるマス"+movePossibleArray);
-	console.log("相手の駒の利きがあるマス(重複なし)"+checkRivalArray);
-}
+
+	if(firstTouchPieceName=="OU"){
+		//console.log("王を選択しています");
+console.log("王の動けるマス"+movePossibleArray);
+console.log("相手の駒の利きがあるマス(重複なし)"+checkRivalArray);
+console.log(movePossibleArray[0]);
+console.log(checkRivalArray[0]);
+
+		for(let i=0;i<movePossibleArray.length;i++){
+			for(let j=0;j<checkRivalArray.length;j++){
+				if(movePossibleArray[i]==checkRivalArray[j]){
+					console.log("相手の駒の利きがあります");
+					movePossibleArray.splice(i,1);//相手の駒の利きがあるマスは移動可能マスから削除する
+				}
+			}
+		}
+	}
+console.log("王の動けるマス"+movePossibleArray);
+//console.log("テスト"+testA);
 }
 
 //駒の並び替え
@@ -885,7 +900,6 @@ function sortPiece(){
 			document.getElementById(tempPieceId).setAttribute('class',switchClassArray[0]);//駒にクラスの設定
 			GameRecord[storageArea[xx]]=tempPieceId;//jsのゲーム記録を配列の最後尾のIdに設定し、整合性を合わせる
 			pieceIdRecord[GameRecord[storageArea[xx]]]=switchClassArray[0];//js内の駒クラスの整合性を合わせる
-			
 //console.log("js駒台Id:"+storageArea[xx]);
 //console.log("js駒Id:"+GameRecord[storageArea[xx]]);
 //console.log("js駒クラス:"+pieceIdRecord[GameRecord[storageArea[xx]]]);
@@ -1217,10 +1231,10 @@ function endMode(){
 
 //音楽関連
 var audioElem;
-function PlaySound() {
-	audioElem = new Audio();
-	audioElem.src = "mp/komaoto.mp3";//ここにmp3パスを設定する。
-	audioElem.volume = 0.5;
+function PlaySound(){
+	audioElem=new Audio();
+	audioElem.src="mp/komaoto.mp3";//ここにmp3パスを設定する。
+	audioElem.volume=0.5;
 	audioElem.play();
 }
 
