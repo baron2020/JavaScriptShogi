@@ -170,7 +170,7 @@ function setAllRivalPieceMotion(){
 		for(let j=0;j<keys.length;j++){
 			//駒=連想配列の値なら、キーを抽出する
 			if(rivalPieceIdArray[i]==GameRecord[keys[j]]){
-				rivalPieceMasu.push(keys[j]);//盤内にある相手の駒Idのみを格納
+				rivalPieceMasu.push(keys[j]);//盤内の相手の駒が存在するマスIdを格納
 			}
 		}
 	}
@@ -234,12 +234,24 @@ function setRivalPieceMotion(rivalPieceId,rivalPieceClass,rivalPieceMasu){
 				rivalPieceMotion="d"+motionY+"s"+motionX;
 				if((InOut(motionY,motionX)==false)||
 				   (moveIsRivalPiece(pieceIdRecord[GameRecord[rivalPieceMotion]]))){
-					//移動先が盤外または、移動先に相手の駒があればスルーする
+					//移動先が盤外または、移動先に自陣の駒があれば抜ける
 					break;
 				}
 				allRivalPieceMotionArray.push(rivalPieceMotion);//相手の駒の効いているマスを配列に格納する
 				if(typeMotion==1){
 					break;//１の時は繰り返さずにdo～whileを抜ける
+				}
+				//２の動きの王を貫通した先の１マスを格納する
+				if((typeMotion==2)&&
+					((GameRecord[rivalPieceMotion]=="OU1")||(GameRecord[rivalPieceMotion]=="OU2"))){
+						motionY+=addY;
+						motionX+=addX;
+						rivalPieceMotion="d"+motionY+"s"+motionX;
+						if(InOut(motionY,motionX)==true){
+							allRivalPieceMotionArray.push(rivalPieceMotion);//相手の王を貫通した先の１マスを配列に格納する
+							console.log(rivalPieceMotion);
+						}
+						break;//繰り返さずにdo～whileを抜ける
 				}
 			}while(GameRecord[rivalPieceMotion]=="EMP");//移動先に駒がない＆飛車,角,香,竜,馬の２の動きの間は繰り返す。
 		}
@@ -821,10 +833,10 @@ function pieceMotionRule(){
 
 	if(firstTouchPieceName=="OU"){
 		//console.log("王を選択しています");
-console.log("王の動けるマス"+movePossibleArray);
+//console.log("王の動けるマス"+movePossibleArray);
 console.log("相手の駒の利きがあるマス(重複なし)"+checkRivalArray);
-console.log(movePossibleArray.length);
-console.log(checkRivalArray.length);
+//console.log(movePossibleArray.length);
+//console.log(checkRivalArray.length);
 
 		for(let i=movePossibleArray.length-1;i>=0;i--){
 			for(let j=0;j<checkRivalArray.length;j++){
@@ -1186,6 +1198,10 @@ function kihuConvertPiece(tempPieceName,commit){
 		convertPiece=convertPiecePromotionKanjiArray[indexNumber];
 	}else{
 		convertPiece=convertPieceKanjiArray[indexNumber];
+		if((convertPiece=="王")&&(teban=="後手")){
+			convertPiece="玉";
+			console.log(convertPiece);
+		}
 	}
 	//commitが1:完全に指し終えている時
 	if(commit==1){
