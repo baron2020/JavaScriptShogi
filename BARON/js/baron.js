@@ -125,7 +125,7 @@ var allRivalPieceMotionArray=[];//相手の駒の効いているマスを全て�
 var checkRivalArray=[];//allRivalPieceMotionArrayの重複を削除した配列
 
 //全ての相手の駒の利きを求め、checkRivalArray(重複なし配列)に格納する
-function allRivalPieceMotion(){
+function setAllRivalPieceMotion(){
 	let regex1=new RegExp(/^d[1-9]/);//盤内のマスを抽出する正規表現に使用
 	let allBanMasuId=[];//盤内のマスを格納
 	let allBanPieceId=[];//盤内にある駒Idを格納
@@ -178,10 +178,10 @@ function allRivalPieceMotion(){
 //console.log("相手の駒"+rivalPieceIdArray);//相手の駒
 //console.log("相手の駒クラス"+rivalPieceClassArray);//相手の駒クラス
 //console.log(" "+rivalPieceIdArray[0]+" "+rivalPieceClassArray[0]+" "+rivalPieceMasu[0]);//相手の駒クラス
-//rivalPieceMotionRule(rivalPieceIdArray[0],rivalPieceClassArray[0],rivalPieceMasu[0]);
+//setRivalPieceMotion(rivalPieceIdArray[0],rivalPieceClassArray[0],rivalPieceMasu[0]);
 	//相手の盤内の駒の分だけループする。
 	for(let i=0;i<rivalPieceIdArray.length;i++){
-		rivalPieceMotionRule(rivalPieceIdArray[i],rivalPieceClassArray[i],rivalPieceMasu[i]);
+		setRivalPieceMotion(rivalPieceIdArray[i],rivalPieceClassArray[i],rivalPieceMasu[i]);
 		//相手の駒の効きを求める
 	}
 //console.log(allRivalPieceMotionArray);
@@ -192,7 +192,7 @@ function allRivalPieceMotion(){
 }
 
 //相手の駒の利きを求める。---------------------------------------------------------------------
-function rivalPieceMotionRule(rivalPieceId,rivalPieceClass,rivalPieceMasu){
+function setRivalPieceMotion(rivalPieceId,rivalPieceClass,rivalPieceMasu){
 	let typeMotion,motionY,motionX,addY,addX;
 	let rivalPieceName=rivalPieceId.substr(0,2);//Name:頭文字二文字、Id:フル
 	let indexNumber=checkPieceId.indexOf(rivalPieceName);//配列の何番目にあるか？
@@ -430,7 +430,7 @@ function touchPiece(tx,ty){
 	if(firstChoiceFlg==true){
 		//自分の駒を選択している。
 		if(isMyPiece()==true){
-allRivalPieceMotion();//盤内の相手の駒の利きを全て求める。
+setAllRivalPieceMotion();//盤内の相手の駒の利きを全て求める。
 			choice();
 			firstChoiceFlg=false;
 			return;
@@ -630,8 +630,8 @@ function reset(){
 	firstTouchPieceName="リセット";
 	firstTouchMasu="リセット";
 	getFlg=false;//駒をとっていない
-	movePossibleArray.length=0;//移動可能マスの配列を0にする。
 	outeCheckArray.length=0;//王手確認用の配列を0にする。
+movePossibleArray.length=0;//移動可能マスの配列を0にする。
 allRivalPieceMotionArray.length=0;//相手の駒の効いているマスを格納した配列をリセットする。
 checkRivalArray.length=0;//重複を削除した配列のリセット
 	AllReverseCssRule();//全ての盤クラスの変更を元に戻す
@@ -658,6 +658,7 @@ console.log(firstTouchPieceId+"を持ち駒として使用しました。");
 		}
 console.log(getPieceArray);//駒台の駒Id
 //配列から使用した持ち駒(firstTouchPieceId)の削除
+
 	for(let i=0;i<getPieceArray.length;i++){
 		if(getPieceArray[i]==firstTouchPieceId){
 console.log(i+"番目にあります");
@@ -822,10 +823,10 @@ function pieceMotionRule(){
 		//console.log("王を選択しています");
 console.log("王の動けるマス"+movePossibleArray);
 console.log("相手の駒の利きがあるマス(重複なし)"+checkRivalArray);
-console.log(movePossibleArray[0]);
-console.log(checkRivalArray[0]);
+console.log(movePossibleArray.length);
+console.log(checkRivalArray.length);
 
-		for(let i=0;i<movePossibleArray.length;i++){
+		for(let i=movePossibleArray.length-1;i>=0;i--){
 			for(let j=0;j<checkRivalArray.length;j++){
 				if(movePossibleArray[i]==checkRivalArray[j]){
 					console.log("相手の駒の利きがあります");
@@ -834,7 +835,7 @@ console.log(checkRivalArray[0]);
 			}
 		}
 	}
-console.log("王の動けるマス"+movePossibleArray);
+console.log("移動可能マス"+movePossibleArray);
 //console.log("テスト"+testA);
 }
 
