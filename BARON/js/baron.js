@@ -107,8 +107,6 @@ var gClassArray=["gkoma","gkoma promotion","OU1","OU2"];
 var justBefore=[];//直前の指し手のマスを格納する配列
 var nihudesuFlg=false;//二歩チェック用
 
-var kingMotionArray=[];//王手チェック用の配列
-
 var gameRecodeDisplay="";//棋譜記録の表示用
 var kihuDisplay;//棋譜
 var convertPiece="";//漢字に変換
@@ -125,12 +123,235 @@ var gGetPieceArray=[];//後手の全持ち駒
 var tempDominanceArray=[];//一時保存用配列
 var allPieceDominanceArray=[];//tempDominanceArrayの重複を削除した配列
 
+var legalHandPieceArray=['OU1','OU2'];//合法手の駒
+var legalHandMasuArray=[];//合法手のマス
+
+//後手駒台の作成
+function gAria(){
+	let gDisplay="";//後手駒台表示用
+	let gKomadai=[];//後手の駒台
+	let gPaneru;
+	gKomadai=new Array(pLen);
+	for(let i=0;i<pLen;i++){
+		gPaneru="<div class='gStand'id='g"+i+"'>　</div>";
+		gKomadai[i]=gPaneru;
+	}
+	for(let i=0;i<pLen;i++){
+		gDisplay+=gKomadai[i];
+	}
+	document.getElementById("gdisp").innerHTML=gDisplay;
+}
+
+//中央メイン盤の作成
+function mainAria(){
+	let mainDisplay="";//メイン表示用
+	let board=[];//メインの将棋盤
+	let paneru;
+	board=new Array(11);
+	for(let y=0;y<11;y++){
+		board[y]=new Array(11)
+		for(let x=0;x<11;x++){
+			if((y==0)){
+				if((x==0)||(x==10)){
+					paneru="<div class='topAndCornerEdge'id='d"+y+"s"+x+"'>　</div>";
+				}else{
+				paneru="<div class='topEdge'id='d"+y+"s"+x+"'>　</div>";
+				}
+			}
+			else if((x==10)&&((y>=1)&&(y<=9))){
+				paneru="<div class='rightEdge'id='d"+y+"s"+x+"'>　</div>";
+			}
+			else if((y==10)&&((x>=1)&&(x<=9))){
+				paneru="<div class='bottomEdge'id='d"+y+"s"+x+"'>　</div>";
+			}
+			else if((x==0)&&((y>=1)&&(y<=9))){
+				paneru="<div class='leftEdge'id='d"+y+"s"+x+"'>　</div>";
+			}
+			else if(((y==10)&&(x==0))||((y==10)&&(x==10))){
+				paneru="<div class='bottomAndCornerEdge'id='d"+y+"s"+x+"'>　</div>";
+			}
+			else{
+				paneru="<div class='ban'id='d"+y+"s"+x+"'>　</div>";
+			}
+			board[y][x]=paneru;
+		}
+	}
+	for(let y=0;y<11;y++){
+		for(let x=0;x<11;x++){
+		mainDisplay+=board[y][x];
+		if((y==10)&&(x==10)){
+		break;
+		}
+		if(x==10){
+		mainDisplay+="<br>";
+		}
+		}
+	}
+	document.getElementById("maindisp").innerHTML=mainDisplay;
+}
+
+//先手駒台の作成
+function sAria(){
+	let sDisplay="";//先手駒台表示用
+	let sKomadai=[];//先手の駒台
+	let sPaneru;
+	sKomadai=new Array(pLen);
+	for(let i=0;i<pLen;i++){
+		sPaneru="<div class='sStand'id='s"+i+"'>　</div>";
+		sKomadai[i]=sPaneru;
+	}
+	for(let i=0;i<pLen;i++){
+		sDisplay+=sKomadai[i];
+	}
+	document.getElementById("sdisp").innerHTML=sDisplay;
+}
+
+//駒の配置
+function setUp(){
+	//初期配置用のマスのId(先手,後手)
+	let initialPlacementMasuId=["d9s5","d8s8","d8s2","d9s4","d9s6","d9s3","d9s7","d9s2","d9s8","d9s1","d9s9","d7s1","d7s2","d7s3","d7s4","d7s5","d7s6","d7s7","d7s8","d7s9",
+								"d1s5","d2s2","d2s8","d1s6","d1s4","d1s7","d1s3","d1s8","d1s2","d1s9","d1s1","d3s9","d3s8","d3s7","d3s6","d3s5","d3s4","d3s3","d3s2","d3s1"];
+	//駒の配置(先手,後手)
+	for(let i=0;i<piece.length;i++){
+		document.getElementById(initialPlacementMasuId[i]).insertAdjacentHTML('afterbegin',piece[i]);
+		if(i<20){
+			document.getElementById(pieceId[i]).setAttribute('class','skoma');//.setAttribute('class','skoma');.className='skoma';
+		}else{
+			document.getElementById(pieceId[i]).setAttribute('class','gkoma');
+		}
+	}
+}
+
+//ユーザーチェック
+function userCheck(){
+	let userB=window.navigator.appName;//ユーザーブラウザ
+	let wnu=window.navigator.userAgent;//ユーザーエージェント
+	let userOs;//ユーザーos
+	let userW=window.innerWidth;//ウィンドウの横幅
+	let userH=window.innerHeight;//ウィンドウの高さ
+	if(wnu.indexOf('iPhone')!=-1){
+		userOs="iPhone";
+	}else if(wnu.indexOf('iPod')!=-1){
+		userOs="iPod";
+	}else if(wnu.indexOf('Android')!=-1){
+		userOs="Android";
+	}else if(wnu.indexOf('Windows')!=-1){
+		userOs="Windows";
+	}else{
+		userOs="わかりません";
+	}
+	document.getElementById("useros").innerHTML=userOs;//userのosを表示
+	document.getElementById("userw").innerHTML=userW;//userの横幅を表示
+	document.getElementById("userh").innerHTML=userH;//userの高さを表示
+}
+
+//スタート
+function start(){
+	let supportTouch='ontouchend'in document;//タッチイベントがサポートされているか
+	let EVENTNAME=supportTouch ? 'touchstart':'mousedown';//タッチイベントかマウスダウンか
+	let tempInp;
+	gAria();
+	mainAria();
+	sAria();
+	userCheck();
+	//駒の配置とイベントリスナの登録
+	setUp();
+	document.getElementById("gamemode").innerHTML="対局モード";
+	document.getElementById("teban").innerHTML=teban;//手番
+	document.getElementById("gamecount").innerHTML=gameCount+"手目";//何手目か？
+	tempInp="<input type='button' value='対局モードの終了'onClick='endMode()'size='10'>";
+	document.getElementById("inpModeEnd").innerHTML=tempInp;
+	//イベント分岐
+	if(EVENTNAME=='touchstart'){
+		document.addEventListener("touchstart",touchstart);
+	}else{
+		document.addEventListener("mousedown",mousedown);
+	}
+}
+//パソコン用マウスダウン
+function mousedown(e){
+	//try{
+	//	if((tumiFlg==false)&&(endFlg==false)&&(endModeFlg==false)){
+			touchScreen(e.pageX,e.pageY);
+	//	}else{
+	//		throw new Error("お疲れ様でした(*_ _)");
+	//	}
+	//}
+	//catch(e){
+	//	document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";//勝敗
+	//	document.getElementById("windisp").innerHTML="";//勝敗結果
+	//	document.getElementById("inpModeEnd").innerHTML="";
+	//	document.getElementById("gamemode").innerHTML="検討モード";
+	//}
+}
+//スマホ用タッチスタート
+function touchstart(e){
+	try{
+		if((tumiFlg==false)&&(endFlg==false)&&(endModeFlg==false)){
+			//もしタッチされたのが一箇所であるなら
+			if(e.targetTouches.length==1){
+				touch=e.targetTouches[0];
+				touchScreen(touch.pageX,touch.pageY);
+			}
+		}else{
+			throw new Error("お疲れ様でした(*_ _)");
+		}
+	}
+	catch(e){
+		document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";//勝敗
+		document.getElementById("windisp").innerHTML="";//勝敗結果
+		document.getElementById("inpModeEnd").innerHTML="";
+		document.getElementById("gamemode").innerHTML="検討モード";
+	}
+}
+
+//start()系終了---------------------------------------------------------------------------------------
+
 //詰み判定関連
 var outeFlg=false;//王手がかけられているか？
 var hunterName=[];//王手をかけてきた駒
 var hunterClass=[];//王手をかけてきた駒のクラス
 var hunterMasu=[];//王手をかけてきた駒のマス
 var kingPosition=[];//王の位置
+//詰み判定
+function tumiJudge(){
+	let w;
+	console.log("王手をかけられた王の位置"+kingPosition);
+	if(teban=="先手"){
+		setPieceMotion("OU","skoma",kingPosition[0]);//王の動きを求める
+	}else{
+		setPieceMotion("OU","gkoma",kingPosition[0]);
+	}
+		kingMotion();//相手の駒の利きを考慮した王の移動範囲(myPieceMotionArray)を求める
+		w=wHunter();
+		console.log("ダブル王手"+w);//trueならダブル王手
+		console.log("王の動けるマス"+myPieceMotionArray);//王の動けるマス
+	//ダブル王手かつ王の動けるマスがない
+	if((w==true)&&(myPieceMotionArray.length==0)){
+		console.log("w王手から詰みました。");//trueならダブル王手
+		tumiFlg=true;//詰みです
+		return true;
+	}
+	resetTumiArray();//詰み判定に使用する配列のリセット
+	return false;//詰んでいない
+}
+//ダブル王手か？
+function wHunter(){
+	for(let i=0;i<hunterMasu.length;i++){
+		if(!(hunterMasu[0]==hunterMasu[i])){
+			return true;
+		}
+	}
+	return false;
+}
+
+//詰み判定に使用変数のリセット
+function resetTumiArray(){
+	hunterName.length=0;//王手をかけてきた駒
+	hunterClass.length=0;//王手をかけてきた駒のクラス
+	hunterMasu.length=0;//王手をかけてきた駒のマス
+	kingPosition.length=0;//王の位置
+}
 
 //touchScreen()系開始----------------------------------------------------------------------------------
 //タッチされた時のイベントの処理
@@ -141,8 +362,8 @@ function touchScreen(tx,ty){
 		//自分の駒を選択している。
 		if(isMyPiece()==true){
 			choice();
-//王手をかけられたら王しか選択できない
-			if((outeFlg==true)&&(!(firstTouchPieceName=="OU"))){
+//王手をかけられていたら合法手の駒しか選択できない
+			if((outeFlg==true)&&(legalHandPieceArray.indexOf(firstTouchPieceId)==-1)){
 				allReset();
 				return;
 			}
@@ -241,7 +462,7 @@ function touchScreen(tx,ty){
 	document.getElementById("teban").innerHTML=teban;//手番
 	resetArray();//配列のリセット
 	resetFlg();//フラグのリセット
-	outeFlg=false;
+outeFlg=false;
 setAllPieceDominance(gyakuTeban);//盤内の駒の利きを全て求める。王手確認をする。
 	//王手をかけられていたら
 	if(outeFlg==true){
@@ -250,46 +471,8 @@ setAllPieceDominance(gyakuTeban);//盤内の駒の利きを全て求める。王
 	}else{
 		document.getElementById("outedisp").innerHTML="";
 	}
+	myPieceMotionArray.length=0;//駒の動きのマス
 	return;
-}
-
-function tumiJudge(){
-	let w;
-	console.log("王手をかけられた王の位置"+kingPosition);
-	if(teban=="先手"){
-		setMyPieceMotion("OU","skoma",kingPosition[0]);//王の動きを求める
-	}else{
-		setMyPieceMotion("OU","gkoma",kingPosition[0]);
-	}
-		kingMotion();//相手の駒の利きを考慮した王の移動範囲(myPieceMotionArray)を求める
-		w=wHunter();
-		console.log("ダブル王手"+w);//trueならダブル王手
-		console.log("王の動けるマス"+myPieceMotionArray);//王の動けるマス
-	//ダブル王手かつ王の動けるマスがない
-	if((w==true)&&(myPieceMotionArray.length==0)){
-		console.log("w王手から詰みました。");//trueならダブル王手
-		tumiFlg=true;//詰みです
-		return true;
-	}
-	resetTumiArray();//詰み判定に使用する配列のリセット
-	return false;//詰んでいない
-}
-//ダブル王手か？
-function wHunter(){
-	for(let i=0;i<hunterMasu.length;i++){
-		if(!(hunterMasu[0]==hunterMasu[i])){
-			return true;
-		}
-	}
-	return false;
-}
-
-//詰み判定に使用変数のリセット
-function resetTumiArray(){
-	hunterName.length=0;//王手をかけてきた駒
-	hunterClass.length=0;//王手をかけてきた駒のクラス
-	hunterMasu.length=0;//王手をかけてきた駒のマス
-	kingPosition.length=0;//王の位置
 }
 
 //全ての駒の利きを求め、allPieceDominanceArray(重複なし配列)に格納する。targetPlayer:対象の全駒
@@ -400,7 +583,6 @@ function setPieceDominance(targetPieceId,targetPieceClass,targetPieceMasu){
 				motionX+=addX;
 				targetPieceMotion="d"+motionY+"s"+motionX;
 
-
 //王手チェック
 if(GameRecord[targetPieceMotion]==switchClassArray[2]){
 	outeFlg=true;
@@ -437,185 +619,6 @@ if(GameRecord[targetPieceMotion]==switchClassArray[2]){
 	}
 }
 
-function start(){
-	let supportTouch='ontouchend'in document;//タッチイベントがサポートされているか
-	let EVENTNAME=supportTouch ? 'touchstart':'mousedown';//タッチイベントかマウスダウンか
-	let tempInp;
-	gAria();
-	mainAria();
-	sAria();
-	userCheck();
-	//駒の配置とイベントリスナの登録
-	setUp();
-	document.getElementById("gamemode").innerHTML="対局モード";
-	document.getElementById("teban").innerHTML=teban;//手番
-	document.getElementById("gamecount").innerHTML=gameCount+"手目";//何手目か？
-	tempInp="<input type='button' value='対局モードの終了'onClick='endMode()'size='10'>";
-	document.getElementById("inpModeEnd").innerHTML=tempInp;
-	//イベント分岐
-	if(EVENTNAME=='touchstart'){
-		document.addEventListener("touchstart",touchstart);
-	}else{
-		document.addEventListener("mousedown",mousedown);
-	}
-}
-
-//後手駒台の作成
-function gAria(){
-	let gDisplay="";//後手駒台表示用
-	let gKomadai=[];//後手の駒台
-	let gPaneru;
-	gKomadai=new Array(pLen);
-	for(let i=0;i<pLen;i++){
-		gPaneru="<div class='gStand'id='g"+i+"'>　</div>";
-		gKomadai[i]=gPaneru;
-	}
-	for(let i=0;i<pLen;i++){
-		gDisplay+=gKomadai[i];
-	}
-	document.getElementById("gdisp").innerHTML=gDisplay;
-}
-//先手駒台の作成
-function sAria(){
-	let sDisplay="";//先手駒台表示用
-	let sKomadai=[];//先手の駒台
-	let sPaneru;
-	sKomadai=new Array(pLen);
-	for(let i=0;i<pLen;i++){
-		sPaneru="<div class='sStand'id='s"+i+"'>　</div>";
-		sKomadai[i]=sPaneru;
-	}
-	for(let i=0;i<pLen;i++){
-		sDisplay+=sKomadai[i];
-	}
-	document.getElementById("sdisp").innerHTML=sDisplay;
-}
-
-//中央メイン盤の作成
-function mainAria(){
-	let mainDisplay="";//メイン表示用
-	let board=[];//メインの将棋盤
-	let paneru;
-	board=new Array(11);
-	for(let y=0;y<11;y++){
-		board[y]=new Array(11)
-		for(let x=0;x<11;x++){
-			if((y==0)){
-				if((x==0)||(x==10)){
-					paneru="<div class='topAndCornerEdge'id='d"+y+"s"+x+"'>　</div>";
-				}else{
-				paneru="<div class='topEdge'id='d"+y+"s"+x+"'>　</div>";
-				}
-			}
-			else if((x==10)&&((y>=1)&&(y<=9))){
-				paneru="<div class='rightEdge'id='d"+y+"s"+x+"'>　</div>";
-			}
-			else if((y==10)&&((x>=1)&&(x<=9))){
-				paneru="<div class='bottomEdge'id='d"+y+"s"+x+"'>　</div>";
-			}
-			else if((x==0)&&((y>=1)&&(y<=9))){
-				paneru="<div class='leftEdge'id='d"+y+"s"+x+"'>　</div>";
-			}
-			else if(((y==10)&&(x==0))||((y==10)&&(x==10))){
-				paneru="<div class='bottomAndCornerEdge'id='d"+y+"s"+x+"'>　</div>";
-			}
-			else{
-				paneru="<div class='ban'id='d"+y+"s"+x+"'>　</div>";
-			}
-			board[y][x]=paneru;
-		}
-	}
-	for(let y=0;y<11;y++){
-		for(let x=0;x<11;x++){
-		mainDisplay+=board[y][x];
-		if((y==10)&&(x==10)){
-		break;
-		}
-		if(x==10){
-		mainDisplay+="<br>";
-		}
-		}
-	}
-	document.getElementById("maindisp").innerHTML=mainDisplay;
-}
-
-//ユーザーチェック
-function userCheck(){
-	let userB=window.navigator.appName;//ユーザーブラウザ
-	let wnu=window.navigator.userAgent;//ユーザーエージェント
-	let userOs;//ユーザーos
-	let userW=window.innerWidth;//ウィンドウの横幅
-	let userH=window.innerHeight;//ウィンドウの高さ
-	if(wnu.indexOf('iPhone')!=-1){
-		userOs="iPhone";
-	}else if(wnu.indexOf('iPod')!=-1){
-		userOs="iPod";
-	}else if(wnu.indexOf('Android')!=-1){
-		userOs="Android";
-	}else if(wnu.indexOf('Windows')!=-1){
-		userOs="Windows";
-	}else{
-		userOs="わかりません";
-	}
-	document.getElementById("useros").innerHTML=userOs;//userのosを表示
-	document.getElementById("userw").innerHTML=userW;//userの横幅を表示
-	document.getElementById("userh").innerHTML=userH;//userの高さを表示
-}
-//駒の配置
-function setUp(){
-	//初期配置用のマスのId(先手,後手)
-	let initialPlacementMasuId=["d9s5","d8s8","d8s2","d9s4","d9s6","d9s3","d9s7","d9s2","d9s8","d9s1","d9s9","d7s1","d7s2","d7s3","d7s4","d7s5","d7s6","d7s7","d7s8","d7s9",
-								"d1s5","d2s2","d2s8","d1s6","d1s4","d1s7","d1s3","d1s8","d1s2","d1s9","d1s1","d3s9","d3s8","d3s7","d3s6","d3s5","d3s4","d3s3","d3s2","d3s1"];
-	//駒の配置(先手,後手)
-	for(let i=0;i<piece.length;i++){
-		document.getElementById(initialPlacementMasuId[i]).insertAdjacentHTML('afterbegin',piece[i]);
-		if(i<20){
-			document.getElementById(pieceId[i]).setAttribute('class','skoma');//.setAttribute('class','skoma');.className='skoma';
-		}else{
-			document.getElementById(pieceId[i]).setAttribute('class','gkoma');
-		}
-	}
-}
-//パソコン用マウスダウン
-function mousedown(e){
-	//try{
-	//	if((tumiFlg==false)&&(endFlg==false)&&(endModeFlg==false)){
-			touchScreen(e.pageX,e.pageY);
-	//	}else{
-	//		throw new Error("お疲れ様でした(*_ _)");
-	//	}
-	//}
-	//catch(e){
-	//	document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";//勝敗
-	//	document.getElementById("windisp").innerHTML="";//勝敗結果
-	//	document.getElementById("inpModeEnd").innerHTML="";
-	//	document.getElementById("gamemode").innerHTML="検討モード";
-	//}
-}
-//スマホ用タッチスタート
-function touchstart(e){
-	try{
-		if((tumiFlg==false)&&(endFlg==false)&&(endModeFlg==false)){
-			//もしタッチされたのが一箇所であるなら
-			if(e.targetTouches.length==1){
-				touch=e.targetTouches[0];
-				touchScreen(touch.pageX,touch.pageY);
-			}
-		}else{
-			throw new Error("お疲れ様でした(*_ _)");
-		}
-	}
-	catch(e){
-		document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";//勝敗
-		document.getElementById("windisp").innerHTML="";//勝敗結果
-		document.getElementById("inpModeEnd").innerHTML="";
-		document.getElementById("gamemode").innerHTML="検討モード";
-	}
-}
-//start()系終了---------------------------------------------------------------------------------------
-
-
-
 //リセット用
 function allReset(){
 	if((pieceId.indexOf(firstTouchPieceId)!=-1)){
@@ -625,7 +628,6 @@ function allReset(){
 	resetFlg();//フラグのリセット
 	resetArray();//配列のリセット
 	allReverseCss();//cssの変更を元に戻す
-kingMotionArray.length=0;//王の動きのマス
 	if(justBefore.length>0){
 		changeCssJustBefore(justBefore[justBefore.length-1]);//直前のマスのcssを変更する
 	}
@@ -691,9 +693,6 @@ function getCoordinate(tx,ty){
 //console.log(currentMasu);
 	currentKomaId=GameRecord[currentMasu];//現在のマスにある駒のId
 //console.log(currentKomaId);
-//aaa=document.getElementById(GameRecord["d5s5"]);//null
-//console.log(aaa);
-//console.log(pieceIdRecord[GameRecord["d5s5"]]);//
 	if((typeof currentKomaId==="undefined")||(currentKomaId===null)||(currentKomaId=="EMP")){
 		currentKomaId="";
 		currentKomaClass="";
@@ -730,7 +729,7 @@ function choice(){
 	startKxs=kxs;
 	//最初にタッチしたマスが盤内なら駒の動きを表示する
 	if(firstTouchMasuInOut==true){
-		setMyPieceMotion(firstTouchPieceName,pieceIdRecord[firstTouchPieceId],currentMasu);
+		setPieceMotion(firstTouchPieceName,pieceIdRecord[firstTouchPieceId],currentMasu);
 		if(firstTouchPieceName=="OU"){
 			kingMotion();//王の動き
 		}
@@ -742,13 +741,11 @@ function choice(){
 
 //王の動き
 function kingMotion(){
-	let targetPlayer;//対象のプレイヤー
 	if(teban=="先手"){
-		targetPlayer="後手";
+		setAllPieceDominance("後手");//盤内の相手の駒の利きを全て求める。
 	}else{
-		targetPlayer="先手";
+		setAllPieceDominance("先手");//盤内の相手の駒の利きを全て求める。
 	}
-	setAllPieceDominance(targetPlayer);//盤内の駒の利きを全て求める。王手確認をする。
 	for(let i=myPieceMotionArray.length-1;i>=0;i--){
 		for(let j=0;j<allPieceDominanceArray.length;j++){
 			if(myPieceMotionArray[i]==allPieceDominanceArray[j]){
@@ -767,30 +764,26 @@ function moveCommit(){
 	let res;
 	document.getElementById(firstTouchPieceId).remove();//最初に選択した駒の削除
 	GameRecord[firstTouchMasu]='EMP';//最初に選択した駒が置かれていたマスを無しにする
-	
-//持ち駒を使用した時(firstTouchMasuInOut==false:持ち駒を使用した時)
+	//持ち駒を使用した時(firstTouchMasuInOut==false:持ち駒を使用した時)
 	if(firstTouchMasuInOut==false){
-console.log(firstTouchPieceId+"を持ち駒として使用しました。");
+		//console.log(firstTouchPieceId+"を持ち駒として使用しました。");
 		if(teban=="先手"){
 			getPieceArray=sGetPieceArray;//先手の駒台配列
 		}else{
 			getPieceArray=gGetPieceArray;//先手の駒台配列
 		}
-//console.log(getPieceArray);//駒台の駒Id
-//配列から使用した持ち駒(firstTouchPieceId)の削除
-
-	for(let i=getPieceArray.length-1;i>=0;i--){
-		if(getPieceArray[i]==firstTouchPieceId){
-//console.log(i+"番目にあります");
-			getPieceArray.splice(i,1);
+		//console.log(getPieceArray);//駒台の駒Id
+		//配列から使用した持ち駒(firstTouchPieceId)の削除
+		for(let i=getPieceArray.length-1;i>=0;i--){
+			if(getPieceArray[i]==firstTouchPieceId){
+				getPieceArray.splice(i,1);
+			}
 		}
+		sortPiece();//駒台の並び替え(駒が増えた時)
+		setAllPieceDominance(teban);//盤内の相手の駒の利きを全て求める。
 	}
-	sortPiece();//駒台の並び替え(駒が増えた時)
-setAllPieceDominance(teban);//盤内の相手の駒の利きを全て求める。
-	}
-	
 	allReverseCss();//駒を削除した後に、マスの色を元に戻す
-//ここで成るか成らないかの判定-----------------------------------------------------------------
+	//成るか成らないかの判定
 	while(movePromotionFlg==false){
 		//成り駒でない＆最初は盤内＆成れる駒
 		if((firstPromotionFlg==false)&&(firstTouchMasuInOut)&&(possiblePromotion.indexOf(firstTouchPieceId)!=-1)){
@@ -823,7 +816,6 @@ setAllPieceDominance(teban);//盤内の相手の駒の利きを全て求める�
 		document.getElementById("kihudisplay").innerHTML=kihuDisplay+convertPiece+"成";//棋譜の表示
 	}else{
 		movePiece(firstTouchPieceId,currentMasu);//駒の追加
-		
 		//移動完了の前のバグ確認(マスの中に２枚存在するバグ対策)
 		if(document.getElementById(currentMasu).children.length>1){
 			alert("バグです。盤の中に２枚以上入りまみた。");
@@ -882,28 +874,27 @@ function movePromotion(){
 }
 
 //駒の動きのルール(駒の名前,クラス,マス)
-function setMyPieceMotion(tName,tClass,tMasu){
+function setPieceMotion(targetPieceName,targetPieceClass,targetPieceMasu){
 	let typeMotion,motionY,motionX,addY,addX;
-	let indexNumber=checkPieceId.indexOf(tName);//配列の何番目にあるか？
-	let targetPieceClass=tClass;//クラス
+	let indexNumber=checkPieceId.indexOf(targetPieceName);//配列の何番目にあるか？
 	let pieceMotion;//仮の移動先のマス
 	//成銀,成桂,成香,とはindexNumberを3にし、金と同じ動きを参照する
-	if(((firstTouchPieceName=="GI")||(firstTouchPieceName=="KE")||(firstTouchPieceName=="KY")||(firstTouchPieceName=="FU"))&&
+	if(((targetPieceName=="GI")||(targetPieceName=="KE")||(targetPieceName=="KY")||(targetPieceName=="FU"))&&
 	   ((targetPieceClass=="skoma promotion")||(targetPieceClass=="gkoma promotion"))){
 		indexNumber=3;
 	}
-	if((firstTouchPieceName=="HI")&&
+	if((targetPieceName=="HI")&&
 	   ((targetPieceClass=="skoma promotion")||(targetPieceClass=="gkoma promotion"))){
 		indexNumber=8;
 	}
-	if((firstTouchPieceName=="KA")&&
+	if((targetPieceName=="KA")&&
 	   ((targetPieceClass=="skoma promotion")||(targetPieceClass=="gkoma promotion"))){
 		indexNumber=9;
 	}
 	for(let i=0;i<sPieceMotionYX.length;i++){
 		typeMotion=pieceMotionTable[indexNumber][i];
-		motionY=Number(tMasu.substr(1,1));
-		motionX=Number(tMasu.substr(3,1));
+		motionY=Number(targetPieceMasu.substr(1,1));
+		motionX=Number(targetPieceMasu.substr(3,1));
 		if(typeMotion==0){
 			continue;
 		}
@@ -925,10 +916,6 @@ function setMyPieceMotion(tName,tClass,tMasu){
 					break;
 				}
 				myPieceMotionArray.push(pieceMotion);//配列にルールを格納
-				
-if(firstTouchPieceName=="OU"){
-//kingMotionArray.push(pieceMotion);//王手確認用配列に格納
-}
 				if(typeMotion==1){
 					break;//１の時は繰り返さずにdo～whileを抜ける
 				}
