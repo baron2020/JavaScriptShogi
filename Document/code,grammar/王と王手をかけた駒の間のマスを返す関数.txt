@@ -1,0 +1,41 @@
+2020/03/27
+・王と王手をかけた駒の間のマスを返す関数
+・コード
+//王の位置:checkmateArray[0](オブジェクト)
+//直前の指し手：justBefore[justBefore.length-1](String)
+var aidanoMasuArray=[];//間のマス
+function setAidanoMasu(targetMasu1,targetMasu2){
+	let targetMasu1d=Number(targetMasu1.toString().substr(1,1));
+	let targetMasu1s=Number(targetMasu1.toString().substr(3,1));
+	let targetMasu2d=Number(targetMasu2.toString().substr(1,1));
+	let targetMasu2s=Number(targetMasu2.toString().substr(3,1));
+	let kaesuMasu;//返す枚数
+	let kihonY=targetMasu1d;//足す対象Y
+	let kihonX=targetMasu1s;//足す対象X
+	let addY;//段に足す数
+	let addX;//筋に足す数
+	kaesuMasu=Math.abs(targetMasu1d-targetMasu2d)-1;//返すマスの枚数
+	if(kaesuMasu==0){
+		kaesuMasu=Math.abs(targetMasu1s-targetMasu2s)-1;//返すマスの枚数
+	}
+	if(targetMasu1d<targetMasu2d){
+		addY=1;
+	}else if(targetMasu1d>targetMasu2d){
+		addY=-1;
+	}else{
+		addY=0;
+	}
+	if(targetMasu1s<targetMasu2s){
+		addX=1;
+	}else if(targetMasu1s>targetMasu2s){
+		addX=-1;
+	}else{
+		addX=0;
+	}
+	for(let i=0;i<kaesuMasu;i++){
+		kihonY+=addY;//
+		kihonX+=addX;//
+		aidanoMasu='d'+kihonY+'s'+kihonX;
+		aidanoMasuArray.push(aidanoMasu);
+	}
+}
