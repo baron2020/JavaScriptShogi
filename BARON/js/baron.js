@@ -129,7 +129,7 @@ var legalHandMasuArray=[];//合法手のマス
 var toiOuteLegalHandMasuArray=[];//遠い王手の合法手のマス
 //詰み判定関連
 var outeFlg=false;//王手がかけられているか？
-var toiOute=false;//1枚の駒に遠い王手をかけられいてる。
+var toiOuteFlg=false;//1枚の駒に遠い王手をかけられいてる。
 
 var checkmateArray=[[],[],[],[],[],[],[]];
 //(0)王手をかけられた王の位置,(1)王手をかけてきた駒,(2)王手をかけてきた駒のクラス,(3)王手をかけてきた駒のマス,
@@ -208,7 +208,7 @@ function tumiJudge(){
 
 	//1枚の遠い距離の王手
 	if((checkmateArray[4].length==1)&&(checkmateArray[4].indexOf("遠い距離の王手")!=-1)){
-		toiOute=true;//1枚の駒に遠い王手をかけられた
+		toiOuteFlg=true;//1枚の駒に遠い王手をかけられた
 		console.log("1枚の遠い距離の王手です");
 		//取り返せる駒がある
 		if(checkmateArray[5].length>0){
@@ -330,7 +330,7 @@ function touchScreen(tx,ty){
 				return;
 			}
 			//合法の持ち駒を選択しているのであれば
-			if((toiOute==true)&&(firstTouchMasuInOut==false)){
+			if((toiOuteFlg==true)&&(firstTouchMasuInOut==false)){
 				let aiMasuLen=checkAigoma(firstTouchPieceId).length;//選択した駒に対して合駒できるマスの数
 				console.log(aiMasuLen);
 				console.log("持ち駒を合駒に使用しようとしています。");
@@ -357,7 +357,7 @@ function touchScreen(tx,ty){
 					let getJustBeforeFlg=false;//直前の駒の王手した駒を取り返せない
 					let tempMyPieceMotionArray=[];//一時保存用
 					//1枚の駒に遠くの王手をかけられているなら
-					if(toiOute==true){
+					if(toiOuteFlg==true){
 						//直前に王手をかけた相手の駒を取り返すことが出来るなら
 						if(myPieceMotionArray.indexOf(justBefore[justBefore.length-1])!=-1){
 							getJustBeforeFlg=true;//直前の駒の王手をした駒を取り返せる
@@ -401,7 +401,7 @@ function touchScreen(tx,ty){
 	}
 	
 	//遠い王手をかけられている&持ち駒から合駒を使用しようとしている&合法マスにないマスを選択した。
-	if((toiOute==true)&&(firstTouchMasuInOut==false)&&(myPieceMotionArray.indexOf(currentMasu)==-1)){
+	if((toiOuteFlg==true)&&(firstTouchMasuInOut==false)&&(myPieceMotionArray.indexOf(currentMasu)==-1)){
 		allReset();
 		return;
 	}
