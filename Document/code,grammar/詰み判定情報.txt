@@ -1,0 +1,8 @@
+2020/03/31
+・詰み判定情報
+var tumiJudgeInfo={
+			kingPosition:'None',//王の位置
+			outePiece:'None',//王手をした駒
+			outePieceMasu:'None',//王手をした駒のマス
+			王手の種類:'None'//王手の種類
+			};
