@@ -128,6 +128,8 @@ var gGetPieceArray=[];//後手の全持ち駒
 var tempDominanceArray=[];//相手の駒の利き(一時保存用)配列
 var allPieceDominanceArray=[];//tempDominanceArrayの重複を削除した配列
 var legalHandPieceArray=[];//合法手の駒
+var dominanceArray=[];//対象のプレイヤーの全駒の利き配列
+
 //詰み判定関連
 var outeFlg=false;//王手がかけられているか？
 var toiOuteFlg=false;//1枚の駒に遠い王手をかけられいてる。
@@ -151,20 +153,21 @@ var kinjiteNoGetFlg=false;//禁じ手、王手した駒を取り返せないフ�
 //打ち歩詰め確認
 function utiFuCheck(){
 	//引数:手番,削除するマス,追加するマス,追加する駒,type( 0:禁じ手確認 1:詰み判定 2:打ち歩詰め確認 )
-	kinjiteCheck(gameInfo.teban,firstTouchMasu,currentMasu,firstTouchPieceId,2);
+	kinjiteCheck("rivalPiece",firstTouchMasu,currentMasu,firstTouchPieceId,2);
 }
 
-//禁じ手確認、targetPlayerが先手なら後手の駒の利きを求める
+//禁じ手確認、targetPlayerがmyPieceなら自分の駒の利きを求める
 //引数:手番,削除するマス,追加するマス,追加する駒,type( 0:禁じ手確認 1:詰み判定 2:打ち歩詰め確認 )
 function kinjiteCheck(targetPlayer,deleteMasu,addMasu,addPiece,checkType){
 	let clonGameRecord=Object.assign({},GameRecord);//ゲームレコードのコピー
+	let komadaiIdArray=['s1','s2','s3','s4','s5','s6','s7','s8','s9','g1','g2','g3','g4','g5','g6','g7','g8','g9'];//駒台のId
 	let regex1=new RegExp(/^d[1-9]/);//盤内のマスを抽出する正規表現に使用
 	let allBanMasuId=[];//盤内のマスを格納
-	let rivalHiKaKyIdArray=[];//盤内のライバルの飛,角,香,竜,馬
-	let rivalHiKaKyPositionArray=[];//盤内のライバルの飛,角,香,竜,馬の位置
-	let rivalHiKaKyClassArray=[];//盤内のライバルの飛,角,香,竜,馬のクラス
+	let targetHiKaKyIdArray=[];//盤内のライバルの飛,角,香,竜,馬
+	let targetHiKaKyPositionArray=[];//盤内のライバルの飛,角,香,竜,馬の位置
+	let targetHiKaKyClassArray=[];//盤内のライバルの飛,角,香,竜,馬のクラス
 	let targetClass;//相手の駒クラス
-	let rivalKingPosition;//相手の王の位置
+	let targetKingPosition;//相手の王の位置
 	
 	//console.log(clonGameRecord[firstTouchMasu]);//最初のマス
 	//console.log(clonGameRecord[currentMasu]);//仮の移動先マス
@@ -173,11 +176,15 @@ function kinjiteCheck(targetPlayer,deleteMasu,addMasu,addPiece,checkType){
 	//console.log("現在のマス"+currentMasu);//カレントのタッチマス
 	//console.log("現在の駒"+currentKomaId);//現在のマスにある駒のId
 	//駒の利きを求める対象のクラスを確認する
-	if(targetPlayer=="先手"){
-		targetClass=gClassArray;//["gkoma","gkoma promotion"];
-	}else{
+	
+	//駒の利きを求める対象のクラスを確認する
+	if(((targetPlayer=="myPiece")&&(gameInfo.teban=="先手"))||((targetPlayer=="rivalPiece")&&(gameInfo.teban=="後手"))){
 		targetClass=sClassArray;//["skoma","skoma promotion"];
 	}
+	if(((targetPlayer=="myPiece")&&(gameInfo.teban=="後手"))||((targetPlayer=="rivalPiece")&&(gameInfo.teban=="先手"))){
+		targetClass=gClassArray;//["gkoma","gkoma promotion"];
+	}
+	
 	for(masuId in clonGameRecord){
 		let banInOut=regex1.test(masuId);
 		if(banInOut){
@@ -187,6 +194,9 @@ function kinjiteCheck(targetPlayer,deleteMasu,addMasu,addPiece,checkType){
 	//console.log(allBanMasuId);//盤内のマスのみ
 	//仮想の将棋盤で動かす
 	//詰み判定に使用する場合は、1枚の王手に対して、王手した駒の位置に取り返せる駒を移動させる
+	for(let i=0;i<komadaiIdArray.length;i++){
+		clonGameRecord[komadaiIdArray[i]]='EMP';//駒台のマスを空にする
+	}
 	clonGameRecord[deleteMasu]='EMP';//最初のマスを空にする
 	clonGameRecord[addMasu]=addPiece;//現在のマスに駒を移動する
 	
@@ -194,16 +204,21 @@ function kinjiteCheck(targetPlayer,deleteMasu,addMasu,addPiece,checkType){
 	if(checkType==2){
 		console.clear();
 		for(let i=0;i<allBanMasuId.length;i++){
-		//もし飛車角香なら
+		//もし対象の王なら
 			if((clonGameRecord[allBanMasuId[i]].toString().substr(0,2)=="OU")&&
 				(pieceIdRecord[clonGameRecord[allBanMasuId[i]]]==targetClass[0])){
-					rivalKingPosition=allBanMasuId[i];//ライバルの王の位置
+					targetKingPosition=allBanMasuId[i];//対象の王の位置
 				}
 		}
-		setPieceMotion("rivalPiece","OU",targetClass[0],rivalKingPosition);//ライバルの駒の動きを求める
-		console.log("相手玉の位置"+rivalKingPosition);//ライバルの駒の動き
-		console.log("相手玉の移動範囲"+rivalPieceMotionArray);//ライバルの駒の動き
+		setPieceMotion("rivalPiece","OU",targetClass[0],targetKingPosition);//対象の駒の動きを求める
+		console.log("相手玉の位置"+targetKingPosition);//対象の駒の動き
+		console.log("相手玉の移動範囲"+rivalPieceMotionArray);//対象の駒の動き
 		console.log(clonGameRecord);//仮想のゲーム盤
+		
+		setAllPieceDominance("myPiece",clonGameRecord,1);//自分の駒の利き
+		console.log(dominanceArray);//自分の駒の利き
+		dominanceArray.length=0;
+		console.log(dominanceArray);//自分の駒の利き
 	}
 	
 	for(let i=0;i<allBanMasuId.length;i++){
@@ -211,34 +226,34 @@ function kinjiteCheck(targetPlayer,deleteMasu,addMasu,addPiece,checkType){
 		if((clonGameRecord[allBanMasuId[i]].toString().substr(0,2)=="HI")||
 			(clonGameRecord[allBanMasuId[i]].toString().substr(0,2)=="KA")||
 			(clonGameRecord[allBanMasuId[i]].toString().substr(0,2)=="KY")){
-			//ライバルの駒なら
+			//検索対象の駒なら
 			if((pieceIdRecord[clonGameRecord[allBanMasuId[i]]]==targetClass[0])||(pieceIdRecord[clonGameRecord[allBanMasuId[i]]]==targetClass[1])){
 				//成香でない
 				if(!((clonGameRecord[allBanMasuId[i]].toString().substr(0,2)=="KY")&&(pieceIdRecord[clonGameRecord[allBanMasuId[i]]]==targetClass[1]))){
-					rivalHiKaKyIdArray.push(clonGameRecord[allBanMasuId[i]]);//盤内にある相手の駒Idのみを格納
-					rivalHiKaKyClassArray.push(pieceIdRecord[clonGameRecord[allBanMasuId[i]]]);//盤内にある相手の駒クラス
-					rivalHiKaKyPositionArray.push(allBanMasuId[i]);//盤内にある駒Idのみを格納
+					targetHiKaKyIdArray.push(clonGameRecord[allBanMasuId[i]]);//盤内にある検索対象の駒Idのみを格納
+					targetHiKaKyClassArray.push(pieceIdRecord[clonGameRecord[allBanMasuId[i]]]);//盤内にある検索対象の駒クラス
+					targetHiKaKyPositionArray.push(allBanMasuId[i]);//盤内にある検索対象の駒Idのみを格納
 				}
 			}
 		}
 	}
-	//console.log(rivalHiKaKyIdArray);//盤内のライバルの飛,角,香,竜,馬
-	//console.log("相手の駒クラス"+rivalHiKaKyClassArray);//盤内のライバルの飛,角,香,竜,馬のクラス
-	//console.log(rivalHiKaKyPositionArray);//盤内のライバルの飛,角,香,竜,馬の位置
+	//console.log(targetHiKaKyIdArray);//盤内の対象の飛,角,香,竜,馬
+	//console.log("相手の駒クラス"+targetHiKaKyClassArray);//盤内の対象の飛,角,香,竜,馬のクラス
+	//console.log(targetHiKaKyPositionArray);//盤内の対象の飛,角,香,竜,馬の位置
 	//console.log(clonGameRecord);//仮想のゲーム盤
 	
-	//禁じ手確認では、盤内のライバルの飛,角,香,竜,馬の数だけループする。
+	//禁じ手確認では、盤内の対象の飛,角,香,竜,馬の数だけループする。
 	if(checkType==0){
-		for(let i=0;i<rivalHiKaKyIdArray.length;i++){
-			rivalHiKaKyDominance(rivalHiKaKyIdArray[i],rivalHiKaKyClassArray[i],rivalHiKaKyPositionArray[i],clonGameRecord,0);
-			//ライバルの飛,角,香,竜,馬の利きから禁じ手を確認する。
+		for(let i=0;i<targetHiKaKyIdArray.length;i++){
+			rivalHiKaKyDominance(clonGameRecord,targetHiKaKyIdArray[i],targetHiKaKyClassArray[i],targetHiKaKyPositionArray[i],0);
+			//対象の飛,角,香,竜,馬の利きから禁じ手を確認する。
 		}
 	}
 	//詰み確認では
 	if(checkType==1){
-		for(let i=0;i<rivalHiKaKyIdArray.length;i++){
-			rivalHiKaKyDominance(rivalHiKaKyIdArray[i],rivalHiKaKyClassArray[i],rivalHiKaKyPositionArray[i],clonGameRecord,1);
-			//(詰み判定用)ライバルの飛,角,香,竜,馬の利きから禁じ手を確認する。
+		for(let i=0;i<targetHiKaKyIdArray.length;i++){
+			rivalHiKaKyDominance(clonGameRecord,targetHiKaKyIdArray[i],targetHiKaKyClassArray[i],targetHiKaKyPositionArray[i],1);
+			//(詰み判定用)対象の飛,角,香,竜,馬の利きから禁じ手を確認する。
 		}
 	}
 	return;
@@ -324,7 +339,7 @@ function touchScreen(tx,ty){
 					//console.log(allPieceDominanceArray);
 					allPieceDominanceArray.length=0;//相手の駒の利き(重複なし)
 					tempDominanceArray.length=0;//相手の駒の利き(重複あり)
-					setAllPieceDominance(gameInfo.rivalTeban,0);//盤内の相手の駒の利きを全て求める。
+					setAllPieceDominance("rivalPiece",GameRecord,0);//盤内の相手の駒の利きを全て求める。
 					myKingMotion();//王の動き
 				}
 				//console.log("間のマス"+aidanoMasuArray);
@@ -428,7 +443,7 @@ function touchScreen(tx,ty){
 	
 	//指す前の禁じ手確認
 	if(firstTouchMasuInOut==true){
-		kinjiteCheck(gameInfo.teban,firstTouchMasu,currentMasu,firstTouchPieceId,0);//引数:手番,削除するマス,追加するマス,追加する駒,詰み判定用か？
+		kinjiteCheck("rivalPiece",firstTouchMasu,currentMasu,firstTouchPieceId,0);//引数:手番,削除するマス,追加するマス,追加する駒,詰み判定用か？
 		if(kinjiteFlg==true){
 			kinjiteFlg=false
 			alert("相手の駒の利きがあります");
@@ -492,7 +507,7 @@ function touchScreen(tx,ty){
 	toiOuteFlg=false;//遠い王手フラグ
 
 	legalHandPieceArray.length=0;//合法手の駒
-	setAllPieceDominance(gameInfo.rivalTeban,0);//盤内の相手の駒の利きを全て求める。王手確認をする。
+	setAllPieceDominance("rivalPiece",GameRecord,0);//盤内の相手の駒の利きを全て求める。王手確認をする。
 	
 	//王手をかけられていたら
 	if(outeFlg==true){
@@ -545,7 +560,7 @@ function tumiJudge(){
 	}
 	getOutePieceArray.length=0;//リセット、取り返すことの出来る駒
 	getOutePiecePositionArray.length=0;//リセット、取り返すことの出来る駒の位置
-	setAllPieceDominance(gameInfo.teban,0);//直前に指した手に対して取り返すことの出来る駒を探す
+	setAllPieceDominance("myPiece",GameRecord,0);//直前に指した手に対して取り返すことの出来る駒を探す
 	
 	for(let i=getOutePieceArray.length-1;i>=0;i--){
 		if(getOutePieceArray[i].toString().substr(0,2)=="OU"){
@@ -558,7 +573,7 @@ function tumiJudge(){
 	//console.log(tumiJudgeInfo['outePieceMasu']);//王手をかけている駒
 	//ライバルの飛車角香竜馬を考慮した取り返せる駒
 	for(let i=getOutePieceArray.length-1;i>=0;i--){
-		kinjiteCheck(gameInfo.teban,getOutePiecePositionArray[i],tumiJudgeInfo['outePieceMasu'],getOutePieceArray[i],1);
+		kinjiteCheck("rivalPiece",getOutePiecePositionArray[i],tumiJudgeInfo['outePieceMasu'],getOutePieceArray[i],1);
 		if(kinjiteNoGetFlg==true){
 			getOutePieceArray.splice(i,1);//取り返せる駒から削除する
 			getOutePiecePositionArray.splice(i,1);//位置も削除する
@@ -602,6 +617,10 @@ function tumiJudge(){
 		toiOuteFlg=true;//1枚の駒に遠い王手をかけられた
 		console.log("1枚の遠い距離の王手です");
 		
+		console.log(getOutePieceArray);
+		console.log(aidanoMasuMovePieceArray);
+		console.log(myPieceMotionArray);
+
 		//王以外の駒で取り返せる駒がある
 		if(getOutePieceArray.length>0){
 			for(let i=0;i<getOutePieceArray.length;i++){
@@ -629,8 +648,8 @@ function tumiJudge(){
 			}
 		}
 		//詰み判定
-		//王以外の駒で取り返せる駒がない&盤面の駒で合駒できない&持ち駒から合駒できない
-		if((getOutePieceArray.length==0)&&(aidanoMasuMovePieceArray.length==0)&&(aigomaFlg==false)){
+		//王に移動範囲がない&王以外の駒で取り返せる駒がない&盤面の駒で合駒できない&持ち駒から合駒できない
+		if((myPieceMotionArray.length==0)&&(getOutePieceArray.length==0)&&(aidanoMasuMovePieceArray.length==0)&&(aigomaFlg==false)){
 			alert("詰みました。"+gameInfo.rivalTeban+"の勝ちです。");
 			document.getElementById("windisp").innerHTML=gameInfo.rivalTeban+"の勝ちです。";//勝敗結果
 			document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";//お疲れ様でした
@@ -654,7 +673,7 @@ function tumiJudge(){
 
 
 //ライバルの飛車角香竜馬の利きを探す(checkType 0:禁じ手用 1:詰み判定用)
-function rivalHiKaKyDominance(pieceId,pieceClass,startMasu,targetGameRecord,checkType){
+function rivalHiKaKyDominance(targetGameRecord,pieceId,pieceClass,startMasu,checkType){
 	let typeMotion,motionY,motionX,addY,addX;
 	let targetPieceName=pieceId.substr(0,2);//Name:頭文字二文字、Id:フル
 	let indexNumber=checkPieceId.indexOf(targetPieceName);//配列の何番目にあるか？
@@ -824,11 +843,9 @@ function resetPieceAndMasu(){
 	firstTouchMasu="リセット";
 }
 
-//if((targetPlayer=="myPiece")&&(gameInfo.teban=="先手")||
-//(targetPlayer=="rivalPiece")&&(gameInfo.teban=="後手")
 //targetPlayerで指定した全ての駒の利きを求め、allPieceDominanceArray(重複なし配列)に格納する。
 //targetPlayerが先手なら先手の駒の利きを求める。 checkType 0:王手確認用 1:打ち歩用
-function setAllPieceDominance(targetPlayer,checkType){
+function setAllPieceDominance(targetPlayer,targetGameRecord,checkType){
 	let regex1=new RegExp(/^d[1-9]/);//盤内のマスを抽出する正規表現に使用
 	let allBanMasuId=[];//盤内のマスを格納
 	let allBanPieceId=[];//盤内にある駒Idを格納
@@ -837,13 +854,14 @@ function setAllPieceDominance(targetPlayer,checkType){
 	let targetPieceMasuArray=[];//対象の駒の存在するマスId
 	let targetClass;//対象のクラス
 	//駒の利きを求める対象のクラスを確認する
-	if(targetPlayer=="先手"){
+	if(((targetPlayer=="myPiece")&&(gameInfo.teban=="先手"))||((targetPlayer=="rivalPiece")&&(gameInfo.teban=="後手"))){
 		targetClass=sClassArray;//["skoma","skoma promotion"];
-	}else{
+	}
+	if(((targetPlayer=="myPiece")&&(gameInfo.teban=="後手"))||((targetPlayer=="rivalPiece")&&(gameInfo.teban=="先手"))){
 		targetClass=gClassArray;//["gkoma","gkoma promotion"];
 	}
-
-	for(masuId in GameRecord){
+	
+	for(masuId in targetGameRecord){
 		let banInOut=regex1.test(masuId);
 		if(banInOut){
 			allBanMasuId.push(masuId);//盤内のマスのみを抽出
@@ -852,27 +870,29 @@ function setAllPieceDominance(targetPlayer,checkType){
 	//console.log(allBanMasuId);//盤内のみ
 	for(let i=0;i<allBanMasuId.length;i++){
 		//もし駒があれば
-		if(!(GameRecord[allBanMasuId[i]]=="EMP")){
-			allBanPieceId.push(GameRecord[allBanMasuId[i]]);//盤内にある駒Idのみを格納
+		if(!(targetGameRecord[allBanMasuId[i]]=="EMP")){
+			allBanPieceId.push(targetGameRecord[allBanMasuId[i]]);//盤内にある駒Idのみを格納
 		}
 	}
 	//console.log(allBanPieceId);//盤内の全ての駒
 	for(let i=0;i<allBanPieceId.length;i++){
-		//相手の駒クラスであれば
+		//対象の駒クラスであれば
 		if((pieceIdRecord[allBanPieceId[i]]==targetClass[0])||(pieceIdRecord[allBanPieceId[i]]==targetClass[1])){
-			targetPieceIdArray.push(allBanPieceId[i]);//盤内にある相手の駒Idのみを格納
-			targetPieceClassArray.push(pieceIdRecord[allBanPieceId[i]]);//盤内にある相手の駒クラス
+			targetPieceIdArray.push(allBanPieceId[i]);//盤内にある対象の駒Idのみを格納
+			targetPieceClassArray.push(pieceIdRecord[allBanPieceId[i]]);//盤内にある対象の駒クラス
 		}
 	}
 	//console.log("対象の駒"+targetPieceIdArray);//盤内の対象プレイヤーの駒
-	let keys=Object.keys(GameRecord);//全てのキー
+	let keys=Object.keys(targetGameRecord);//全てのキー
 	//console.log("全てのキー"+keys);
+	//console.log(typeof keys);
+
 	//盤内の対象プレイヤーの駒の枚数だけループする
 	for(let i=0;i<targetPieceIdArray.length;i++){
 		//その駒がどのマスかを探す
 		for(let j=0;j<keys.length;j++){
 			//駒=連想配列の値なら、キーを抽出する
-			if(targetPieceIdArray[i]==GameRecord[keys[j]]){
+			if(targetPieceIdArray[i]==targetGameRecord[keys[j]]){
 				targetPieceMasuArray.push(keys[j]);//盤内の対象プレイヤーの駒が存在するマスIdを格納
 			}
 		}
@@ -881,7 +901,7 @@ function setAllPieceDominance(targetPlayer,checkType){
 	if(checkType==0){
 		//盤内の対象プレイヤーの駒の分だけループする。
 		for(let i=0;i<targetPieceIdArray.length;i++){
-			setPieceDominance(targetPieceIdArray[i],targetPieceClassArray[i],targetPieceMasuArray[i],0);
+			setPieceDominance(targetGameRecord,targetPieceIdArray[i],targetPieceClassArray[i],targetPieceMasuArray[i],0);
 			//対象プレイヤーの駒の効きを求める
 		}
 		wOuteCount=0;//Ｗ王手カウント用変数のリセット
@@ -891,9 +911,12 @@ function setAllPieceDominance(targetPlayer,checkType){
 	}
 	//打ち歩詰めチェック用
 	if(checkType==1){
+//console.log(targetPieceIdArray);
+//console.log(targetPieceClassArray);
+//console.log(targetPieceMasuArray);
 		//相手の盤内の駒の分だけループする。
 		for(let i=0;i<targetPieceIdArray.length;i++){
-			setPieceDominance(targetPieceIdArray[i],targetPieceClassArray[i],targetPieceMasuArray[i],1);
+			setPieceDominance(targetGameRecord,targetPieceIdArray[i],targetPieceClassArray[i],targetPieceMasuArray[i],1);
 			//対象プレイヤーの駒の効きを求める
 		}
 		return;
@@ -907,8 +930,8 @@ function setAllPieceDominance(targetPlayer,checkType){
 	//console.log(tempDominanceArray);
 }
 
-//駒の利きを求める。(対象の駒Id,対象の駒のクラス,対象の駒があるマス) checkType 0:王手確認 1:打ち歩用
-function setPieceDominance(pieceId,pieceClass,startMasu,checkType){
+//駒の利きを求める。(対象のゲーム記録,対象の駒Id,対象の駒のクラス,対象の駒があるマス) checkType 0:王手確認 1:打ち歩用
+function setPieceDominance(targetGameRecord,pieceId,pieceClass,startMasu,checkType){
 	let typeMotion,motionY,motionX,addY,addX;
 	let targetPieceName=pieceId.substr(0,2);//Name:頭文字二文字、Id:フル
 	let indexNumber=checkPieceId.indexOf(targetPieceName);//配列の何番目にあるか？
@@ -951,9 +974,9 @@ function setPieceDominance(pieceId,pieceClass,startMasu,checkType){
 				motionX+=addX;
 				targetPieceMotion="d"+motionY+"s"+motionX;
 				
-				//if(checkType==0){
+				if(checkType==0){
 					//王手チェック
-					if(GameRecord[targetPieceMotion]==switchClassArray[2]){
+					if(targetGameRecord[targetPieceMotion]==switchClassArray[2]){
 						outeFlg=true;//王に利きがある場合true
 						//王の位置,王手した駒,王手をかけたマス
 						tumiJudgeInfo['kingPosition']=targetPieceMotion;//王手をかけられた王の位置
@@ -975,42 +998,50 @@ function setPieceDominance(pieceId,pieceClass,startMasu,checkType){
 					if(aidanoMasuArray.length>0){
 						for(let i=0;i<aidanoMasuArray.length;i++){
 							if(targetPieceMotion==aidanoMasuArray[i]){
-								aidanoMasuMovePieceArray.push(GameRecord[startMasu]);//間のマスに動くことのできる盤上の駒;
+								aidanoMasuMovePieceArray.push(targetGameRecord[startMasu]);//間のマスに動くことのできる盤上の駒;
 							}
 						}
 					}
-				//}
+				}
 				if(InOut(motionY,motionX)==false){
 					break;//利きがあるマスが盤外なら抜ける
 				}
-				tempDominanceArray.push(targetPieceMotion);//相手の駒の効いているマスを配列に格納する
-				//王手に対して取り返すことの出来る駒
-				if(targetPieceMotion==tumiJudgeInfo['outePieceMasu']){
-					getOutePieceArray.push(GameRecord[startMasu]);//王手に対して取り返すことの出来る駒
-					getOutePiecePositionArray.push(startMasu);//王手に対して取り返すことの出来る駒の位置
+				
+				if(checkType==0){
+					tempDominanceArray.push(targetPieceMotion);//対象の駒の効いているマスを配列に格納する
+					//王手に対して取り返すことの出来る駒
+					if(targetPieceMotion==tumiJudgeInfo['outePieceMasu']){
+						getOutePieceArray.push(targetGameRecord[startMasu]);//王手に対して取り返すことの出来る駒
+						getOutePiecePositionArray.push(startMasu);//王手に対して取り返すことの出来る駒の位置
+					}
 				}
-				if(moveIsRivalPiece(pieceIdRecord[GameRecord[targetPieceMotion]])){
+				//打ち歩チェック
+				if(checkType==1){
+
+					dominanceArray.push(targetPieceMotion);//対象の駒の効いているマスを配列に格納する
+				}
+				if(moveIsRivalPiece(pieceIdRecord[targetGameRecord[targetPieceMotion]])){
 					break;//set後、利きに自陣の駒があれば抜ける
 				}
 				if(typeMotion==1){
 					break;//１の時は繰り返さずにdo～whileを抜ける
 				}
-				//２の動きで相手の王を貫通した先の１マスを格納する
-				if((typeMotion==2)&&
-					((GameRecord[targetPieceMotion]=="OU1")||(GameRecord[targetPieceMotion]=="OU2"))){
+				
+				if(checkType==0){
+					//２の動きで相手の王を貫通した先の１マスを格納する
+					if((typeMotion==2)&&((targetGameRecord[targetPieceMotion]=="OU1")||(targetGameRecord[targetPieceMotion]=="OU2"))){
 						motionY+=addY;
 						motionX+=addX;
 						targetPieceMotion="d"+motionY+"s"+motionX;
-						if(kinjiteCheck==0){
-							if(InOut(motionY,motionX)==true){
-								tempDominanceArray.push(targetPieceMotion);//相手の王を貫通した先の１マスを配列に格納する
-								//console.log(targetPieceMotion);
-							}
+						if(InOut(motionY,motionX)==true){
+							tempDominanceArray.push(targetPieceMotion);//相手の王を貫通した先の１マスを配列に格納する
+							//console.log(targetPieceMotion);
 						}
 						break;//繰り返さずにdo～whileを抜ける
+					}
+					distanceCount++;
 				}
-				distanceCount++;
-			}while(GameRecord[targetPieceMotion]=="EMP");//移動先に駒がない＆飛車,角,香,竜,馬の２の動きの間は繰り返す。
+			}while(targetGameRecord[targetPieceMotion]=="EMP");//移動先に駒がない＆飛車,角,香,竜,馬の２の動きの間は繰り返す。
 		}
 	}
 }
@@ -1423,13 +1454,11 @@ function setPieceMotion(targetPlayer,pieceName,pieceClass,startMasu){
 			continue;
 		}
 		if(typeMotion>=1){
-			if((targetPlayer=="myPiece")&&(gameInfo.teban=="先手")||
-				(targetPlayer=="rivalPiece")&&(gameInfo.teban=="後手")){
+			if(((targetPlayer=="myPiece")&&(gameInfo.teban=="先手"))||((targetPlayer=="rivalPiece")&&(gameInfo.teban=="後手"))){
 				addY=sPieceMotionYX[i][0];
 				addX=sPieceMotionYX[i][1];
 			}
-			if((targetPlayer=="myPiece")&&(gameInfo.teban=="後手")||
-				(targetPlayer=="rivalPiece")&&(gameInfo.teban=="先手")){
+			if(((targetPlayer=="myPiece")&&(gameInfo.teban=="後手"))||((targetPlayer=="rivalPiece")&&(gameInfo.teban=="先手"))){
 				addY=gPieceMotionYX[i][0];
 				addX=gPieceMotionYX[i][1];
 			}
