@@ -197,7 +197,13 @@ function createKyokumen(){
 	for(let i=0;i<gameKeys.length;i++){
 		if(!(GameRecodeArray[recordCount][gameKeys[i]]=="EMP")){
 			let indexNumber=pieceId.indexOf(GameRecodeArray[recordCount][gameKeys[i]]);//配列の何番目にあるか？
-			document.getElementById(gameKeys[i]).insertAdjacentHTML('afterbegin',piece[indexNumber]);//駒のセット
+			
+			if((PieceRecordArray[recordCount][GameRecodeArray[recordCount][gameKeys[i]]]=="skoma")||
+				(PieceRecordArray[recordCount][GameRecodeArray[recordCount][gameKeys[i]]]=="gkoma")){
+					document.getElementById(gameKeys[i]).insertAdjacentHTML('afterbegin',piece[indexNumber]);//駒のセット
+			}else{
+					document.getElementById(gameKeys[i]).insertAdjacentHTML('afterbegin',promotionPiece[indexNumber]);//駒のセット
+			}
 			//console.log("駒オブジェエクト"+piece[indexNumber]);//駒
 			//console.log("駒クラス"+PieceRecordArray[0][GameRecodeArray[0][gameKeys[i]]]);//駒クラス
 			document.getElementById(GameRecodeArray[recordCount][gameKeys[i]]).setAttribute('class',PieceRecordArray[recordCount][GameRecodeArray[recordCount][gameKeys[i]]]);//クラスのセット
