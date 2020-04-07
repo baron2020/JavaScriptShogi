@@ -156,47 +156,91 @@ var PieceRecordArray=[];//駒クラスの記録
 var recordCount=0;
 
 //記録の検討
-function considerRecord(){
-	let clonGameRecord=Object.assign({},GameRecord);//ゲームレコードのコピー
-	console.log(RecodeArray);
-}
-
-function kentouMode(){
-	let backStart="<input type='button' value='|◀'onClick='backStart()'size='50'>";
-	let back1="<input type='button' value='◀'onClick='back1()'size='50'>";
-	let go1="<input type='button' value='▶'onClick='go1()'size='50'>";
-	let goEnd="<input type='button' value='▶|'onClick='goEnd()'size='50'>";
+function considerMode(){
+	let backStart="<input type='button' value='|◀'onClick='backStart()'style='width:12%'>";
+	let back1="<input type='button' value='◀'onClick='back1()'style='width:12%'>";
+	let go1="<input type='button' value='▶'onClick='go1()'style='width:12%'>";
+	let goEnd="<input type='button' value='▶|'onClick='goEnd()'style='width:12%'>";
 	document.getElementById("backStart").innerHTML=backStart;
 	document.getElementById("back1").innerHTML=back1;
 	document.getElementById("go1").innerHTML=go1;
 	document.getElementById("goEnd").innerHTML=goEnd;
-	document.getElementById("recordCount").innerHTML=recordCount+"手目";//検討の局面
+	document.getElementById("recordCountDisp").innerHTML=recordCount+"手目";//検討の局面
+	//document.getElementById("hanten").innerHTML="反転";//検討の局面
 }
-//開始局面に戻る
-function backStart(){
-	recordCount=0;
-	document.getElementById("recordCount").innerHTML=recordCount+"手目";//検討の局面
-	//console.log(GameRecodeArray[recordCount]);
-	let keys=Object.keys(PieceRecordArray[0]);//全てのキー
-	//console.log(keys);//全ての駒
-	for(let i=0;i<keys.length;i++){
-		document.getElementById(keys[i]).remove();//駒の削除
+//局面の生成
+function createKyokumen(){
+	let gameKeys=Object.keys(GameRecodeArray[recordCount]);//ゲームの全てのキー
+	let pieceKeys=Object.keys(PieceRecordArray[recordCount]);//駒の全てのキー
+	if(recordCount==0){
+		document.getElementById("recordCountDisp").innerHTML=recordCount+"手目";//検討の局面
+	}else{
+		document.getElementById("recordCountDisp").innerHTML=returnTargetRecord(recordCount-1);//検討の局面
+	}
+	for(let i=0;i<pieceKeys.length;i++){
+		let tempElement=document.getElementById(pieceKeys[i]);
+		//nullチェック
+		if(!(tempElement===null)){
+			tempElement.remove();//駒の削除
+		}
+	}
+	console.log(GameRecodeArray);
+	console.log(PieceRecordArray);
+	console.log(justBefore);
+	let banElements=document.getElementsByClassName("ban");
+	for(let i=0;i<banElements.length;i++){
+		banElements[i].style.backgroundColor="khaki";
+		banElements[i].style.border="0.5px solid black";
+		banElements[i].style.boxSizing="border-box";
+	}
+	//駒の配置とクラスのセット
+	for(let i=0;i<gameKeys.length;i++){
+		if(!(GameRecodeArray[recordCount][gameKeys[i]]=="EMP")){
+			let indexNumber=pieceId.indexOf(GameRecodeArray[recordCount][gameKeys[i]]);//配列の何番目にあるか？
+			document.getElementById(gameKeys[i]).insertAdjacentHTML('afterbegin',piece[indexNumber]);//駒のセット
+			//console.log("駒オブジェエクト"+piece[indexNumber]);//駒
+			//console.log("駒クラス"+PieceRecordArray[0][GameRecodeArray[0][gameKeys[i]]]);//駒クラス
+			document.getElementById(GameRecodeArray[recordCount][gameKeys[i]]).setAttribute('class',PieceRecordArray[recordCount][GameRecodeArray[recordCount][gameKeys[i]]]);//クラスのセット
+		}
+	}
+	if(!(recordCount==0)){
+		changeCssJustBefore(justBefore[recordCount-1]);//直前のマスのcssを変更する
 	}
 }
 
+//棋譜記録を取得する
+function returnTargetRecord(count){
+	let targetRecord;
+	targetRecord=" "+Number(count+1)+" "+gameRecodeEndMasuArray[count]+gameRecodePieceArray[count]+"("+gameRecodeStartMasuArray[count]+")";
+	console.log(gameRecodeEndMasuArray);
+	console.log(gameRecodePieceArray);
+	console.log(gameRecodeStartMasuArray);
+	return targetRecord;
+}
+
+//開始局面に戻る
+function backStart(){
+	recordCount=0;
+	createKyokumen();
+}
+
 function back1(){
-	recordCount--;
-	document.getElementById("recordCount").innerHTML=recordCount+"手目";//検討の局面
+	if(recordCount>0){
+		recordCount--;
+		createKyokumen();
+	}
 }
 
 function go1(){
-	recordCount++;
-	document.getElementById("recordCount").innerHTML=recordCount+"手目";//検討の局面
+	if(recordCount<justBefore.length){
+		recordCount++;
+		createKyokumen();
+	}
 }
 
 function goEnd(){
-	recordCount++;
-	document.getElementById("recordCount").innerHTML=recordCount+"手目";//検討の局面
+	recordCount=justBefore.length;
+	createKyokumen();
 }
 
 //パソコン用マウスダウン
@@ -1522,8 +1566,8 @@ function movePiece(addPiece,addMasu){
 	//駒の移動が完了したら
 		kihuConvertMasu(Page.cys,Page.cxs,Page.firstY,Page.firstX,1);//棋譜を記録として残す。
 		kihuConvertPiece(Game.firstTouchPieceName,1);//棋譜を記録として残す。
+		justBefore.push(addMasu);//配列に直前の指し手のマスを格納
 	}
-	justBefore.push(addMasu);//配列に直前の指し手のマスを格納
 }
 //駒の昇格,成り駒の移動
 function movePromotion(){
@@ -1541,7 +1585,6 @@ function movePromotion(){
 //駒の移動が完了したら
 	kihuConvertMasu(Page.cys,Page.cxs,Page.firstY,Page.firstX,1);//棋譜を記録として残す。
 	kihuConvertPiece(Game.firstTouchPieceName,1);//棋譜を記録として残す。
-//document.getElementById("outedisp").innerHTML="";//王手判定
 	justBefore.push(Game.currentMasu);//配列に直前の指し手のマスを格納
 }
 
@@ -1968,7 +2011,7 @@ function kihuConvertPiece(tempPieceName,commit){
 function kihuAllConvert(){
 	let game="";
 	for(let i=0;i<gameRecodeEndMasuArray.length;i++){
-		game+=gameRecodeEndMasuArray[i]+gameRecodePieceArray[i]+"("+gameRecodeStartMasuArray[i]+")"+"　";
+		game+=i+" "+gameRecodeEndMasuArray[i]+gameRecodePieceArray[i]+"("+gameRecodeStartMasuArray[i]+")"+"　";
 	}
 	console.log(game);
 	return game;
@@ -1998,7 +2041,7 @@ function endMode(){
 	document.getElementById("windisp").innerHTML="";
 	document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";
 	document.getElementById("test1").innerHTML="";
-	kentouMode();
+	considerMode();
 	Flg.endMode=true;
 }
 

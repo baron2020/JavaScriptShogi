@@ -66,6 +66,15 @@ margin:4px;
 
 }
 
+p{
+max-width:360px;
+}
+#recordCount{
+	width:40%;
+	text-align:center;
+}
+
+
 #gamemode,#teban,#outedisp,#enddisp,#windisp,#gamecount{
 	font-weight:bolder;/* ‘¾Žš‚É‚·‚é */
 }
