@@ -155,6 +155,185 @@ var GameRecodeArray=[];//盤面の記録
 var PieceRecordArray=[];//駒クラスの記録
 var recordCount=0;
 
+//パソコン用マウスダウン
+function mousedown(e){
+	try{
+		if((Flg.tumi==false)&&(Flg.endMode==false)){
+			touchScreen(e.pageX,e.pageY);
+		}else{
+			throw new Error("お疲れ様でした(*_ _)");
+		}
+	}
+	catch(e){
+			document.getElementById("ky").innerHTML="";//y座標
+			document.getElementById("kx").innerHTML="";//x座標
+			document.getElementById("gamemode").innerHTML="検討モード";
+			document.getElementById("inpModeEnd").innerHTML="";
+			document.getElementById("outedisp").innerHTML="";
+			document.getElementById("gamecount").innerHTML="";
+			document.getElementById("windisp").innerHTML="";//勝敗結果
+			document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";
+			document.getElementById("test1").innerHTML="";
+	}
+}
+//スマホ用タッチスタート
+function touchstart(e){
+	try{
+		if((Flg.tumi==false)&&(Flg.endMode==false)){
+			//もしタッチされたのが一箇所であるなら
+			if(e.targetTouches.length==1){
+				touch=e.targetTouches[0];
+				touchScreen(touch.pageX,touch.pageY);
+			}
+		}else{
+			throw new Error("お疲れ様でした(*_ _)");
+		}
+	}
+	catch(e){
+			document.getElementById("ky").innerHTML="";//y座標
+			document.getElementById("kx").innerHTML="";//x座標
+			document.getElementById("gamemode").innerHTML="検討モード";
+			document.getElementById("inpModeEnd").innerHTML="";
+			document.getElementById("outedisp").innerHTML="";
+			document.getElementById("gamecount").innerHTML="";
+			document.getElementById("windisp").innerHTML="";//勝敗結果
+			document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";
+			document.getElementById("test1").innerHTML="";
+	}
+}
+
+//座標
+function getCoordinate(tx,ty){
+	let d1s1Element=document.getElementById("d1s1");
+	let g1Element=document.getElementById("g1");
+	let s1Element=document.getElementById("s1");
+
+	let d1s1rect=d1s1Element.getBoundingClientRect();
+	let g1rect=g1Element.getBoundingClientRect();
+	let s1rect=s1Element.getBoundingClientRect();
+	
+	console.log("d1s1までの横"+Math.round(d1s1rect.left));//四捨五入
+	console.log("d1s1までの高さ"+Math.round(d1s1rect.top));
+	console.log("d1s1の幅"+d1s1rect.width);
+	console.log("d1s1の高さ"+d1s1rect.height);
+
+	let banX=Math.round(d1s1rect.left);//将棋盤(d1s1)までの横幅(距離)
+	let banY=Math.round(d1s1rect.top);//将棋盤(d1s1)までの高さ(距離)
+	let gW1=g1rect.left;//g1までの横の距離
+	let gH1=g1rect.top;//g1までの縦の距離
+	let sW1=s1rect.left;//s1までの横の距離
+	let sH1=s1rect.top;//s1までの縦の距離
+	Page.cx=Math.floor(tx);
+	Page.cy=Math.floor(ty);
+	Page.cxs=Math.floor(((tx-banX)/d1s1rect.width)+1);
+	Page.cys=Math.floor(((ty-banY)/d1s1rect.height)+1);
+	gxs=Math.floor(((tx-gW1)/g1rect.width)+1);
+	gys=Math.floor(((ty-gH1)/g1rect.height)+1);
+		console.log(gxs);
+		console.log(gys);
+
+	sxs=Math.floor(((tx-sW1)/s1rect.width)+1);
+	sys=Math.floor(((ty-sH1)/s1rect.height)+1);
+	Game.currentMasu="d"+Page.cys+"s"+Page.cxs;//カレントのタッチマス
+	Flg.currentMasuInout=InOut(Page.cys,Page.cxs);//カレントのマスは盤内？盤外？
+	//y,x座標の表示
+	document.getElementById("ky").innerHTML=Page.cy;//y座標
+	document.getElementById("kx").innerHTML=Page.cx;//x座標
+	if(gys==1){
+		Game.currentMasu="g"+gxs;
+	}else if(sys==1){
+		Game.currentMasu="s"+sxs;
+	}else{
+	;
+	}
+	//console.log(Game.currentMasu);
+	Game.currentPieceId=GameRecord[Game.currentMasu];//現在のマスにある駒のId
+	//console.log(Game.currentPieceId);
+	if((typeof Game.currentPieceId==="undefined")||(Game.currentPieceId===null)||(Game.currentPieceId=="EMP")){
+		Game.currentPieceId="";
+		Game.currentPieceClass="";
+	}else{
+		Game.currentPieceClass=PieceIdRecord[Game.currentPieceId];//現在のマスにある駒のクラス
+	}
+	Game.currentPieceName=Game.currentPieceId.substr(0,2);//現在のマスにある駒のId二文字
+	kihuConvertMasu(Page.cys,Page.cxs,Page.firstY,Page.firstX,0);//棋譜形式に変換
+	if(Flg.kihuFirstTouch==true){
+		kihuConvertPiece(Game.currentPieceIdName,0);
+		//自分の駒を選択している。
+		if(isMyPiece()==true){
+			Flg.kihuFirstTouch=false;
+		}
+	}else{
+		kihuConvertPiece(Game.firstTouchPieceName,0);
+		Flg.kihuFirstTouch=true;
+	}
+	if((typeof convertPiece==="undefined")||(kihuDisplay=="盤外です")){
+		convertPiece="";
+	}
+	document.getElementById("kihudisplay").innerHTML=kihuDisplay+convertPiece;//棋譜の表示
+}
+
+//ユーザーチェック
+function userCheck(){
+	let userB=window.navigator.appName;//ユーザーブラウザ
+	let wnu=window.navigator.userAgent;//ユーザーエージェント
+	let userOs;//ユーザーos
+	let userW=document.documentElement.offsetWidth;//window.innerWidth;//ウィンドウの横幅
+	let userH=document.documentElement.offsetHeight;//window.innerHeight;//ウィンドウの高さ
+	if(wnu.indexOf('iPhone')!=-1){
+		userOs="iPhone";
+	}else if(wnu.indexOf('iPod')!=-1){
+		userOs="iPod";
+	}else if(wnu.indexOf('Android')!=-1){
+		userOs="Android";
+	}else if(wnu.indexOf('Windows')!=-1){
+		userOs="Windows";
+	}else{
+		userOs="わかりません";
+	}
+	document.getElementById("useros").innerHTML=userOs;//userのosを表示
+	document.getElementById("userw").innerHTML=userW;//userの横幅を表示
+	document.getElementById("userh").innerHTML=userH;//userの高さを表示
+	//console.log(document.documentElement.offsetWidth);
+	//console.log(document.documentElement.clientWidth);
+	//console.log(window.innerWidth);
+	//console.log(document.documentElement.offsetHeight);
+	//console.log(document.documentElement.clientHeight);
+	//console.log(window.innerHeight);
+}
+
+//スタート
+function start(){
+	let supportTouch='ontouchend'in document;//タッチイベントがサポートされているか
+	let EVENTNAME=supportTouch ? 'touchstart':'mousedown';//タッチイベントかマウスダウンか
+	let tempInp;
+	gAria();
+	mainAria();
+	sAria();
+	userCheck();
+	//駒の配置とイベントリスナの登録
+	setUp();
+	document.getElementById("gamemode").innerHTML="対局モード";
+	document.getElementById("teban").innerHTML=Game.teban;//手番
+	document.getElementById("gamecount").innerHTML=Game.count+"手目";//何手目か？
+	tempInp="<input type='button' value='対局モードの終了'onClick='endMode()'size='10'>";
+	document.getElementById("inpModeEnd").innerHTML=tempInp;
+
+	let clonGameRecord=Object.assign({},GameRecord);//ゲームレコードのコピー
+	let clonPieceRecord=Object.assign({},PieceIdRecord);//ゲームレコードのコピー
+	//console.log(clonGameRecord);
+	//console.log(clonPieceRecord);
+	GameRecodeArray.push(clonGameRecord);//盤面の記録を残す
+	PieceRecordArray.push(clonPieceRecord);//駒クラスの記録を残す
+
+	//イベント分岐
+	if(EVENTNAME=='touchstart'){
+		document.addEventListener("touchstart",touchstart);
+	}else{
+		document.addEventListener("mousedown",mousedown);
+	}
+}
+
 //記録の検討
 function considerMode(){
 	let backStart="<input type='button' value='|◀'onClick='backStart()'style='width:12%'>";
@@ -211,6 +390,7 @@ function createKyokumen(){
 	}
 	if(!(recordCount==0)){
 		changeCssJustBefore(justBefore[recordCount-1]);//直前のマスのcssを変更する
+		PlaySound();
 	}
 }
 
@@ -249,52 +429,7 @@ function goEnd(){
 	createKyokumen();
 }
 
-//パソコン用マウスダウン
-function mousedown(e){
-	try{
-		if((Flg.tumi==false)&&(Flg.endMode==false)){
-			touchScreen(e.pageX,e.pageY);
-		}else{
-			throw new Error("お疲れ様でした(*_ _)");
-		}
-	}
-	catch(e){
-			document.getElementById("ky").innerHTML="";//y座標
-			document.getElementById("kx").innerHTML="";//x座標
-			document.getElementById("gamemode").innerHTML="検討モード";
-			document.getElementById("inpModeEnd").innerHTML="";
-			document.getElementById("outedisp").innerHTML="";
-			document.getElementById("gamecount").innerHTML="";
-			document.getElementById("windisp").innerHTML="";//勝敗結果
-			document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";
-			document.getElementById("test1").innerHTML="";
-	}
-}
-//スマホ用タッチスタート
-function touchstart(e){
-	try{
-		if((Flg.tumi==false)&&(Flg.endMode==false)){
-			//もしタッチされたのが一箇所であるなら
-			if(e.targetTouches.length==1){
-				touch=e.targetTouches[0];
-				touchScreen(touch.pageX,touch.pageY);
-			}
-		}else{
-			throw new Error("お疲れ様でした(*_ _)");
-		}
-	}
-	catch(e){
-			document.getElementById("ky").innerHTML="";//y座標
-			document.getElementById("kx").innerHTML="";//x座標
-			document.getElementById("gamemode").innerHTML="検討モード";
-			document.getElementById("inpModeEnd").innerHTML="";
-			document.getElementById("outedisp").innerHTML="";
-			document.getElementById("gamecount").innerHTML="";
-			document.getElementById("windisp").innerHTML="";//勝敗結果
-			document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";
-			document.getElementById("test1").innerHTML="";
-	}
-}
+
 
 //打ち歩詰め確認
 function utiFuCheck(){
@@ -437,9 +572,7 @@ function kinjiteCheck(targetPlayer,deleteMasu,addMasu,addPiece,checkType){
 //タッチされた時のイベントの処理
 function touchScreen(tx,ty){
 	getCoordinate(tx,ty);//座標、盤内外の取得
-	console.log(Game.currentPieceClass);
-
-	console.log("合法駒"+legalHandPieceArray);
+	//console.log("合法駒"+legalHandPieceArray);
 	//駒の選択から移動まで
 	if(Flg.firstChoice==true){
 		//自分の駒を選択している。
@@ -451,7 +584,7 @@ function touchScreen(tx,ty){
 				allReset();
 				return;
 			}
-			console.log(TumiJudge.outeType);
+			//console.log(TumiJudge.outeType);
 
 			//合法の持ち駒を選択しているのであれば
 			if((Flg.toiOute==true)&&(Flg.firstTouchMasuInOut==false)){
@@ -704,6 +837,7 @@ function tumiJudge(){
 			document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";//お疲れ様でした
 			document.getElementById("gamemode").innerHTML="検討モード";
 			document.getElementById("inpModeEnd").innerHTML="";
+			considerMode();
 			Flg.tumi=true;//詰みです
 			return;
 		}
@@ -741,6 +875,7 @@ function tumiJudge(){
 			document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";//お疲れ様でした
 			document.getElementById("gamemode").innerHTML="検討モード";
 			document.getElementById("inpModeEnd").innerHTML="";
+			considerMode();
 			Flg.tumi=true;//詰みです
 			return;
 		}
@@ -805,7 +940,7 @@ function tumiJudge(){
 			document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";//お疲れ様でした
 			document.getElementById("gamemode").innerHTML="検討モード";
 			document.getElementById("inpModeEnd").innerHTML="";
-
+			considerMode();
 			Flg.tumi=true;//詰みです
 			return;
 		}
@@ -1366,126 +1501,9 @@ function setUp(){
 	}
 }
 
-//ユーザーチェック
-function userCheck(){
-	let userB=window.navigator.appName;//ユーザーブラウザ
-	let wnu=window.navigator.userAgent;//ユーザーエージェント
-	let userOs;//ユーザーos
-	let userW=window.innerWidth;//ウィンドウの横幅
-	let userH=window.innerHeight;//ウィンドウの高さ
-	if(wnu.indexOf('iPhone')!=-1){
-		userOs="iPhone";
-	}else if(wnu.indexOf('iPod')!=-1){
-		userOs="iPod";
-	}else if(wnu.indexOf('Android')!=-1){
-		userOs="Android";
-	}else if(wnu.indexOf('Windows')!=-1){
-		userOs="Windows";
-	}else{
-		userOs="わかりません";
-	}
-	document.getElementById("useros").innerHTML=userOs;//userのosを表示
-	document.getElementById("userw").innerHTML=userW;//userの横幅を表示
-	document.getElementById("userh").innerHTML=userH;//userの高さを表示
-}
-
-//スタート
-function start(){
-	let supportTouch='ontouchend'in document;//タッチイベントがサポートされているか
-	let EVENTNAME=supportTouch ? 'touchstart':'mousedown';//タッチイベントかマウスダウンか
-	let tempInp;
-	gAria();
-	mainAria();
-	sAria();
-	userCheck();
-	//駒の配置とイベントリスナの登録
-	setUp();
-	document.getElementById("gamemode").innerHTML="対局モード";
-	document.getElementById("teban").innerHTML=Game.teban;//手番
-	document.getElementById("gamecount").innerHTML=Game.count+"手目";//何手目か？
-	tempInp="<input type='button' value='対局モードの終了'onClick='endMode()'size='10'>";
-	document.getElementById("inpModeEnd").innerHTML=tempInp;
-
-	let clonGameRecord=Object.assign({},GameRecord);//ゲームレコードのコピー
-	let clonPieceRecord=Object.assign({},PieceIdRecord);//ゲームレコードのコピー
-	//console.log(clonGameRecord);
-	//console.log(clonPieceRecord);
-	GameRecodeArray.push(clonGameRecord);//盤面の記録を残す
-	PieceRecordArray.push(clonPieceRecord);//駒クラスの記録を残す
-
-	//イベント分岐
-	if(EVENTNAME=='touchstart'){
-		document.addEventListener("touchstart",touchstart);
-	}else{
-		document.addEventListener("mousedown",mousedown);
-	}
-}
-
-
 //start()系終了---------------------------------------------------------------------------------------
 
 //touchScreen()系開始----------------------------------------------------------------------------------
-
-
-//座標
-function getCoordinate(tx,ty){
-//console.log(GameRecord);
-	let banX=36;//将棋盤までのpx横幅(距離)
-	let banY=165;//将棋盤までのpx高さ(距離)
-	let gW1=36;//g1までの横の距離
-	let gH1=101;//g1までの縦の距離
-	let sW1=36;//s1までの横の距離
-	let sH1=485;//s1までの縦の距離
-	Page.cx=Math.floor(tx);
-	Page.cy=Math.floor(ty);
-	Page.cxs=Math.floor(((tx-banX)/32)+1);
-	Page.cys=Math.floor(((ty-banY)/32)+1);
-	gxs=Math.floor(((tx-gW1)/32)+1);
-	gys=Math.floor(((ty-gH1)/32)+1);
-	sxs=Math.floor(((tx-sW1)/32)+1);
-	sys=Math.floor(((ty-sH1)/32)+1);
-	Game.currentMasu="d"+Page.cys+"s"+Page.cxs;//カレントのタッチマス
-	Flg.currentMasuInout=InOut(Page.cys,Page.cxs);//カレントのマスは盤内？盤外？
-	//y,x座標の表示
-	document.getElementById("ky").innerHTML=Page.cy;//y座標
-	document.getElementById("kx").innerHTML=Page.cx;//x座標
-	if(gys==1){
-		Game.currentMasu="g"+gxs;
-	}else if(gys==2){
-		Game.currentMasu="g"+Number(11+gxs);
-	}else if(sys==1){
-		Game.currentMasu="s"+sxs;
-	}else if(sys==2){
-		Game.currentMasu="s"+Number(11+sxs);
-	}else{
-	;
-	}
-	//console.log(Game.currentMasu);
-	Game.currentPieceId=GameRecord[Game.currentMasu];//現在のマスにある駒のId
-	//console.log(Game.currentPieceId);
-	if((typeof Game.currentPieceId==="undefined")||(Game.currentPieceId===null)||(Game.currentPieceId=="EMP")){
-		Game.currentPieceId="";
-		Game.currentPieceClass="";
-	}else{
-		Game.currentPieceClass=PieceIdRecord[Game.currentPieceId];//現在のマスにある駒のクラス
-	}
-	Game.currentPieceName=Game.currentPieceId.substr(0,2);//現在のマスにある駒のId二文字
-	kihuConvertMasu(Page.cys,Page.cxs,Page.firstY,Page.firstX,0);//棋譜形式に変換
-	if(Flg.kihuFirstTouch==true){
-		kihuConvertPiece(Game.currentPieceIdName,0);
-		//自分の駒を選択している。
-		if(isMyPiece()==true){
-			Flg.kihuFirstTouch=false;
-		}
-	}else{
-		kihuConvertPiece(Game.firstTouchPieceName,0);
-		Flg.kihuFirstTouch=true;
-	}
-	if((typeof convertPiece==="undefined")||(kihuDisplay=="盤外です")){
-		convertPiece="";
-	}
-	document.getElementById("kihudisplay").innerHTML=kihuDisplay+convertPiece;//棋譜の表示
-}
 
 //選択した駒の移動完了まで
 function moveCommit(){
