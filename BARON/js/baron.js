@@ -159,7 +159,8 @@ var recordCount=0;
 function mousedown(e){
 	try{
 		if((Flg.tumi==false)&&(Flg.endMode==false)){
-			touchScreen(e.pageX,e.pageY);
+			touchScreen(e.clientX,e.clientY);
+			//touchScreen(e.pageX,e.pageY);
 		}else{
 			throw new Error("お疲れ様でした(*_ _)");
 		}
@@ -183,7 +184,8 @@ function touchstart(e){
 			//もしタッチされたのが一箇所であるなら
 			if(e.targetTouches.length==1){
 				touch=e.targetTouches[0];
-				touchScreen(touch.pageX,touch.pageY);
+				touchScreen(touch.clientX,touch.clientY);
+				//touchScreen(touch.pageX,touch.pageY);
 			}
 		}else{
 			throw new Error("お疲れ様でした(*_ _)");
