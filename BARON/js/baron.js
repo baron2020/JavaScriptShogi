@@ -312,6 +312,7 @@ function start(){
 	gAria();
 	mainAria();
 	sAria();
+	sNumAria();
 	userCheck();
 	//駒の配置とイベントリスナの登録
 	setUp();
@@ -1409,23 +1410,29 @@ function setAidanoMasu(targetMasu1,targetMasu2){
 
 //後手駒台の作成
 function gAria(){
-	let gDisplay="";//後手駒台表示用
+	let gDisplay="<table border='0'align='center'>";//後手駒台表示用
 	let gKomadai=[];//後手の駒台
 	let gPaneru;
 	gKomadai=new Array(pLen);
 	for(let i=0;i<pLen;i++){
-		gPaneru="<div class='gStand'id='g"+i+"'>　</div>";
+		gPaneru="<td class='gStand'id='g"+i+"'>　</td>";
 		gKomadai[i]=gPaneru;
 	}
 	for(let i=0;i<pLen;i++){
+			if(i==0){
+			gDisplay+="<tr>";
+		}
 		gDisplay+=gKomadai[i];
+		if(i==10){
+			gDisplay+="</tr></table>";
+		}
 	}
 	document.getElementById("gdisp").innerHTML=gDisplay;
 }
 
 //中央メイン盤の作成
 function mainAria(){
-	let mainDisplay="";//メイン表示用
+	let mainDisplay="<table border='0'align='center'>";//メイン表示用
 	let board=[];//メインの将棋盤
 	let paneru;
 	board=new Array(11);
@@ -1433,39 +1440,43 @@ function mainAria(){
 		board[y]=new Array(11)
 		for(let x=0;x<11;x++){
 			if((y==0)){
-				if((x==0)||(x==10)){
-					paneru="<div class='topAndCornerEdge'id='d"+y+"s"+x+"'>　</div>";
+				if(x==0){
+					paneru="<td class='topAndCornerEdge'id='d"+y+"s"+x+"'>　</td>";
+				}else if(x==10){
+					paneru="<td class='topAndCornerEdge'id='d"+y+"s"+x+"'>　</td>";
 				}else{
-				paneru="<div class='topEdge'id='d"+y+"s"+x+"'>　</div>";
+					paneru="<td class='topEdge'id='d"+y+"s"+x+"'>　</td>";
 				}
-			}
-			else if((x==10)&&((y>=1)&&(y<=9))){
-				paneru="<div class='rightEdge'id='d"+y+"s"+x+"'>　</div>";
-			}
-			else if((y==10)&&((x>=1)&&(x<=9))){
-				paneru="<div class='bottomEdge'id='d"+y+"s"+x+"'>　</div>";
-			}
-			else if((x==0)&&((y>=1)&&(y<=9))){
-				paneru="<div class='leftEdge'id='d"+y+"s"+x+"'>　</div>";
-			}
-			else if(((y==10)&&(x==0))||((y==10)&&(x==10))){
-				paneru="<div class='bottomAndCornerEdge'id='d"+y+"s"+x+"'>　</div>";
-			}
-			else{
-				paneru="<div class='ban'id='d"+y+"s"+x+"'>　</div>";
+			}else if((x==0)&&((y>=1)&&(y<=9))){
+				paneru="<td class='leftEdge'id='d"+y+"s"+x+"'>　</td>";
+			}else if((x==10)&&((y>=1)&&(y<=9))){
+				paneru="<td class='rightEdge'id='d"+y+"s"+x+"'>　</td>";
+			}else if((y==10)&&((x>=1)&&(x<=9))){
+				paneru="<td class='bottomEdge'id='d"+y+"s"+x+"'>　</td>";
+			}else if((y==10)&&(x==0)){
+					paneru="<td class='bottomAndCornerEdge'id='d"+y+"s"+x+"'>　</td>";
+			}else if((y==10)&&(x==10)){
+					paneru="<td class='bottomAndCornerEdge'id='d"+y+"s"+x+"'>　</td>";
+			}else{
+				paneru="<td class='ban'id='d"+y+"s"+x+"'>　</td>";
 			}
 			board[y][x]=paneru;
 		}
 	}
+	console.log(board);
 	for(let y=0;y<11;y++){
 		for(let x=0;x<11;x++){
-		mainDisplay+=board[y][x];
-		if((y==10)&&(x==10)){
-		break;
-		}
-		if(x==10){
-		mainDisplay+="<br>";
-		}
+			if(x==0){
+				mainDisplay+="<tr>";
+			}
+			mainDisplay+=board[y][x];
+			if(x==10){
+				mainDisplay+="</tr>";
+			}
+			if((y==10)&&(x==10)){
+				mainDisplay+="</table>";
+				break;
+			}
 		}
 	}
 	document.getElementById("maindisp").innerHTML=mainDisplay;
@@ -1473,19 +1484,47 @@ function mainAria(){
 
 //先手駒台の作成
 function sAria(){
-	let sDisplay="";//先手駒台表示用
+	let sDisplay="<table border='0'align='center'>";//先手駒台表示用
 	let sKomadai=[];//先手の駒台
 	let sPaneru;
 	sKomadai=new Array(pLen);
 	for(let i=0;i<pLen;i++){
-		sPaneru="<div class='sStand'id='s"+i+"'>　</div>";
+		sPaneru="<td class='sStand'id='s"+i+"'>　</td>";
 		sKomadai[i]=sPaneru;
 	}
 	for(let i=0;i<pLen;i++){
+		if(i==0){
+			sDisplay+="<tr>";
+		}
 		sDisplay+=sKomadai[i];
+		if(i==10){
+			sDisplay+="</tr></table>";
+		}
 	}
 	document.getElementById("sdisp").innerHTML=sDisplay;
 }
+//先手駒台の作成
+function sNumAria(){
+	let sNumDisp="<table border='0'align='center'>";//先手駒台表示用
+	let gNumDisp="<table border='0'align='center'>";//後手駒台表示用
+	for(let i=11;i<22;i++){
+		if(i==11){
+			sNumDisp+="<tr>";
+			gNumDisp+="<tr>";
+		}
+		sNumDisp+="<td class='sNum'id='s"+i+"'>　</td>";
+		gNumDisp+="<td class='gNum'id='g"+i+"'>　</td>";
+		if(i==21){
+			sNumDisp+="</tr></table>";
+			gNumDisp+="</tr></table>";
+
+		}
+	}
+	document.getElementById("sNum").innerHTML=sNumDisp;
+	document.getElementById("gNum").innerHTML=gNumDisp;
+}
+
+
 
 //駒の配置
 function setUp(){
@@ -1685,22 +1724,26 @@ function setPieceMotion(targetPlayer,pieceName,pieceClass,startMasu){
 function sortPiece(){
 	let sStorageArea=["s1","s2","s3","s4","s5","s6","s7","s8","s9"];//駒置き場の順番
 	let gStorageArea=["g9","g8","g7","g6","g5","g4","g3","g2","g1"];//駒置き場の順番
+	let sNumStorageArea=["s12","s13","s14","s15","s16","s17","s18","s19","s20"];
+	let gNumStorageArea=["g20","g19","g18","g17","g16","g15","g14","g13","g12"];
 	let sortRankId=["FU","KY","KE","GI","KI","KA","HI","OU"];//並び替え順番
 	//持ち駒を全て並び替えた配列。"FU","KY","KE","GI","KI","KA","KA","OU"の順盤に先頭に格納
 	let sortPieceArray=[['EMP'],['EMP'],['EMP'],['EMP'],['EMP'],['EMP'],['EMP'],['EMP']];
 	let tempSortPieceArray=[];//隙間のない並び替え
 	let numPieceArray=[];//駒の種類別の枚数を格納する配列
-	let switchClassArray,getPieceArray,storageArea;
+	let switchClassArray,getPieceArray,storageArea,numStorageArea;
 	let tempPieceId;//駒Id
 	let indexNumber;//駒配列の何番目にあるか？
 	if(Game.teban=="先手"){
 		switchClassArray=sClassArray;//クラス
 		getPieceArray=sGetPieceArray;//持ち駒
 		storageArea=sStorageArea;//駒の置き場所
+		numStorageArea=sNumStorageArea;
 	}else{
 		switchClassArray=gClassArray;
 		getPieceArray=gGetPieceArray;
 		storageArea=gStorageArea;
+		numStorageArea=gNumStorageArea;
 	}
 //console.log("配列の全ての駒"+getPieceArray);
 	//tempSortPieceArray:持ち駒を全て並び替えた配列、"FU","KY","KE","GI","KI","KA","HI"の順盤に格納
@@ -1717,6 +1760,7 @@ function sortPiece(){
 			numPieceArray.push(numPiece);//種類ごとの枚数を格納
 		}
 	}
+	
 //console.log(getPieceArray);//並び替えた駒台の駒Id
 	//駒台の全削除
 	for(let i=0;i<getPieceArray.length;i++){
@@ -1724,13 +1768,22 @@ function sortPiece(){
 		//nullチェック
 		if(!(tempElement===null)){
 			tempElement.remove();//html盤面から持ち駒を削除
-
 		}
 	}
 	//js内の盤面情報を'EMP'にする
 	for(let i=0;i<storageArea.length;i++){
 		GameRecord[storageArea[i]]='EMP';//js内の駒台のリセット
 	}
+	//複数枚表記の全削除
+	for(let i=0;i<numStorageArea.length;i++){
+		let tempElement=document.getElementById(numStorageArea[i]).firstElementChild;
+		//nullチェック
+		if(!(tempElement===null)){
+			console.log(tempElement);//並び替えた駒台の駒Id
+			tempElement.remove();//html盤面から持ち駒を削除
+		}
+	}
+
 
 	let xx=0;//配置場所
 	for(let i=0;i<sortPieceArray.length;i++){
@@ -1747,29 +1800,44 @@ function sortPiece(){
 //console.log("js駒Id:"+GameRecord[storageArea[xx]]);
 //console.log("js駒クラス:"+PieceIdRecord[GameRecord[storageArea[xx]]]);
 //console.log(sortPieceArray[i].length);
+			//駒の複数枚の表示
+			//駒が2枚以上あるなら
+			if(sortPieceArray[i].length>=3){
+				let numTemp=sortPieceArray[i].length-1;//駒の枚数
+				let tempText;
+				if(Game.teban=="先手"){
+					tempText="<p class='skoma'>"+numTemp+"</p>";
+				}else{
+					tempText="<p class='gkoma'>"+numTemp+"</p>";
+				}
+				document.getElementById(numStorageArea[xx]).insertAdjacentHTML('afterbegin',tempText);//駒の複数枚の表示
+			}
 			xx++;
 			continue;
 		}
 	}
+	console.log(sortPieceArray);
+
 	//駒の複数枚の表示
-	for(let i=0;i<sortPieceArray.length;i++){
+	//for(let i=0;i<sortPieceArray.length;i++){
 		//駒が2枚以上あるなら
-		if(sortPieceArray[i].length>=3){
-		let numTemp=sortPieceArray[i].length-1;//駒の枚数
-		let tempText="<sup class='numDisp'>"+numTemp+"</sup>";
-		let numGetPiece=document.getElementById(sortPieceArray[i][sortPieceArray[i].length-1]);
-		numGetPiece.insertAdjacentHTML('beforeend',tempText);//駒の複数枚の表示
+	//	if(sortPieceArray[i].length>=3){
+	//		let numTemp=sortPieceArray[i].length-1;//駒の枚数
+	//		let tempText="<sup class='numDisp'>"+numTemp+"</sup>";
+	//		let numGetPiece=document.getElementById(sortPieceArray[i][sortPieceArray[i].length-1]);
+			
+	//		numGetPiece.insertAdjacentHTML('beforeend',tempText);//駒の複数枚の表示
 //numGetPiece.style.position="absolute";
 //addClassName(numGetPiece,'numGetPiece');
-		if(Game.teban=="先手"){
-			numGetPiece.style.top=11+"px";//cssの調整(topから11pxの位置に配置する)、フレキブルデザイン今後の課題
-		}else{
-			numGetPiece.style.top=5+"px";//cssの調整、フレキブルデザイン今後の課題
-		}
+	//	if(Game.teban=="先手"){
+	//		numGetPiece.style.top=3+"px";//cssの調整(topから11pxの位置に配置する)、フレキブルデザイン今後の課題
+	//	}else{
+	//		numGetPiece.style.top=5+"px";//cssの調整、フレキブルデザイン今後の課題
+	//	}
 //console.log(numGetPiece);
 //console.log(numGetPiece.style.top);
-		}
-	}
+	//	}
+	//}
 //console.log(sortPieceArray);//並び替えた駒台の駒Id
 //console.log("種類数"+numPieceArray.length);//駒の類数
 //console.log("種類ごとの枚数"+numPieceArray);//駒の枚数

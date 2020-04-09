@@ -46,7 +46,7 @@ abbr,acronym { border:0;
 
 body{
 	/*min-width:100%;*/
-	 overflow:hidden;/*上下左右スライド無効*/
+	/* overflow:hidden;上下左右スライド無効*/
 
 	}
 
@@ -54,7 +54,9 @@ body{
 	text-align:center;/*ページ全体を中央揃えにする*/
 	max-width:480px;
 	width:100%;
-	margin:auto;
+	margin-left:auto;
+	margin-right:auto;
+	
 /*選択コピー無効*/	
   -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
@@ -63,9 +65,84 @@ body{
         -ms-user-select: none; /* Internet Explorer/Edge */
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
-
 }
 
+table{
+	max-width:480px;
+	width:100%;
+}
+/* 先手,後手の駒台 */
+.sStand,.gStand{
+	position:relative;/* 位置指定の基準点にする*/	
+	background-color:skyblue;
+	/* saddlebrown skyblue*/
+	/* tan*/
+	/* burlywood*/
+	/* wheat*/
+	/* lemonchiffon*/
+	/* lightgoldenrodyellow*/
+	width:10%;
+	height:0;
+ 	padding-top:5%;
+}
+
+#g0,#s0,#g10,#s10{
+	width:5%;
+	height:0;
+ 	padding-top:5%;
+}
+
+/* 持ち駒 */
+.sNum,.gNum{
+	position:relative;/* 位置指定の基準点にする*/	
+	background-color:wheat;
+	width:10%;
+	height:0;
+ 	padding-top:2%;
+}
+#g11,#s11,#g21,#s21{
+	width:5%;
+	height:0;
+ 	padding-top:2%;
+}
+
+
+
+/* 将棋盤 */
+.ban{
+	position:relative;/* 位置指定の基準点にする*/	
+	background-color:khaki;
+	border:0.5px solid black;
+	-webkit-box-sizing: border-box;
+	box-sizing:border-box;
+	width:10%;
+	height:0;
+ 	padding-top:10%;
+}
+
+/* 中央の盤 パネル 上側 id指定 */
+.topEdge{
+	border-bottom:0.5px solid black;
+	box-sizing:border-box;
+}
+
+/* 中央の盤 パネル 左側 class指定 */
+.leftEdge{
+	border-right:0.5px solid black;
+	box-sizing:border-box;
+}
+
+/* 中央の盤 パネル 右側 class指定 */
+.rightEdge{	
+	border-left:0.5px solid black;
+	box-sizing:border-box;
+}
+
+/* 中央の盤 パネル 下側 class指定 */
+.bottomEdge{
+	border-top:0.5px solid black;
+	box-sizing:border-box;	
+}
 
 /*#recordCount{
 	width:40%;
@@ -76,26 +153,11 @@ body{
 #gamemode,#teban,#outedisp,#enddisp,#windisp,#gamecount{
 	font-weight:bolder;/* 太字にする */
 }
-
-
-/* 全てのパネル */
-.sStand,.gStand,.ban,.topAndCornerEdge,.bottomAndCornerEdge,.topEdge,.leftEdge,.rightEdge,.bottomEdge{
-	display:inline-block;/*要素を横並びにする*/
-	vertical-align:bottom;/*インラインブロックの下の隙間を無くす*/
-	width:10%;
- 	height:0;
- 	padding-top:10%;
+/* 上下の将棋盤周り */
+.topEdge,.bottomEdge{
+	height:0;
+ 	padding-top:5%;
 }
-
-/* 将棋盤 */
-.ban{
-	position:relative;/* 位置指定の基準点にする*/	
-	background-color:khaki;
-	border:0.5px solid black;
-	box-sizing:border-box;
-	
-}
-
 /* 将棋盤周り */
 .topAndCornerEdge,.bottomAndCornerEdge,.topEdge,.leftEdge,.rightEdge,.bottomEdge{
 	background-color:khaki;
@@ -106,53 +168,23 @@ body{
 	width:5%;
 	height:0;
  	padding-top:5%;
-	/* height:5%; */
 }
 
 /* 左右の将棋盤周り */
 .leftEdge,.rightEdge{
 	width:5%;
 }
-/* 上下の将棋盤周り */
-.topEdge,.bottomEdge{
-	height:0;
- 	padding-top:5%;
-}
 
 /* 上の左右の将棋盤 */
 .topAndCornerEdge{
 	border-bottom:0.5px solid khaki;
+-webkit-box-sizing: border-box;
 	box-sizing:border-box;
 }
-.leftEdge,.rightEdge{
-	border:0.5px solid khaki;
-	box-sizing:border-box;
-}
+
 .bottomAndCornerEdge{
 	border-top:0.5px solid khaki;
 	box-sizing:border-box;
-}
-
-
-/* 先手,後手の駒台 */
-.sStand,.gStand{
-	position:relative;/* 位置指定の基準点にする*/	
-	background-color:lightgoldenrodyellow;
-	/* saddlebrown skyblue*/
-	/* tan*/
-	/* burlywood*/
-	/* wheat*/
-	/* lemonchiffon*/
-	/* lightgoldenrodyellow*/
-	width:10%;
- 	height:0;
- 	padding-top:10%;	
-}
-
-#g0,#s0,#g10,#s10{
-	width:5%;
-	height:0;
- 	padding-top:10%;	
 }
 
 /* 駒 */
@@ -182,10 +214,10 @@ body{
 	transform:translateY(-50%) translateX(-50%);/* Y軸,X軸を移動する。*/
 	transform: scale(-1,-1);//上下左右を反転する。	
 }
-/* 持ち駒 */
-.numGetPiece{
 
-}
+
+
+
 
 /* 持ち駒複数表記 */
 .numDisp{
@@ -202,29 +234,7 @@ body{
 }
 
 
-/* 中央の盤 パネル 上側 id指定 */
-.topEdge{
-	border-bottom:0.5px solid black;
-	box-sizing:border-box;
-}
 
-/* 中央の盤 パネル 左側 class指定 */
-.leftEdge{
-	border-right:0.5px solid black;
-	box-sizing:border-box;
-}
-
-/* 中央の盤 パネル 右側 class指定 */
-.rightEdge{	
-	border-left:0.5px solid black;
-	box-sizing:border-box;
-}
-
-/* 中央の盤 パネル 下側 class指定 */
-.bottomEdge{	
-	border-top:0.5px solid black;
-	box-sizing:border-box;	
-}
 
 /* コメント */
 
@@ -233,17 +243,17 @@ body{
 
 */
 /*
-#g9,#s9{
+,#s9{
 	border-top:0.5px solid black;
 	box-sizing:border-box;
 }
 
-#g2,#g3,#g4,#g5,#g6,#g7,#g8{
+#g1,#g2,#g3,#g4,#g5,#g6,#g7,#g8,#g9{
 	border-top:0.5px solid black;
 	border-bottom:0.5px solid black;
 	box-sizing:border-box;
 }
-#s2,#s3,#s4,#s5,#s6,#s7,#s8{
+#s1,#s2,#s3,#s4,#s5,#s6,#s7,#s8,#s9{
 	border-top:0.5px solid black;
 	box-sizing:border-box;
 }
