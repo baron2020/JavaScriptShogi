@@ -71,10 +71,16 @@ table{
 	max-width:480px;
 	width:100%;
 }
+
+/* 将棋盤周り色 */
+.topEdge,.bottomEdge,.leftEdge,.rightEdge{
+	background-color:khaki;
+}
+
 /* 先手,後手の駒台 */
 .sStand,.gStand{
 	position:relative;/* 位置指定の基準点にする*/	
-	background-color:skyblue;
+	background-color:lightgoldenrodyellow;
 	/* saddlebrown skyblue*/
 	/* tan*/
 	/* burlywood*/
@@ -92,57 +98,75 @@ table{
  	padding-top:5%;
 }
 
-/* 持ち駒 */
+/* 先手,後手の駒台複数枚表記エリア */
 .sNum,.gNum{
 	position:relative;/* 位置指定の基準点にする*/	
-	background-color:wheat;
+	background-color:lightgoldenrodyellow;
 	width:10%;
 	height:0;
- 	padding-top:2%;
+ 	padding-top:1.5%;
 }
 #g11,#s11,#g21,#s21{
 	width:5%;
 	height:0;
+ 	padding-top:1.5%;
+}
+/* 盤周り上,下側 class指定 */ 
+.topEdge,.bottomEdge{
+	width:10%;
+	height:0;
  	padding-top:2%;
 }
 
+#d0s0,#d0s10,#d10s0,#d10s10{
+	width:5%;
+	height:0;
+ 	padding-top:2%;
+}
+.bottomEdge{
+	background-color:khaki;
+}
 
 
 /* 将棋盤 */
 .ban{
-	position:relative;/* 位置指定の基準点にする*/	
 	background-color:khaki;
+/*
 	border:0.5px solid black;
 	-webkit-box-sizing: border-box;
 	box-sizing:border-box;
+*/
+	position:relative;/* 位置指定の基準点にする*/		
 	width:10%;
 	height:0;
- 	padding-top:10%;
+ 	padding-top:6%;
 }
 
-/* 中央の盤 パネル 上側 id指定 */
+*/
+.leftEdge,.rightEdge{
+	width:5%;
+	height:0;
+ 	padding-top:5%;
+}
+*/
+
+/* パネル 上側 class指定 */
 .topEdge{
 	border-bottom:0.5px solid black;
 	box-sizing:border-box;
 }
 
-/* 中央の盤 パネル 左側 class指定 */
 .leftEdge{
 	border-right:0.5px solid black;
 	box-sizing:border-box;
 }
 
-/* 中央の盤 パネル 右側 class指定 */
 .rightEdge{	
 	border-left:0.5px solid black;
 	box-sizing:border-box;
 }
+*/
 
-/* 中央の盤 パネル 下側 class指定 */
-.bottomEdge{
-	border-top:0.5px solid black;
-	box-sizing:border-box;	
-}
 
 /*#recordCount{
 	width:40%;
@@ -153,77 +177,35 @@ table{
 #gamemode,#teban,#outedisp,#enddisp,#windisp,#gamecount{
 	font-weight:bolder;/* 太字にする */
 }
-/* 上下の将棋盤周り */
-.topEdge,.bottomEdge{
-	height:0;
- 	padding-top:5%;
-}
-/* 将棋盤周り */
-.topAndCornerEdge,.bottomAndCornerEdge,.topEdge,.leftEdge,.rightEdge,.bottomEdge{
-	background-color:khaki;
-}
 
-/* コーナーの将棋盤周り */
-.topAndCornerEdge,.bottomAndCornerEdge{
-	width:5%;
-	height:0;
- 	padding-top:5%;
-}
-
-/* 左右の将棋盤周り */
-.leftEdge,.rightEdge{
-	width:5%;
-}
-
-/* 上の左右の将棋盤 */
-.topAndCornerEdge{
-	border-bottom:0.5px solid khaki;
--webkit-box-sizing: border-box;
-	box-sizing:border-box;
-}
-
-.bottomAndCornerEdge{
-	border-top:0.5px solid khaki;
-	box-sizing:border-box;
+/* 駒の中央揃え */
+td{
+	text-align:center;
+	vertical-align:middle;
 }
 
 /* 駒 */
 .skoma,.gkoma{
-	position:absolute;/* 位置指定 */
+	position:absolute; /*位置指定 */
 	/*background-color:khaki;*/	
 	font-family:Meiryo;
-	
-	text-align:center;/* 文字を中央にする */
 	font-weight:bolder;/* 太字にする */
-	/*width:100%;
-	height:100%; */
-	margin:auto;/* 文字を中央にする */
-	/*line-height:100%; 余白を含めた文字の高さ*/
+	width:100%;
+	line-height:1.5;/* 余白を含めた文字の高さ*/
 }
-/* 先手,後手の駒 */
+/* 先手の駒 */
 .skoma{
-	top:50%;/* 親要素の半分下にずらす */	
+		
 	left:50%;/* 親要素の半分右にずらす */
 	transform:translateY(-50%) translateX(-50%);/* Y軸,X軸を移動する。*/	
 }
 
 /* 後手の駒 */
 .gkoma{
-	top:20%;/* 親要素の半分下にずらす */	
-	left:33%;/* 親要素の半分右にずらす */
-	transform:translateY(-50%) translateX(-50%);/* Y軸,X軸を移動する。*/
-	transform: scale(-1,-1);//上下左右を反転する。	
+	top:25%;/* 親要素の半分下にずらす */	
+	transform: scale(-1,-1);/*上下左右を反転する。*/	
 }
 
-
-
-
-
-/* 持ち駒複数表記 */
-.numDisp{
-	color:skyblue;
-	/* yellow */
-}
 
 /* 成り駒 */
 .promotion{
@@ -233,8 +215,10 @@ table{
 	
 }
 
-
-
+/* 持ち駒複数表記 */
+.numDisp{
+	/* yellow */
+}
 
 /* コメント */
 

@@ -393,7 +393,7 @@ function createKyokumen(){
 	}
 	if(!(recordCount==0)){
 		changeCssJustBefore(justBefore[recordCount-1]);//直前のマスのcssを変更する
-		PlaySound();
+		//PlaySound();
 	}
 }
 
@@ -1411,18 +1411,11 @@ function setAidanoMasu(targetMasu1,targetMasu2){
 //後手駒台の作成
 function gAria(){
 	let gDisplay="<table border='0'align='center'>";//後手駒台表示用
-	let gKomadai=[];//後手の駒台
-	let gPaneru;
-	gKomadai=new Array(pLen);
-	for(let i=0;i<pLen;i++){
-		gPaneru="<td class='gStand'id='g"+i+"'>　</td>";
-		gKomadai[i]=gPaneru;
-	}
 	for(let i=0;i<pLen;i++){
 			if(i==0){
 			gDisplay+="<tr>";
 		}
-		gDisplay+=gKomadai[i];
+		gDisplay+="<td class='gStand'id='g"+i+"'>　</td>";
 		if(i==10){
 			gDisplay+="</tr></table>";
 		}
@@ -1432,71 +1425,60 @@ function gAria(){
 
 //中央メイン盤の作成
 function mainAria(){
-	let mainDisplay="<table border='0'align='center'>";//メイン表示用
-	let board=[];//メインの将棋盤
-	let paneru;
-	board=new Array(11);
-	for(let y=0;y<11;y++){
-		board[y]=new Array(11)
-		for(let x=0;x<11;x++){
-			if((y==0)){
-				if(x==0){
-					paneru="<td class='topAndCornerEdge'id='d"+y+"s"+x+"'>　</td>";
-				}else if(x==10){
-					paneru="<td class='topAndCornerEdge'id='d"+y+"s"+x+"'>　</td>";
-				}else{
-					paneru="<td class='topEdge'id='d"+y+"s"+x+"'>　</td>";
-				}
-			}else if((x==0)&&((y>=1)&&(y<=9))){
-				paneru="<td class='leftEdge'id='d"+y+"s"+x+"'>　</td>";
-			}else if((x==10)&&((y>=1)&&(y<=9))){
-				paneru="<td class='rightEdge'id='d"+y+"s"+x+"'>　</td>";
-			}else if((y==10)&&((x>=1)&&(x<=9))){
-				paneru="<td class='bottomEdge'id='d"+y+"s"+x+"'>　</td>";
-			}else if((y==10)&&(x==0)){
-					paneru="<td class='bottomAndCornerEdge'id='d"+y+"s"+x+"'>　</td>";
-			}else if((y==10)&&(x==10)){
-					paneru="<td class='bottomAndCornerEdge'id='d"+y+"s"+x+"'>　</td>";
-			}else{
-				paneru="<td class='ban'id='d"+y+"s"+x+"'>　</td>";
-			}
-			board[y][x]=paneru;
-		}
-	}
-	console.log(board);
-	for(let y=0;y<11;y++){
-		for(let x=0;x<11;x++){
-			if(x==0){
+	let mainDisplay="<table border='1'align='center'>";//メイン表示用
+	let mainDisplayTop="<table border='0'align='center'>";//上用
+	let mainDisplayBottom="<table border='0'align='center'>";//下用
+	//main
+	for(let y=1;y<10;y++){
+		for(let x=1;x<10;x++){
+			if(x==1){
 				mainDisplay+="<tr>";
 			}
-			mainDisplay+=board[y][x];
-			if(x==10){
+			mainDisplay+="<td class='ban'id='d"+y+"s"+x+"'>　</td>";
+			if(x==9){
 				mainDisplay+="</tr>";
 			}
-			if((y==10)&&(x==10)){
+			if((y==9)&&(x==9)){
 				mainDisplay+="</table>";
 				break;
 			}
 		}
 	}
+	//top
+	for(let i=0;i<11;i++){
+		if(i==0){
+			mainDisplayTop+="<tr>";
+		}
+		mainDisplayTop+="<td class='topEdge'id='d0s"+i+"'>　</td>";
+		if(i==10){
+			mainDisplayTop+="</tr></table>";
+			break;
+		}
+	}
+	//bottom
+	for(let i=0;i<11;i++){
+		if(i==0){
+			mainDisplayBottom+="<tr>";
+		}
+		mainDisplayBottom+="<td class='bottomEdge'id='d10s"+i+"'>　</td>";
+		if(i==10){
+			mainDisplayBottom+="</tr></table>";
+			break;
+		}
+	}
+	document.getElementById("mainDispTop").innerHTML=mainDisplayTop;
 	document.getElementById("maindisp").innerHTML=mainDisplay;
+	document.getElementById("mainDispBottom").innerHTML=mainDisplayBottom;
 }
 
 //先手駒台の作成
 function sAria(){
 	let sDisplay="<table border='0'align='center'>";//先手駒台表示用
-	let sKomadai=[];//先手の駒台
-	let sPaneru;
-	sKomadai=new Array(pLen);
-	for(let i=0;i<pLen;i++){
-		sPaneru="<td class='sStand'id='s"+i+"'>　</td>";
-		sKomadai[i]=sPaneru;
-	}
 	for(let i=0;i<pLen;i++){
 		if(i==0){
 			sDisplay+="<tr>";
 		}
-		sDisplay+=sKomadai[i];
+		sDisplay+="<td class='sStand'id='s"+i+"'>　</td>";
 		if(i==10){
 			sDisplay+="</tr></table>";
 		}
@@ -1523,8 +1505,6 @@ function sNumAria(){
 	document.getElementById("sNum").innerHTML=sNumDisp;
 	document.getElementById("gNum").innerHTML=gNumDisp;
 }
-
-
 
 //駒の配置
 function setUp(){
