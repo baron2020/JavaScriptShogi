@@ -157,25 +157,25 @@ var recordCount=0;
 
 //パソコン用マウスダウン
 function mousedown(e){
-	try{
-		if((Flg.tumi==false)&&(Flg.endMode==false)){
+	//try{
+	//	if((Flg.tumi==false)&&(Flg.endMode==false)){
 			touchScreen(e.clientX,e.clientY);
 			//touchScreen(e.pageX,e.pageY);
-		}else{
-			throw new Error("お疲れ様でした(*_ _)");
-		}
-	}
-	catch(e){
-			document.getElementById("ky").innerHTML="";//y座標
-			document.getElementById("kx").innerHTML="";//x座標
-			document.getElementById("gamemode").innerHTML="検討モード";
-			document.getElementById("inpModeEnd").innerHTML="";
-			document.getElementById("outedisp").innerHTML="";
-			document.getElementById("gamecount").innerHTML="";
-			document.getElementById("windisp").innerHTML="";//勝敗結果
-			document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";
-			document.getElementById("test1").innerHTML="";
-	}
+	//	}else{
+	//		throw new Error("お疲れ様でした(*_ _)");
+	//	}
+	//}
+	//catch(e){
+	//		document.getElementById("ky").innerHTML="";//y座標
+	//		document.getElementById("kx").innerHTML="";//x座標
+	//		document.getElementById("gamemode").innerHTML="検討モード";
+	//		document.getElementById("inpModeEnd").innerHTML="";
+	//		document.getElementById("outedisp").innerHTML="";
+	//		document.getElementById("gamecount").innerHTML="";
+	//		document.getElementById("windisp").innerHTML="";//勝敗結果
+	//		document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";
+	//		document.getElementById("test1").innerHTML="";
+	//}
 }
 //スマホ用タッチスタート
 function touchstart(e){
@@ -293,9 +293,9 @@ function userCheck(){
 	}else{
 		userOs="わかりません";
 	}
-	document.getElementById("useros").innerHTML=userOs;//userのosを表示
-	document.getElementById("userw").innerHTML=userW;//userの横幅を表示
-	document.getElementById("userh").innerHTML=userH;//userの高さを表示
+	document.getElementById("useros").innerHTML="OS："+userOs;//userのosを表示
+	document.getElementById("userw").innerHTML="横幅："+userW;//userの横幅を表示
+	document.getElementById("userh").innerHTML="高さ："+userH;//userの高さを表示
 	//console.log(document.documentElement.offsetWidth);
 	//console.log(document.documentElement.clientWidth);
 	//console.log(window.innerWidth);
@@ -339,16 +339,15 @@ function start(){
 
 //記録の検討
 function considerMode(){
-	let backStart="<input type='button' value='|◀'onClick='backStart()'style='width:12%'>";
-	let back1="<input type='button' value='◀'onClick='back1()'style='width:12%'>";
-	let go1="<input type='button' value='▶'onClick='go1()'style='width:12%'>";
-	let goEnd="<input type='button' value='▶|'onClick='goEnd()'style='width:12%'>";
-	document.getElementById("backStart").innerHTML=backStart;
-	document.getElementById("back1").innerHTML=back1;
-	document.getElementById("go1").innerHTML=go1;
-	document.getElementById("goEnd").innerHTML=goEnd;
-	document.getElementById("recordCountDisp").innerHTML=recordCount+"手目";//検討の局面
-	//document.getElementById("hanten").innerHTML="反転";//検討の局面
+	let backStart="<input class='con' type='button' value='|◀'onClick='backStart()'style='width:14%'>";
+	let back1="<input class='con' type='button' value='◀'onClick='back1()'style='width:14%'>";
+	let go1="<input class='con' type='button' value='▶'onClick='go1()'style='width:14%'>";
+	let goEnd="<input class='con' type='button' value='▶|'onClick='goEnd()'style='width:14%'>";
+	let allRecord="<input class='con' type='button' value='棋譜'onClick='allRecord()'style='width:30%'>";
+	let hanten="<input class='con' type='button' value='反転'onClick='hanten()'style='width:14%'>";
+
+	document.getElementById("consider").innerHTML=backStart+back1+go1+goEnd+allRecord+hanten;
+
 }
 //局面の生成
 function createKyokumen(){
@@ -431,8 +430,6 @@ function goEnd(){
 	recordCount=justBefore.length;
 	createKyokumen();
 }
-
-
 
 //打ち歩詰め確認
 function utiFuCheck(){
@@ -1411,12 +1408,12 @@ function setAidanoMasu(targetMasu1,targetMasu2){
 //後手駒台の作成
 function gAria(){
 	let gDisplay="<table border='0'align='center'>";//後手駒台表示用
-	for(let i=0;i<pLen;i++){
-			if(i==0){
+	for(let i=1;i<10;i++){
+			if(i==1){
 			gDisplay+="<tr>";
 		}
 		gDisplay+="<td class='gStand'id='g"+i+"'>　</td>";
-		if(i==10){
+		if(i==9){
 			gDisplay+="</tr></table>";
 		}
 	}
@@ -1445,23 +1442,23 @@ function mainAria(){
 		}
 	}
 	//top
-	for(let i=0;i<11;i++){
-		if(i==0){
+	for(let i=1;i<10;i++){
+		if(i==1){
 			mainDisplayTop+="<tr>";
 		}
 		mainDisplayTop+="<td class='topEdge'id='d0s"+i+"'>　</td>";
-		if(i==10){
+		if(i==9){
 			mainDisplayTop+="</tr></table>";
 			break;
 		}
 	}
 	//bottom
-	for(let i=0;i<11;i++){
-		if(i==0){
+	for(let i=1;i<10;i++){
+		if(i==1){
 			mainDisplayBottom+="<tr>";
 		}
 		mainDisplayBottom+="<td class='bottomEdge'id='d10s"+i+"'>　</td>";
-		if(i==10){
+		if(i==9){
 			mainDisplayBottom+="</tr></table>";
 			break;
 		}
@@ -1474,29 +1471,29 @@ function mainAria(){
 //先手駒台の作成
 function sAria(){
 	let sDisplay="<table border='0'align='center'>";//先手駒台表示用
-	for(let i=0;i<pLen;i++){
-		if(i==0){
+	for(let i=1;i<10;i++){
+		if(i==1){
 			sDisplay+="<tr>";
 		}
 		sDisplay+="<td class='sStand'id='s"+i+"'>　</td>";
-		if(i==10){
+		if(i==9){
 			sDisplay+="</tr></table>";
 		}
 	}
 	document.getElementById("sdisp").innerHTML=sDisplay;
 }
-//先手駒台の作成
+//先手後手の駒台の作成
 function sNumAria(){
 	let sNumDisp="<table border='0'align='center'>";//先手駒台表示用
 	let gNumDisp="<table border='0'align='center'>";//後手駒台表示用
-	for(let i=11;i<22;i++){
-		if(i==11){
+	for(let i=10;i<19;i++){
+		if(i==10){
 			sNumDisp+="<tr>";
 			gNumDisp+="<tr>";
 		}
 		sNumDisp+="<td class='sNum'id='s"+i+"'>　</td>";
 		gNumDisp+="<td class='gNum'id='g"+i+"'>　</td>";
-		if(i==21){
+		if(i==18){
 			sNumDisp+="</tr></table>";
 			gNumDisp+="</tr></table>";
 
@@ -1704,8 +1701,8 @@ function setPieceMotion(targetPlayer,pieceName,pieceClass,startMasu){
 function sortPiece(){
 	let sStorageArea=["s1","s2","s3","s4","s5","s6","s7","s8","s9"];//駒置き場の順番
 	let gStorageArea=["g9","g8","g7","g6","g5","g4","g3","g2","g1"];//駒置き場の順番
-	let sNumStorageArea=["s12","s13","s14","s15","s16","s17","s18","s19","s20"];
-	let gNumStorageArea=["g20","g19","g18","g17","g16","g15","g14","g13","g12"];
+	let sNumStorageArea=["s10","s11","s12","s13","s14","s15","s16","s17","s18"];
+	let gNumStorageArea=["g18","g17","g16","g15","g14","g13","g12","g11","g10"];
 	let sortRankId=["FU","KY","KE","GI","KI","KA","HI","OU"];//並び替え順番
 	//持ち駒を全て並び替えた配列。"FU","KY","KE","GI","KI","KA","KA","OU"の順盤に先頭に格納
 	let sortPieceArray=[['EMP'],['EMP'],['EMP'],['EMP'],['EMP'],['EMP'],['EMP'],['EMP']];
@@ -1858,7 +1855,7 @@ function allReverseCss(){
 	var banElements=document.getElementsByClassName("ban");
 	for(let i=0;i<banElements.length;i++){
 		banElements[i].style.backgroundColor="khaki";
-		banElements[i].style.border="0.5px solid black";
+		banElements[i].style.border="1px solid black";
 		banElements[i].style.boxSizing="border-box";
 	}
 }

@@ -8,29 +8,30 @@
 <script src="js/baron.js"></script>
 </head>
 <body onload="start()">
-<div id="wrap0">
 <div id="wrap">
 <h1></h1>
-<p>OS：<span id="useros"></span>,横幅：<span id="userw"></span>,高さ：<span id="userh"></span></p>
-<span id="windisp"></span><span id="enddisp"></span>
-<p><span id="gamemode"></span></p>
-<span id="inpModeEnd"></span>
-<p>手番：<span id="teban"></span>　<span id="gamecount"></span>　<span id="outedisp"></span></p>
+<span id="useros"></span><span id="userw"></span><span id="userh"></span><br>
+<span id="gamemode"></span><span id="inpModeEnd"></span><span id="windisp"></span><span id="enddisp"></span><br>
+<span >手番：</span><span id="teban"></span><span id="gamecount"></span><span id="outedisp"></span>
+<div class="stands">
 <div id="gNum"></div>
 <div id="gdisp"></div>
+</div>
+<div class="bans">
 <div id="mainDispTop"></div>
 <div id="maindisp"></div>
 <div id="mainDispBottom"></div>
+</div>
+<div class="stands">
 <div id="sdisp"></div>
 <div id="sNum"></div>
-<div class="consider"> <span id="backStart"></span> <span id="back1"></span> <span id="go1"></span> <span id="goEnd"></span> <span id="recordCountDisp"></span> <span id="hanten"></span></div>
+</div>
+<div id="consider"></div>
+<div id="consider2"><input class="con2" type="button" value="棋譜記録を表示する"onClick="GameRecode()"><input class="con2" type="button" value="ページのリロード"onClick="inputContinue()"><input class="con2" type="button" value="logDelete"onClick="logDelete()"></div>
+<div style="display:none;">
 <div id="test1"><p>棋譜：<span id="kihudisplay">　</span></p></div>
 <p>棋譜記録：<span id="gameRecorddisp">　</span></p>
-<input type="button" value="棋譜記録を表示する"onClick="GameRecode()"size="50">
-<input type="button" value="ページのリロード"onClick="inputContinue()"size="50">
-<input type="button" value="logDelete"onClick="logDelete()"size="50">
-<br>y：<span id="ky"></span>,x：<span id="kx"></span>
-</div>
+<br>y：<span id="ky"></span>,x：<span id="kx"></span></div>
 </div>
 </body>
 </html>
