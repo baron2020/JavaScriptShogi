@@ -272,7 +272,7 @@ function getCoordinate(tx,ty){
 	if((typeof convertPiece==="undefined")||(kihuDisplay=="盤外です")){
 		convertPiece="";
 	}
-	document.getElementById("kihudisplay").innerHTML=kihuDisplay+convertPiece;//棋譜の表示
+	//document.getElementById("kihudisplay").innerHTML=kihuDisplay+convertPiece;//棋譜の表示
 }
 
 //ユーザーチェック
@@ -280,8 +280,8 @@ function userCheck(){
 	let userB=window.navigator.appName;//ユーザーブラウザ
 	let wnu=window.navigator.userAgent;//ユーザーエージェント
 	let userOs;//ユーザーos
-	let userW=document.documentElement.offsetWidth;//window.innerWidth;//ウィンドウの横幅
-	let userH=document.documentElement.offsetHeight;//window.innerHeight;//ウィンドウの高さ
+	let userW=document.documentElement.clientWidth;//window.innerWidth;//ウィンドウの横幅
+	let userH=document.documentElement.clientHeight;//window.innerHeight;//ウィンドウの高さ
 	if(wnu.indexOf('iPhone')!=-1){
 		userOs="iPhone";
 	}else if(wnu.indexOf('iPod')!=-1){
@@ -343,21 +343,20 @@ function considerMode(){
 	let back1="<input class='con' type='button' value='◀'onClick='back1()'style='width:14%'>";
 	let go1="<input class='con' type='button' value='▶'onClick='go1()'style='width:14%'>";
 	let goEnd="<input class='con' type='button' value='▶|'onClick='goEnd()'style='width:14%'>";
-	let allRecord="<input class='con' type='button' value='棋譜'onClick='allRecord()'style='width:30%'>";
-	let hanten="<input class='con' type='button' value='反転'onClick='hanten()'style='width:14%'>";
+	let allRecord=createDropDown();
+	let hanten="<input class='con' type='button' value='反転'style='width:14%'>";
 
-	document.getElementById("consider").innerHTML=backStart+back1+go1+goEnd+allRecord+hanten;
-
+	document.getElementById("consider").innerHTML=backStart+back1+go1+goEnd+ allRecord+hanten;
 }
 //局面の生成
 function createKyokumen(){
 	let gameKeys=Object.keys(GameRecodeArray[recordCount]);//ゲームの全てのキー
 	let pieceKeys=Object.keys(PieceRecordArray[recordCount]);//駒の全てのキー
-	if(recordCount==0){
-		document.getElementById("recordCountDisp").innerHTML=recordCount+"手目";//検討の局面
-	}else{
-		document.getElementById("recordCountDisp").innerHTML=returnTargetRecord(recordCount-1);//検討の局面
-	}
+	//if(recordCount==0){
+	//	document.getElementById("recordCountDisp").innerHTML=recordCount+"手目";//検討の局面
+	//}else{
+	//	document.getElementById("recordCountDisp").innerHTML=returnTargetRecord(recordCount-1);//検討の局面
+	//}
 	for(let i=0;i<pieceKeys.length;i++){
 		let tempElement=document.getElementById(pieceKeys[i]);
 		//nullチェック
@@ -392,8 +391,20 @@ function createKyokumen(){
 	}
 	if(!(recordCount==0)){
 		changeCssJustBefore(justBefore[recordCount-1]);//直前のマスのcssを変更する
-		//PlaySound();
+		PlaySound();
 	}
+}
+
+//棋譜記録のプルダウンリストを作成する
+function createDropDown(){
+	let purudaun="<select class='con'><option value='0'>開始局面</option>";
+	for(let i=0;i<gameRecodeEndMasuArray.length;i++){
+			let point=i+1;//何手目か？
+			purudaun+="<option value='"+point+"'>"+point+" "+gameRecodeEndMasuArray[i]+gameRecodePieceArray[i]+'('+gameRecodeStartMasuArray[i]+')'+"</option>";
+	}
+	purudaun+="</select>";
+	//console.log(purudaun);
+	return purudaun;
 }
 
 //棋譜記録を取得する
@@ -572,6 +583,10 @@ function kinjiteCheck(targetPlayer,deleteMasu,addMasu,addPiece,checkType){
 //タッチされた時のイベントの処理
 function touchScreen(tx,ty){
 	getCoordinate(tx,ty);//座標、盤内外の取得
+console.log(gameRecodeEndMasuArray);
+console.log(gameRecodePieceArray);
+console.log(gameRecodeStartMasuArray);
+
 	//console.log("合法駒"+legalHandPieceArray);
 	//駒の選択から移動まで
 	if(Flg.firstChoice==true){
@@ -1412,7 +1427,7 @@ function gAria(){
 			if(i==1){
 			gDisplay+="<tr>";
 		}
-		gDisplay+="<td class='gStand'id='g"+i+"'>　</td>";
+		gDisplay+="<td class='gStand'id='g"+i+"'></td>";
 		if(i==9){
 			gDisplay+="</tr></table>";
 		}
@@ -1431,7 +1446,7 @@ function mainAria(){
 			if(x==1){
 				mainDisplay+="<tr>";
 			}
-			mainDisplay+="<td class='ban'id='d"+y+"s"+x+"'>　</td>";
+			mainDisplay+="<td class='ban'id='d"+y+"s"+x+"'></td>";
 			if(x==9){
 				mainDisplay+="</tr>";
 			}
@@ -1446,7 +1461,7 @@ function mainAria(){
 		if(i==1){
 			mainDisplayTop+="<tr>";
 		}
-		mainDisplayTop+="<td class='topEdge'id='d0s"+i+"'>　</td>";
+		mainDisplayTop+="<td class='topEdge'id='d0s"+i+"'></td>";
 		if(i==9){
 			mainDisplayTop+="</tr></table>";
 			break;
@@ -1457,7 +1472,7 @@ function mainAria(){
 		if(i==1){
 			mainDisplayBottom+="<tr>";
 		}
-		mainDisplayBottom+="<td class='bottomEdge'id='d10s"+i+"'>　</td>";
+		mainDisplayBottom+="<td class='bottomEdge'id='d10s"+i+"'></td>";
 		if(i==9){
 			mainDisplayBottom+="</tr></table>";
 			break;
@@ -1475,7 +1490,7 @@ function sAria(){
 		if(i==1){
 			sDisplay+="<tr>";
 		}
-		sDisplay+="<td class='sStand'id='s"+i+"'>　</td>";
+		sDisplay+="<td class='sStand'id='s"+i+"'></td>";
 		if(i==9){
 			sDisplay+="</tr></table>";
 		}
@@ -1491,8 +1506,8 @@ function sNumAria(){
 			sNumDisp+="<tr>";
 			gNumDisp+="<tr>";
 		}
-		sNumDisp+="<td class='sNum'id='s"+i+"'>　</td>";
-		gNumDisp+="<td class='gNum'id='g"+i+"'>　</td>";
+		sNumDisp+="<td class='sNum'id='s"+i+"'></td>";
+		gNumDisp+="<td class='gNum'id='g"+i+"'></td>";
 		if(i==18){
 			sNumDisp+="</tr></table>";
 			gNumDisp+="</tr></table>";
