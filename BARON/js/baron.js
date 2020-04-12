@@ -155,6 +155,7 @@ var GameRecodeArray=[];//盤面の記録
 var PieceRecordArray=[];//駒クラスの記録
 var recordCount=0;
 
+
 //パソコン用マウスダウン
 function mousedown(e){
 	//try{
@@ -231,8 +232,8 @@ function getCoordinate(tx,ty){
 	Page.cys=Math.floor(((ty-banY)/d1s1rect.height)+1);
 	gxs=Math.floor(((tx-gW1)/g1rect.width)+1);
 	gys=Math.floor(((ty-gH1)/g1rect.height)+1);
-		console.log(gxs);
-		console.log(gys);
+	//console.log(gxs);
+	//console.log(gys);
 
 	sxs=Math.floor(((tx-sW1)/s1rect.width)+1);
 	sys=Math.floor(((ty-sH1)/s1rect.height)+1);
@@ -304,6 +305,36 @@ function userCheck(){
 	//console.log(window.innerHeight);
 }
 
+//cssの調整
+function cssAdjust(targetId){
+	let targetElement=document.getElementById(targetId);
+	let targetRect=targetElement.getBoundingClientRect();
+	let targetClass=targetElement.className;//クラス名
+	//console.log("横幅"+targetRect.width);
+	//console.log("クラス名"+targetClass);
+	let HW=targetRect.width;//対象の横幅
+	let tagetElements=document.getElementsByClassName(targetClass);
+	
+	if((targetId=="s15")||(targetId=="g15")){
+		let temp=document.getElementById("d5s5").getBoundingClientRect().width;
+		console.log(temp/3);
+		for(let i=0;i<tagetElements.length;i++){
+			tagetElements[i].style.height=(temp/3)+"px";//横幅を2分の1にする
+		}
+	}else if((targetId=="d0s5")||(targetId=="d10s5")){
+		let temp=document.getElementById("d5s5").getBoundingClientRect().width;
+		console.log(temp/2);
+		for(let i=0;i<tagetElements.length;i++){
+			tagetElements[i].style.height=(temp/2)+"px";//横幅を2分の1にする
+		}
+	}else{
+		for(let i=0;i<tagetElements.length;i++){
+			tagetElements[i].style.width=HW+"px";//将棋盤の横幅を同じにする
+			tagetElements[i].style.height=HW+"px";//将棋盤の高さを横幅と同じにする
+		}
+	}
+}
+
 //スタート
 function start(){
 	let supportTouch='ontouchend'in document;//タッチイベントがサポートされているか
@@ -316,6 +347,14 @@ function start(){
 	userCheck();
 	//駒の配置とイベントリスナの登録
 	setUp();
+	cssAdjust("d5s5");
+	cssAdjust("g5");
+	cssAdjust("s5");
+	cssAdjust("d0s5");
+	cssAdjust("d10s5");
+	cssAdjust("g15");
+	cssAdjust("s15");
+
 	document.getElementById("gamemode").innerHTML="対局モード";
 	document.getElementById("teban").innerHTML=Game.teban;//手番
 	document.getElementById("gamecount").innerHTML=Game.count+"手目";//何手目か？
@@ -337,6 +376,19 @@ function start(){
 	}
 }
 
+//var dropSelect;
+
+//var c=-1;
+//var dropValue;
+
+//if((c==-1)){
+//function aa(){
+//console.log("変わりました");
+//console.log(dropValue);
+//console.log(this.value);
+//}
+//}
+
 //記録の検討
 function considerMode(){
 	let backStart="<input class='con' type='button' value='|◀'onClick='backStart()'style='width:14%'>";
@@ -345,9 +397,16 @@ function considerMode(){
 	let goEnd="<input class='con' type='button' value='▶|'onClick='goEnd()'style='width:14%'>";
 	let allRecord=createDropDown();
 	let hanten="<input class='con' type='button' value='反転'style='width:14%'>";
-
 	document.getElementById("consider").innerHTML=backStart+back1+go1+goEnd+ allRecord+hanten;
+//dropSelect=document.getElementById(DropRecord);
+//console.log(dropSelect);
+//dropSelect.onchange=function(){
+//alert(this.value);
+//}
 }
+
+//ドロップダウンで選択された場合
+
 //局面の生成
 function createKyokumen(){
 	let gameKeys=Object.keys(GameRecodeArray[recordCount]);//ゲームの全てのキー
@@ -370,7 +429,7 @@ function createKyokumen(){
 	let banElements=document.getElementsByClassName("ban");
 	for(let i=0;i<banElements.length;i++){
 		banElements[i].style.backgroundColor="khaki";
-		banElements[i].style.border="0.5px solid black";
+		banElements[i].style.border="1px solid black";
 		banElements[i].style.boxSizing="border-box";
 	}
 	//駒の配置とクラスのセット
@@ -395,9 +454,11 @@ function createKyokumen(){
 	}
 }
 
+
+
 //棋譜記録のプルダウンリストを作成する
 function createDropDown(){
-	let purudaun="<select class='con'><option value='0'>開始局面</option>";
+	let purudaun="<select class='con'id='DropRecord'><option value='0'>開始局面</option>";
 	for(let i=0;i<gameRecodeEndMasuArray.length;i++){
 			let point=i+1;//何手目か？
 			purudaun+="<option value='"+point+"'>"+point+" "+gameRecodeEndMasuArray[i]+gameRecodePieceArray[i]+'('+gameRecodeStartMasuArray[i]+')'+"</option>";
@@ -583,9 +644,10 @@ function kinjiteCheck(targetPlayer,deleteMasu,addMasu,addPiece,checkType){
 //タッチされた時のイベントの処理
 function touchScreen(tx,ty){
 	getCoordinate(tx,ty);//座標、盤内外の取得
-console.log(gameRecodeEndMasuArray);
-console.log(gameRecodePieceArray);
-console.log(gameRecodeStartMasuArray);
+
+//console.log(gameRecodeEndMasuArray);
+//console.log(gameRecodePieceArray);
+//console.log(gameRecodeStartMasuArray);
 
 	//console.log("合法駒"+legalHandPieceArray);
 	//駒の選択から移動まで

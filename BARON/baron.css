@@ -97,13 +97,12 @@ body{
 	background-color:lightgoldenrodyellow;
 	max-width:432px;	
 	width:10%;
-	height:16px;
 }
 
 /* î’é¸ÇËè„,â∫ë§ classéwíË */ 
 .topEdge,.bottomEdge{
 	width:10%;
-	height:16px;
+	
 }
 
 .bottomEdge{
