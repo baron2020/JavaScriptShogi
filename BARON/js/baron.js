@@ -170,7 +170,7 @@ function end(){
 	document.getElementById("gamemode").innerHTML="検討モード";
 	document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";
 	document.getElementById("ky").innerHTML="";//y座標
-	document.getElementById("gamecount").innerHTML="";
+	//document.getElementById("gamecount").innerHTML="";
 	document.getElementById("outedisp").innerHTML="";
 	document.getElementById("kx").innerHTML="";//x座標
 }
@@ -180,6 +180,26 @@ function endMode(){
 	considerMode();
 	Flg.endMode=true;
 }
+
+function endsyori(){
+	let dropDownElement=document.getElementById("c5");//ドロップダウンリスト
+	if(!((typeof dropDownElement==="undefined")||(dropDownElement===null))){
+		console.log(dropDownElement);
+		console.log("ドロップダウンの値"+dropDownElement.value);
+		dropDownElement.onchange=function(){
+			if(!(dropDownElement.value==8635)){
+				recordCount=dropDownElement.value;
+				createKyokumen();
+				if(dropDownElement.value==0){
+					document.getElementById("gamecount").innerHTML="開始局面";
+				}else{
+					document.getElementById("gamecount").innerHTML=recordCount+"手目";//何手目か？
+				}
+			}
+		}
+	}
+}
+
 //パソコン用マウスダウン
 function mousedown(e){
 	try{
@@ -192,7 +212,8 @@ function mousedown(e){
 	}
 	catch(e){
 		end();
-		console.log("aa");
+		endsyori();
+		//console.log("aa");
 	}
 }
 //スマホ用タッチスタート
@@ -211,6 +232,7 @@ function touchstart(e){
 	}
 	catch(e){
 		end();
+		endsyori();
 	}
 }
 
@@ -372,7 +394,7 @@ function start(){
 	tempInp="<input  class='con2'id='en1'type='button' value='対局モードの終了'onClick='endMode()'>";
 	document.getElementById("inpModeEnd").innerHTML=tempInp;
 	tempInp2="<input class='con2'id='re1' type='button' value='ページのリロード'onClick='inputContinue()'style='width:37%'>";
-	tempInp3="<input class='con2'id=='de1' type='button' value='logDelete'onClick='logDelete()'style='width:23%'>";
+	tempInp3="<input class='con2'id=='de1' type='button' value='ログ削除'onClick='logDelete()'style='width:23%'>";
 	document.getElementById("consider2").innerHTML=tempInp2+tempInp3;
 	cssAdjust("en1");
 	let clonGameRecord=Object.assign({},GameRecord);//ゲームレコードのコピー
@@ -389,19 +411,6 @@ function start(){
 		document.addEventListener("mousedown",mousedown);
 	}
 }
-
-//var dropSelect;
-
-//var c=-1;
-//var dropValue;
-
-//if((c==-1)){
-//function aa(){
-//console.log("変わりました");
-//console.log(dropValue);
-//console.log(this.value);
-//}
-//}
 
 //記録の検討
 function considerMode(){
@@ -439,6 +448,18 @@ function createKyokumen(){
 			tempElement.remove();//駒の削除
 		}
 	}
+	let deleteArea=["s10","s11","s12","s13","s14","s15","s16","s17","s18",
+				"g10","g11","g12","g13","g14","g15","g16","g17","g18"];//複数枚表記エリア
+	//複数枚表記の全削除
+	for(let i=0;i<deleteArea.length;i++){
+		let tempElement=document.getElementById(deleteArea[i]).firstElementChild;
+		//nullチェック
+		if(!(tempElement===null)){
+			console.log(tempElement);//対象のId
+			tempElement.remove();//html盤面から削除
+		}
+	}
+	
 	console.log(GameRecodeArray);
 	console.log(PieceRecordArray);
 	console.log(justBefore);
@@ -466,13 +487,12 @@ function createKyokumen(){
 	}
 	if(!(recordCount==0)){
 		changeCssJustBefore(justBefore[recordCount-1]);//直前のマスのcssを変更する
-		PlaySound();
 	}
 }
 
 //棋譜記録のプルダウンリストを作成する
 function createDropDown(){
-	let purudaun="<select class='con'id='c5'style='width:37%'><option value='0'>開始局面</option>";
+	let purudaun="<select class='con'id='c5'style='width:37%'><option value='8635'selected hideen >指定局面</option><option value='0'>開始局面</option>";
 	for(let i=0;i<gameRecodeEndMasuArray.length;i++){
 			let point=i+1;//何手目か？
 			purudaun+="<option value='"+point+"'>"+point+" "+gameRecodeEndMasuArray[i]+gameRecodePieceArray[i]+'('+gameRecodeStartMasuArray[i]+')'+"</option>";
@@ -496,25 +516,34 @@ function returnTargetRecord(count){
 function backStart(){
 	recordCount=0;
 	createKyokumen();
+	document.getElementById("gamecount").innerHTML="開始局面";
 }
 
 function back1(){
 	if(recordCount>0){
 		recordCount--;
 		createKyokumen();
+		PlaySound();
 	}
+	document.getElementById("gamecount").innerHTML=recordCount+"手目";//何手目か？
 }
 
 function go1(){
 	if(recordCount<justBefore.length){
 		recordCount++;
 		createKyokumen();
+		PlaySound();
 	}
+	document.getElementById("gamecount").innerHTML=recordCount+"手目";//何手目か？
 }
 
 function goEnd(){
-	recordCount=justBefore.length;
 	createKyokumen();
+	if(!(recordCount==justBefore.length)){
+		document.getElementById("gamecount").innerHTML=justBefore.length+"手目";//何手目か？
+	}
+	recordCount=justBefore.length;
+	//console.log(justBefore.length);
 }
 
 //打ち歩詰め確認
