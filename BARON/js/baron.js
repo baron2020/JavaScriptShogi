@@ -156,27 +156,44 @@ var PieceRecordArray=[];//駒クラスの記録
 var recordCount=0;
 
 
+
+function end(){
+	//document.getElementById("test1").innerHTML="";
+	let temp1=document.getElementById("inpModeEnd");
+	let temp2=document.getElementById("windisp");//勝敗結果
+	if(!((typeof temp1==="undefined")||(temp1===null))){
+		temp1.remove();
+	}
+	if(!((typeof temp2==="undefined")||(temp2===null))){
+		temp2.remove();
+	}
+	document.getElementById("gamemode").innerHTML="検討モード";
+	document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";
+	document.getElementById("ky").innerHTML="";//y座標
+	document.getElementById("gamecount").innerHTML="";
+	document.getElementById("outedisp").innerHTML="";
+	document.getElementById("kx").innerHTML="";//x座標
+}
+
+function endMode(){
+	end();
+	considerMode();
+	Flg.endMode=true;
+}
 //パソコン用マウスダウン
 function mousedown(e){
-	//try{
-	//	if((Flg.tumi==false)&&(Flg.endMode==false)){
+	try{
+		if((Flg.tumi==false)&&(Flg.endMode==false)){
 			touchScreen(e.clientX,e.clientY);
 			//touchScreen(e.pageX,e.pageY);
-	//	}else{
-	//		throw new Error("お疲れ様でした(*_ _)");
-	//	}
-	//}
-	//catch(e){
-	//		document.getElementById("ky").innerHTML="";//y座標
-	//		document.getElementById("kx").innerHTML="";//x座標
-	//		document.getElementById("gamemode").innerHTML="検討モード";
-	//		document.getElementById("inpModeEnd").innerHTML="";
-	//		document.getElementById("outedisp").innerHTML="";
-	//		document.getElementById("gamecount").innerHTML="";
-	//		document.getElementById("windisp").innerHTML="";//勝敗結果
-	//		document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";
-	//		document.getElementById("test1").innerHTML="";
-	//}
+		}else{
+			throw new Error("お疲れ様でした(*_ _)");
+		}
+	}
+	catch(e){
+		end();
+		console.log("aa");
+	}
 }
 //スマホ用タッチスタート
 function touchstart(e){
@@ -193,15 +210,7 @@ function touchstart(e){
 		}
 	}
 	catch(e){
-			document.getElementById("ky").innerHTML="";//y座標
-			document.getElementById("kx").innerHTML="";//x座標
-			document.getElementById("gamemode").innerHTML="検討モード";
-			document.getElementById("inpModeEnd").innerHTML="";
-			document.getElementById("outedisp").innerHTML="";
-			document.getElementById("gamecount").innerHTML="";
-			document.getElementById("windisp").innerHTML="";//勝敗結果
-			document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";
-			document.getElementById("test1").innerHTML="";
+		end();
 	}
 }
 
@@ -232,8 +241,6 @@ function getCoordinate(tx,ty){
 	Page.cys=Math.floor(((ty-banY)/d1s1rect.height)+1);
 	gxs=Math.floor(((tx-gW1)/g1rect.width)+1);
 	gys=Math.floor(((ty-gH1)/g1rect.height)+1);
-	//console.log(gxs);
-	//console.log(gys);
 
 	sxs=Math.floor(((tx-sW1)/s1rect.width)+1);
 	sys=Math.floor(((ty-sH1)/s1rect.height)+1);
@@ -297,12 +304,6 @@ function userCheck(){
 	document.getElementById("useros").innerHTML="OS："+userOs;//userのosを表示
 	document.getElementById("userw").innerHTML="横幅："+userW;//userの横幅を表示
 	document.getElementById("userh").innerHTML="高さ："+userH;//userの高さを表示
-	//console.log(document.documentElement.offsetWidth);
-	//console.log(document.documentElement.clientWidth);
-	//console.log(window.innerWidth);
-	//console.log(document.documentElement.offsetHeight);
-	//console.log(document.documentElement.clientHeight);
-	//console.log(window.innerHeight);
 }
 
 //cssの調整
@@ -314,8 +315,19 @@ function cssAdjust(targetId){
 	//console.log("クラス名"+targetClass);
 	let HW=targetRect.width;//対象の横幅
 	let tagetElements=document.getElementsByClassName(targetClass);
-	
-	if((targetId=="s15")||(targetId=="g15")){
+	if(targetId=="en1"){
+		let temp=document.getElementById("en1").getBoundingClientRect().height;
+		console.log(temp);
+		for(let i=0;i<tagetElements.length;i++){
+			tagetElements[i].style.height=temp+"px";//高さを同じにする
+		}
+	}else if(targetId=="c5"){
+		let temp=document.getElementById("c1").getBoundingClientRect().height;
+		console.log(temp);
+		for(let i=0;i<tagetElements.length;i++){
+			tagetElements[i].style.height=temp+"px";//高さを同じにする
+		}
+	}else if((targetId=="s15")||(targetId=="g15")){
 		let temp=document.getElementById("d5s5").getBoundingClientRect().width;
 		console.log(temp/3);
 		for(let i=0;i<tagetElements.length;i++){
@@ -354,13 +366,15 @@ function start(){
 	cssAdjust("d10s5");
 	cssAdjust("g15");
 	cssAdjust("s15");
-
 	document.getElementById("gamemode").innerHTML="対局モード";
 	document.getElementById("teban").innerHTML=Game.teban;//手番
 	document.getElementById("gamecount").innerHTML=Game.count+"手目";//何手目か？
-	tempInp="<input type='button' value='対局モードの終了'onClick='endMode()'size='10'>";
+	tempInp="<input  class='con2'id='en1'type='button' value='対局モードの終了'onClick='endMode()'>";
 	document.getElementById("inpModeEnd").innerHTML=tempInp;
-
+	tempInp2="<input class='con2'id='re1' type='button' value='ページのリロード'onClick='inputContinue()'style='width:37%'>";
+	tempInp3="<input class='con2'id=='de1' type='button' value='logDelete'onClick='logDelete()'style='width:23%'>";
+	document.getElementById("consider2").innerHTML=tempInp2+tempInp3;
+	cssAdjust("en1");
 	let clonGameRecord=Object.assign({},GameRecord);//ゲームレコードのコピー
 	let clonPieceRecord=Object.assign({},PieceIdRecord);//ゲームレコードのコピー
 	//console.log(clonGameRecord);
@@ -391,13 +405,15 @@ function start(){
 
 //記録の検討
 function considerMode(){
-	let backStart="<input class='con' type='button' value='|◀'onClick='backStart()'style='width:14%'>";
-	let back1="<input class='con' type='button' value='◀'onClick='back1()'style='width:14%'>";
-	let go1="<input class='con' type='button' value='▶'onClick='go1()'style='width:14%'>";
-	let goEnd="<input class='con' type='button' value='▶|'onClick='goEnd()'style='width:14%'>";
+	let backStart="<input class='con'id='c1'type='button' value='|◀'onClick='backStart()'style='width:12%'>";
+	let back1="<input class='con' id='c2'type='button' value='◀'onClick='back1()'style='width:12%'>";
+	let go1="<input class='con' id='c3'type='button' value='▶'onClick='go1()'style='width:12%'>";
+	let goEnd="<input class='con' id='c4'type='button' value='▶|'onClick='goEnd()'style='width:12%'>";
 	let allRecord=createDropDown();
-	let hanten="<input class='con' type='button' value='反転'style='width:14%'>";
+	let hanten="<input class='con' id='c6'type='button' value='反転'style='width:12%'>";
 	document.getElementById("consider").innerHTML=backStart+back1+go1+goEnd+ allRecord+hanten;
+	cssAdjust("c5");
+
 //dropSelect=document.getElementById(DropRecord);
 //console.log(dropSelect);
 //dropSelect.onchange=function(){
@@ -454,11 +470,9 @@ function createKyokumen(){
 	}
 }
 
-
-
 //棋譜記録のプルダウンリストを作成する
 function createDropDown(){
-	let purudaun="<select class='con'id='DropRecord'><option value='0'>開始局面</option>";
+	let purudaun="<select class='con'id='c5'style='width:37%'><option value='0'>開始局面</option>";
 	for(let i=0;i<gameRecodeEndMasuArray.length;i++){
 			let point=i+1;//何手目か？
 			purudaun+="<option value='"+point+"'>"+point+" "+gameRecodeEndMasuArray[i]+gameRecodePieceArray[i]+'('+gameRecodeStartMasuArray[i]+')'+"</option>";
@@ -884,6 +898,13 @@ function touchScreen(tx,ty){
 	return;
 }
 
+function tumiEnd(){
+	//document.getElementById("windisp").innerHTML=Game.rivalTeban+"の勝ちです。";//勝敗結果
+	document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";//お疲れ様でした
+	document.getElementById("gamemode").innerHTML="検討モード";
+	document.getElementById("inpModeEnd").remove();
+}
+
 //詰み判定
 function tumiJudge(){
 	let wOuteFlg=wOute();//w王手か？
@@ -910,10 +931,7 @@ function tumiJudge(){
 		if(myPieceMotionArray.length==0){
 			//王が動けるマスがない
 			alert("Ｗ王手から詰みました。"+Game.rivalTeban+"の勝ちです。");
-			document.getElementById("windisp").innerHTML=Game.rivalTeban+"の勝ちです。";//勝敗結果
-			document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";//お疲れ様でした
-			document.getElementById("gamemode").innerHTML="検討モード";
-			document.getElementById("inpModeEnd").innerHTML="";
+			tumiEnd();
 			considerMode();
 			Flg.tumi=true;//詰みです
 			return;
@@ -948,10 +966,7 @@ function tumiJudge(){
 		//王が動けるマスがない&王以外の駒で取り返せる駒がない
 		if((myPieceMotionArray.length==0)&&(getOutePieceArray.length==0)){
 			alert("詰みました。"+Game.rivalTeban+"の勝ちです。");
-			document.getElementById("windisp").innerHTML=Game.rivalTeban+"の勝ちです。";//勝敗結果
-			document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";//お疲れ様でした
-			document.getElementById("gamemode").innerHTML="検討モード";
-			document.getElementById("inpModeEnd").innerHTML="";
+			tumiEnd();
 			considerMode();
 			Flg.tumi=true;//詰みです
 			return;
@@ -1013,10 +1028,7 @@ function tumiJudge(){
 		//王に移動範囲がない&王以外の駒で取り返せる駒がない&盤面の駒で合駒できない&持ち駒から合駒できない
 		if((myPieceMotionArray.length==0)&&(getOutePieceArray.length==0)&&(aidanoMasuMovePieceArray.length==0)&&(aigomaFlg==false)){
 			alert("詰みました。"+Game.rivalTeban+"の勝ちです。");
-			document.getElementById("windisp").innerHTML=Game.rivalTeban+"の勝ちです。";//勝敗結果
-			document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";//お疲れ様でした
-			document.getElementById("gamemode").innerHTML="検討モード";
-			document.getElementById("inpModeEnd").innerHTML="";
+			tumiEnd();
 			considerMode();
 			Flg.tumi=true;//詰みです
 			return;
@@ -2177,20 +2189,6 @@ function inputContinue(){
 //コンソール削除
 function logDelete(){
 	console.clear();
-}
-
-function endMode(){
-	document.getElementById("ky").innerHTML="";//y座標
-	document.getElementById("kx").innerHTML="";//x座標
-	document.getElementById("gamemode").innerHTML="検討モード";
-	document.getElementById("inpModeEnd").innerHTML="";
-	document.getElementById("outedisp").innerHTML="";
-	document.getElementById("gamecount").innerHTML="";
-	document.getElementById("windisp").innerHTML="";
-	document.getElementById("enddisp").innerHTML="お疲れ様でした(*_ _)";
-	document.getElementById("test1").innerHTML="";
-	considerMode();
-	Flg.endMode=true;
 }
 
 //音楽関連
