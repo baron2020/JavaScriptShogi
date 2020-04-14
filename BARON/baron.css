@@ -123,19 +123,26 @@ table{
 	max-height:480px;
 	width:100%;
 	background-color:khaki;
+
 }
 
 /* «Šû”Õ */
 .ban{
 	background-color:khaki;
-	border:1px solid black;
-	-webkit-box-sizing: border-box;
-	box-sizing:border-box;
-/* */
+	padding:0;
+	border-collapse:collapse;
+	text-aligin:center;	
+	box-shadow: 0 0 0 1px black inset;
+/* box-shadow: 0 0 0 1px black inset ;
+   border:0.5px solid black;
+   border:1px solid black;
+   -webkit-box-sizing: border-box;
+   box-sizing:border-box;
+*/
 	max-width:48px;
 	max-height:48px;
 	width:10%;
-	height:48px;
+	height:40px;
 }
 
 
@@ -162,6 +169,8 @@ width:36%;
 margin:1%;
 padding:1%;
 }
+/**/
+
 .con{
 font-size:2vh;
 }
@@ -186,7 +195,6 @@ font-size:2vh;
 	text-align:center;/* •¶š‚ğ’†‰›‚É‚·‚é */
 	margin:auto;/* •¶š‚ğ’†‰›‚É‚·‚é */	
 	width:100%;
- 	
 	line-height:1;/* —]”’‚ğŠÜ‚ß‚½•¶š‚Ì‚‚³*/
 }
 /* æè‚Ì‹î */

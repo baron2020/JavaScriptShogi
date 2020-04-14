@@ -466,8 +466,9 @@ function createKyokumen(){
 	let banElements=document.getElementsByClassName("ban");
 	for(let i=0;i<banElements.length;i++){
 		banElements[i].style.backgroundColor="khaki";
-		banElements[i].style.border="1px solid black";
-		banElements[i].style.boxSizing="border-box";
+		banElements[i].style.boxShadow="0px 0px 0px 1px black inset";
+		//banElements[i].style.border="1px solid black";
+		//banElements[i].style.boxSizing="border-box";
 	}
 	//駒の配置とクラスのセット
 	for(let i=0;i<gameKeys.length;i++){
@@ -492,7 +493,7 @@ function createKyokumen(){
 
 //棋譜記録のプルダウンリストを作成する
 function createDropDown(){
-	let purudaun="<select class='con'id='c5'style='width:37%'><option value='8635'selected hideen >指定局面</option><option value='0'>開始局面</option>";
+	let purudaun="<select class='con'id='c5'style='width:40%'><option value='8635'selected hideen >指定局面</option><option value='0'>開始局面</option>";
 	for(let i=0;i<gameRecodeEndMasuArray.length;i++){
 			let point=i+1;//何手目か？
 			purudaun+="<option value='"+point+"'>"+point+" "+gameRecodeEndMasuArray[i]+gameRecodePieceArray[i]+'('+gameRecodeStartMasuArray[i]+')'+"</option>";
@@ -525,7 +526,11 @@ function back1(){
 		createKyokumen();
 		PlaySound();
 	}
-	document.getElementById("gamecount").innerHTML=recordCount+"手目";//何手目か？
+	if(recordCount==0){
+		document.getElementById("gamecount").innerHTML="開始局面";
+	}else{
+		document.getElementById("gamecount").innerHTML=recordCount+"手目";//何手目か？
+	}
 }
 
 function go1(){
@@ -1540,7 +1545,7 @@ function gAria(){
 
 //中央メイン盤の作成
 function mainAria(){
-	let mainDisplay="<table border='1'align='center'>";//メイン表示用
+	let mainDisplay="<table border='0'align='center'>";//メイン表示用
 	let mainDisplayTop="<table border='0'align='center'>";//上用
 	let mainDisplayBottom="<table border='0'align='center'>";//下用
 	//main
@@ -1955,26 +1960,31 @@ console.log(Game.teban+"の持ち駒"+getPieceArray);//駒台の駒Id
 function changeCssMyPieceMotion(ruleMasu){
 	if(Flg.oute==true){
 		document.getElementById(ruleMasu).style.backgroundColor="skyblue";
-		document.getElementById(ruleMasu).style.border="1px solid blue";
+		document.getElementById(ruleMasu).style.boxShadow="0px 0px 0px 1px blue inset";
+		//document.getElementById(ruleMasu).style.border="1px solid blue";
 	}else{
 		document.getElementById(ruleMasu).style.backgroundColor="lightpink";
-		document.getElementById(ruleMasu).style.border="1px solid red";
+		document.getElementById(ruleMasu).style.boxShadow="0px 0px 0px 1px red inset";
+		//document.getElementById(ruleMasu).style.border="1px solid red";
 	}
-	document.getElementById(ruleMasu).style.boxSizing="border-box";
+	//document.getElementById(ruleMasu).style.boxSizing="border-box";
 }
 //直前の指し手のマスの色を変更する
 function changeCssJustBefore(justBeforeMasu){
 	document.getElementById(justBeforeMasu).style.backgroundColor="#FFFF66";//yellow系
-	document.getElementById(justBeforeMasu).style.border="1px solid orange";
-	document.getElementById(justBeforeMasu).style.boxSizing="border-box";
+	document.getElementById(justBeforeMasu).style.boxShadow="0px 0px 0px 1px orange inset";
+	//document.getElementById(justBeforeMasu).style.border="1px solid orange";
+	//document.getElementById(justBeforeMasu).style.boxSizing="border-box";
 }
 //全ての盤クラスの変更を元に戻す
 function allReverseCss(){
 	var banElements=document.getElementsByClassName("ban");
 	for(let i=0;i<banElements.length;i++){
 		banElements[i].style.backgroundColor="khaki";
-		banElements[i].style.border="1px solid black";
-		banElements[i].style.boxSizing="border-box";
+		banElements[i].style.boxShadow="0px 0px 0px 1px black inset";
+		//box-shadow: 0 0 0 1px black inset;
+		//banElements[i].style.border="1px solid black";
+		//banElements[i].style.boxSizing="border-box";
 	}
 }
 
