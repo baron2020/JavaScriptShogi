@@ -466,10 +466,11 @@ function createKyokumen(){
 	let banElements=document.getElementsByClassName("ban");
 	for(let i=0;i<banElements.length;i++){
 		banElements[i].style.backgroundColor="khaki";
-		banElements[i].style.boxShadow="0px 0px 0px 1px black inset";
+		banElements[i].style.boxShadow="0px 0px 0px 0.5px black inset";
 		//banElements[i].style.border="1px solid black";
 		//banElements[i].style.boxSizing="border-box";
 	}
+	document.getElementById("syougiBan").style.boxShadow="0px 0px 0px 1px black inset";
 	//駒の配置とクラスのセット
 	for(let i=0;i<gameKeys.length;i++){
 		if(!(GameRecodeArray[recordCount][gameKeys[i]]=="EMP")){
@@ -1545,7 +1546,7 @@ function gAria(){
 
 //中央メイン盤の作成
 function mainAria(){
-	let mainDisplay="<table border='0'align='center'>";//メイン表示用
+	let mainDisplay="<table id='syougiBan' border='0'align='center'>";//メイン表示用
 	let mainDisplayTop="<table border='0'align='center'>";//上用
 	let mainDisplayBottom="<table border='0'align='center'>";//下用
 	//main
@@ -1960,32 +1961,33 @@ console.log(Game.teban+"の持ち駒"+getPieceArray);//駒台の駒Id
 function changeCssMyPieceMotion(ruleMasu){
 	if(Flg.oute==true){
 		document.getElementById(ruleMasu).style.backgroundColor="skyblue";
-		document.getElementById(ruleMasu).style.boxShadow="0px 0px 0px 1px blue inset";
+		document.getElementById(ruleMasu).style.boxShadow="0px 0px 0px 0.5px blue inset";
 		//document.getElementById(ruleMasu).style.border="1px solid blue";
+		document.getElementById("syougiBan").style.boxShadow="0px 0px 0px 1px black inset";
 	}else{
 		document.getElementById(ruleMasu).style.backgroundColor="lightpink";
-		document.getElementById(ruleMasu).style.boxShadow="0px 0px 0px 1px red inset";
+		document.getElementById(ruleMasu).style.boxShadow="0px 0px 0px 0.5px red inset";
 		//document.getElementById(ruleMasu).style.border="1px solid red";
+		document.getElementById("syougiBan").style.boxShadow="0px 0px 0px 1px black inset";
 	}
 	//document.getElementById(ruleMasu).style.boxSizing="border-box";
 }
 //直前の指し手のマスの色を変更する
 function changeCssJustBefore(justBeforeMasu){
 	document.getElementById(justBeforeMasu).style.backgroundColor="#FFFF66";//yellow系
-	document.getElementById(justBeforeMasu).style.boxShadow="0px 0px 0px 1px orange inset";
+	document.getElementById(justBeforeMasu).style.boxShadow="0px 0px 0px 0.5px orange inset";
 	//document.getElementById(justBeforeMasu).style.border="1px solid orange";
 	//document.getElementById(justBeforeMasu).style.boxSizing="border-box";
+	document.getElementById("syougiBan").style.boxShadow="0px 0px 0px 1px black inset";
 }
 //全ての盤クラスの変更を元に戻す
 function allReverseCss(){
 	var banElements=document.getElementsByClassName("ban");
 	for(let i=0;i<banElements.length;i++){
 		banElements[i].style.backgroundColor="khaki";
-		banElements[i].style.boxShadow="0px 0px 0px 1px black inset";
-		//box-shadow: 0 0 0 1px black inset;
-		//banElements[i].style.border="1px solid black";
-		//banElements[i].style.boxSizing="border-box";
+		banElements[i].style.boxShadow="0px 0px 0px 0.5px black inset";
 	}
+	document.getElementById("syougiBan").boxShadow="0px 0px 0px 1px black inset";
 }
 
 //最初に選択した駒は成り駒か？
