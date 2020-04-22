@@ -544,11 +544,9 @@ function go1(){
 }
 
 function goEnd(){
-	createKyokumen();
-	if(!(recordCount==justBefore.length)){
-		document.getElementById("gamecount").innerHTML=justBefore.length+"手目";//何手目か？
-	}
 	recordCount=justBefore.length;
+	createKyokumen();
+	document.getElementById("gamecount").innerHTML=justBefore.length+"手目";//何手目か？
 	//console.log(justBefore.length);
 }
 
