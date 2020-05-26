@@ -532,17 +532,17 @@ function touchScreen(tx,ty){
 			return;
 		}
 	}
-	//もし盤外から歩を使うなら、１段目(９段目)をチェックする。
+	//もし盤外から歩,香を使うなら、１段目(９段目)をチェックする。
 	if((Flg.firstTouchMasuInOut==false)&&
-	   (Game.firstTouchPieceName=="FU")&&
-	   (checkRivalAriaKyouFu(Game.currentMasu))){
+	   (checkRivalAriaKyouFu(Game.currentMasu))&&
+	   ((Game.firstTouchPieceName=="FU")||(Game.firstTouchPieceName=="KY"))){
 		allReset();
 		return;
 	}
-	//もし盤外から桂,香を使うなら、桂,香チェックをする。
+	//もし盤外から桂を使うなら、桂チェックをする。
 	if((Flg.firstTouchMasuInOut==false)&&
 	   (checkRivalAriaKeima(Game.currentMasu))&&
-	   ((Game.firstTouchPieceName=="KE")||(Game.firstTouchPieceName=="KY"))){
+	   (Game.firstTouchPieceName=="KE")){
 		allReset();
 		return;
 	}
