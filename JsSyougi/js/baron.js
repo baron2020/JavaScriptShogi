@@ -314,9 +314,9 @@ function start(){
 	document.getElementById("gamecount").innerHTML=Game.count+"手目";//何手目か？
 	tempInp="<input  class='con2'id='en1'type='button' value='対局モードの終了'onClick='endMode()'>";
 	document.getElementById("inpModeEnd").innerHTML=tempInp;
-	tempInp2="<input class='con2'id='re1' type='button' value='ページのリロード'onClick='inputContinue()'style='width:37%'>";
-	tempInp3="<input class='con2'id=='de1' type='button' value='ログ削除'onClick='logDelete()'style='width:23%'>";
-	document.getElementById("consider2").innerHTML=tempInp2+tempInp3;
+	tempInp2="<input class='con2'id='re1' type='button' value='最初から'onClick='inputContinue()'style='width:37%'>";
+	//tempInp3="<input class='con2'id=='de1' type='button' value='ログ削除'onClick='logDelete()'style='width:23%'>";
+	document.getElementById("consider2").innerHTML=tempInp2;
 	cssAdjust("en1");
 	let clonGameRecord=Object.assign({},GameRecord);//ゲームレコードのコピー
 	let clonPieceRecord=Object.assign({},PieceIdRecord);//ゲームレコードのコピー
